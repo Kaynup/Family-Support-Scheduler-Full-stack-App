@@ -4,6 +4,6 @@
 
 * [✔️] Design `bills` table
 * [✔️] Write `schema.sql`
-* [ ] (Optional) Insert sample data (`sample.sql`)
-* [ ] Validate everything
+* [✔️] Insert sample data (`sample.sql`)
+* [✔️] Validate everything
 ---
