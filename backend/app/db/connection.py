@@ -12,11 +12,11 @@ dbconfig = {
     "database": os.getenv("DB_NAME"),
 }
 
-conn_pool = pooling.MySQLConnectionPool(
-    pool_name = "userpool",
-    pool_size = 5,
-    **dbconfig
-)
+def get_connection(pool_sz):
+    conn_pool = pooling.MySQLConnectionPool(
+        pool_name = "userpool",
+        pool_size = pool_sz,
+        **dbconfig
+    )
 
-def get_connection():
     return conn_pool.get_connection()
