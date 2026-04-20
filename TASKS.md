@@ -2,9 +2,8 @@
 
 ## Day 1 – MySQL Schema & Database
 
-* [✔️] Make `bills` table
+* [✔️] Design `bills` table
 * [✔️] Write `schema.sql`
-* [..] Set up MySQL connection
-* [..] (Optional) Add seed data
-
+* [ ] (Optional) Insert sample data (`sample.sql`)
+* [ ] Validate everything
 ---
