@@ -3,7 +3,7 @@ CREATE DATABASE IF NOT EXISTS family_supp_sche;
 USE family_supp_sche;
 
 -- creating 'bills' table
-CREATE TABLE bills (
+CREATE TABLE IF NOT EXISTS bills (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
     creation_date DATE NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE bills (
 );
 
 -- creating a sample table to immitate bills table
-CREATE TABLE sample_bills (
+CREATE TABLE IF NOT EXISTS sample_bills (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
     creation_date DATE NOT NULL,
