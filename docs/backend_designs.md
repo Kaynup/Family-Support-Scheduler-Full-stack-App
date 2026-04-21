@@ -14,16 +14,16 @@ cd backend && uvicorn app.main:app --reload
 
 ---
 
-## `backend/.env`
+### `backend/.env`
 Stores configuration values
 - Database credentials
 - Table name
 
-## `backend/app/db/connection.py`
+### `backend/app/db/connection.py`
 Connection pooling (default=5 users)
 - Returns connector object
 
-## `backend/app/db/queries.py`
+### `backend/app/db/queries.py`
 Raw SQL queries for CRUD operations
 - insert_bill : takes name, due date of bill and amount in the bill as parameters and handles other values by default, then inserts the values into the table
 - select_all : selects all the tuples from the table
@@ -31,7 +31,14 @@ Raw SQL queries for CRUD operations
 - update_bill_status : updates the bill status to UNPAID or PAID
 - delete_bill_by_id : deletes the bill's info
 
-## `backend/app/main.py`
+### `backend/app/main.py`
 Entrypoint for FastAPI application
 - /health (GET): checks status of backend
 - /db-connection-testing (GET): checks database connection by retrieving all data in 'sample_bills' table
+
+## Layers of backend
+1. query layer: SQL + commit/rollback
+2. service layer: rules + formatting
+3. API layer: HTTP request/response only
+
+---
