@@ -15,9 +15,11 @@
 
 ## Day 2 – Python Core Logic (FastAPI + mysql.connector)
 
-* [ ] Create queries
-  * [ ] SELECT upcoming bills (< 3 days)
-  * [ ] Other queries
+* [✔️] Create queries
+  * [✔️] Data Selection
+  * [✔️] Data Insertion
+  * [✔️] Data Deletion with bill id
+  * [✔️] Data Updation of status
 * [ ] Create services
   * [ ] Implement business logic wrapper over queries
   * [ ] Add date comparison logic
