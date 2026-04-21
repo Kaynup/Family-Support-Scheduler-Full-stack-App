@@ -30,7 +30,7 @@ def _get_bill_id_by_name(name):
 # Tests
 def test_select_all_returns_list():
     rows = select_all()
-    print("rows:", rows)
+    print("\n\nrows:", rows)
     assert isinstance(rows, list)
 
 def test_insert_bill():
@@ -40,6 +40,8 @@ def test_insert_bill():
         assert isinstance(bill_id, int)
     finally:
         delete_bill_by_id(_get_bill_id_by_name(name))
+        rows = select_all()
+        print("\n\nrows:", rows)
 
 
 def test_select_num_day_dues():
@@ -49,6 +51,8 @@ def test_select_num_day_dues():
         assert any(r[0] == bill_id for r in select_num_day_dues(3))
     finally:
         delete_bill_by_id(bill_id)
+        rows = select_all()
+        print("\n\nrows:", rows)
 
 
 def test_update_bill_status():
@@ -63,6 +67,8 @@ def test_update_bill_status():
         assert not any(r[0] == bill_id for r in select_num_day_dues(3))
     finally:
         delete_bill_by_id(bill_id)
+        rows = select_all()
+        print("\n\nrows:", rows)
 
 
 def test_delete_bill_by_id():
@@ -70,4 +76,5 @@ def test_delete_bill_by_id():
     bill_id = _get_bill_id_by_name(name)
     delete_bill_by_id(bill_id)
     rows = select_all()
+    print("\n\nrows:", rows)
     assert not any(r[0] == bill_id for r in rows)

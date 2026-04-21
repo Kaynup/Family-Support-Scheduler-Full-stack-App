@@ -13,3 +13,4 @@ def test_health():
         raise AssertionError(f"Backend must be running at {BASE_URL}") from exc
     
     assert response.json() == {"message":"backend is live"}
+    print("\n\n", response.json())
