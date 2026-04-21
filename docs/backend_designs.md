@@ -6,6 +6,12 @@
 pip install uvicorn fastapi python-dotenv mysql-connector-python
 ```
 
+## Start backend
+
+```bash
+cd backend && uvicorn app.main:app --reload
+```
+
 ---
 
 ## `backend/.env`
