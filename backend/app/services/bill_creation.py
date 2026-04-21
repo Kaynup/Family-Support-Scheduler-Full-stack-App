@@ -1,5 +1,5 @@
 from datetime import date
-import app.db.queries as dbq
+import backend.app.db.queries as dbq
 
 def _value_validation(name, due_date, total_amount, category=None, status="UNPAID"):
     if not name or not str(name).strip():
@@ -29,10 +29,10 @@ def create_bill_service(name, due_date, total_amount, category=None, status="UNP
         "OK":True,
         "message": "bill created successfully",
         "data": {
-            name=name.strip(),
-            due_date=str(due_date,)
-            total_amount=float(total_amount),
-            status=status,
-            category=category
+            "name": name.strip(),
+            "due_date": str(due_date),
+            "total_amount": float(total_amount),
+            "status": status,
+            "category": category
         }
     }

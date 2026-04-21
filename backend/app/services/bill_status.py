@@ -1,4 +1,4 @@
-import app.db.queries as dbq
+import backend.app.db.queries as dbq
 
 def _value_validation(id, status):
     if not isinstance(id, int) or id <= 0:
@@ -7,9 +7,9 @@ def _value_validation(id, status):
         raise ValueError("status must be PAID or UNPAID")
 
 def mark_bill_status_service(id, status):
-    _value_validation()
+    _value_validation(id, status)
 
-    update_bill_status(id, status)
+    dbq.update_bill_status(id, status)
 
     return {
         "OK": True,

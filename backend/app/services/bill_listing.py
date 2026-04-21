@@ -1,4 +1,4 @@
-import app.db.queries as dbq
+import backend.app.db.queries as dbq
 
 def _format_tuple(row):
     return {
@@ -17,7 +17,7 @@ def list_bills_service(upcoming_only=False, days=3):
     else:
         rows = dbq.select_all()
     return {
-        "OK":True
+        "OK":True,
         "total_count": len(rows),
         "date": [_format_tuple(r) for r in rows]
     }
