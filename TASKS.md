@@ -22,11 +22,8 @@
   * [✔️] Data Updation of status
 * [✔️] Test queries
   * [✔️] created test scripts for automated testing
-* [ ] Create services
-  * [ ] Implement business logic wrapper over queries
-  * [ ] Add date comparison logic
-* [ ] Add helper utilities (optional)
-  * date handling (datetime, timedelta)
-* [ ] Test DB operations independently
+* [✔️] Create services
+  * [✔️] Implement business logic wrapper over queries
+* [] Test services
 
 ---
