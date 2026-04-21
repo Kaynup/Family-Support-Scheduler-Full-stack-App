@@ -1,12 +1,5 @@
 from datetime import date, timedelta
-import os
-import sys
 import time
-
-from dotenv import load_dotenv
-
-load_dotenv()
-
 from backend.app.db.queries import (
     insert_bill,
     select_all,
