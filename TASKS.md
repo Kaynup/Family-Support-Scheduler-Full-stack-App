@@ -25,5 +25,6 @@
 * [✔️] Create services
   * [✔️] Implement business logic wrapper over queries
 * [] Test services
+  * [] create test scripts for automated testing
 
 ---
