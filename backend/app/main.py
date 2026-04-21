@@ -14,7 +14,7 @@ def status():
 
 @app.get("/db-connection-testing")
 def test_db():
-    conn = get_connection(pool_sz=DB_C_P    )
+    conn = get_connection(pool_sz=DB_C_P)
     curr = conn.cursor(dictionary=True)
     curr.execute(f"SELECT * FROM {DB_T}")
     
