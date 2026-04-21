@@ -5,14 +5,13 @@ import os
 from datetime import date
 
 load_dotenv()
-DB_C_P = int(os.getenv('DB_CONN_POOLING'))
 DB_T = os.getenv('DB_TABLE')
 
 def insert_bill(name, due_date, total_amount, creation_date=None, status='UNPAID', category=None):
     if creation_date is None:
         creation_date = date.today()
 
-    conn = get_connection(DB_C_P)
+    conn = get_connection()
     curr = conn.cursor()
 
     query = f"""
@@ -31,7 +30,7 @@ def insert_bill(name, due_date, total_amount, creation_date=None, status='UNPAID
         conn.close()
 
 def select_all():
-    conn = get_connection(DB_C_P)
+    conn = get_connection()
     curr = conn.cursor()
 
     query = f"SELECT * from {DB_T}"
@@ -45,7 +44,7 @@ def select_all():
     return data
 
 def select_num_day_dues(num_days=3):
-    conn = get_connection(DB_C_P)
+    conn = get_connection()
     curr = conn.cursor()
 
     query = f"""
@@ -63,7 +62,7 @@ def select_num_day_dues(num_days=3):
     return data
 
 def update_bill_status(id_, status):
-    conn = get_connection(DB_C_P)
+    conn = get_connection()
     curr = conn.cursor()
 
     query = f"UPDATE {DB_T} SET status = %s WHERE id = %s"
@@ -78,7 +77,7 @@ def update_bill_status(id_, status):
         conn.close()
 
 def delete_bill_by_id(id_):
-    conn = get_connection(DB_C_P)
+    conn = get_connection()
     curr = conn.cursor()
 
     query = f"DELETE FROM {DB_T} WHERE id = %s"
