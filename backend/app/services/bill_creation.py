@@ -5,7 +5,7 @@ def _value_validation(name, due_date, total_amount, category=None, status="UNPAI
     if not name or not str(name).strip():
         raise ValueError("name is a required field")
 
-    if total_amount in None or float(total_amount) <= 0:
+    if total_amount is None or float(total_amount) <= 0:
         raise ValueError("amount must be at least zero")
 
     if status not in ("PAID", "UNPAID"):
