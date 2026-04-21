@@ -71,7 +71,11 @@ cd backend && uvicorn app.main:app --reload
 cd .. && PYTHONPATH=. pytest -v
 ```
 
-### 
+### Run all tests from root with verbose
+
+```bash
+cd .. && PYTHONPATH=. pytest -s -v
+```
 
 ---
 
