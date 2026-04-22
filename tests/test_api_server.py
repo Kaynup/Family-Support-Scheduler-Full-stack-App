@@ -29,3 +29,6 @@ def test_create_bill():
         response.raise_for_status()
     except requests.RequestException as exc:
         raise AssertionError(f"Something went wrong: {exc}")
+    
+    assert response.json()["OK"] == True
+    print(response.json()["message"])

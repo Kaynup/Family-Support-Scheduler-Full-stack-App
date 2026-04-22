@@ -15,6 +15,7 @@ def _value_validation(name, due_date, total_amount, category=None, status="UNPAI
         raise ValueError("due date cannot be in past")
 
 def create_bill_service(name, due_date, total_amount, category=None, status="UNPAID"):
+    due_date = date.fromisoformat(due_date)
     _value_validation(name, due_date, total_amount, category=None, status="UNPAID")
     
     dbq.insert_bill(
