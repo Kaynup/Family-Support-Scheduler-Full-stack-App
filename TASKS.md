@@ -31,25 +31,9 @@
 
 ## Day 3 – API Development
 
-* [ ] Create API routes
-  * [ ] POST /bills
-  * [ ] GET /bills
-  * [ ] GET /bills/upcoming
-  * [ ] PUT /bills/{id}
+* [✔️] Create API routes
+* [..] Remove redundancies
 * [ ] Add request validation (`schemas.py` using Pydantic)
-
-* [ ] Implement response formatting (JSON)
-
-* [ ] Error handling:
-  * invalid input
-  * missing fields
-  * DB connection failure
-  * record not found
-
-* [ ] Test endpoints:
-  * curl / Postman
-
-* [ ] Validate:
-  * upcoming bills logic (< 3 days working correctly)
-
+* [ ] Re-evaluate layers
+* [ ] Test endpoints
 ---
