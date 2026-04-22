@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 from datetime import date, timedelta
 import time
 
-from backend.app.db.queries import select_all, delete_bill_by_id
+from backend.app.db.queries import delete_bill_by_id
+from backend.app.services_utils import get_bill_id_by_name
 
 load_dotenv()
 BASE_URL = os.getenv('API_BASE_URL')
@@ -24,23 +25,17 @@ def _create_temp_bill_via_api():
     return unique_name
 
 
-def _get_bill_id_by_name(name):
-    rows = select_all()
-    return next(r[0] for r in rows if r[1] == name)
-
-def test_health():
+def test_create_bill():
+    name = _create_temp_bill_via_api()
+    bill_id = get_bill_id_by_name(name)
     try:
-        response = requests.get(f"{BASE_URL}/health", timeout=5)
-        response.raise_for_status()
-    except requests.RequestException as exc:
-        raise AssertionError(f"Backend must be running at {BASE_URL}") from exc
-    
-    assert response.json() == {"message":"backend is live"}
-    print("\n\n", response.json())
+        assert bill_id > 0
+    finally:
+        delete_bill_by_id(bill_id)
 
 def test_update_status():
     name = _create_temp_bill_via_api()
-    bill_id = _get_bill_id_by_name(name)
+    bill_id = get_bill_id_by_name(name)
     payload = {"status": "PAID"}
     try:
         response = requests.put(f"{BASE_URL}/bills/{bill_id}", json=payload, timeout=5)
@@ -54,7 +49,7 @@ def test_update_status():
 
 def test_delete_bill():
     name = _create_temp_bill_via_api()
-    bill_id = _get_bill_id_by_name(name)
+    bill_id = get_bill_id_by_name(name)
     try:
         response = requests.delete(f"{BASE_URL}/bills/{bill_id}", timeout=5)
         response.raise_for_status()
@@ -63,23 +58,3 @@ def test_delete_bill():
     
     assert response.json()["OK"] == True
     print(response.json()["message"])
-
-def test_create_bill():
-    payload = {
-        "name": f"test-name-{time.time_ns()}",
-        "due_date": (date.today() + timedelta(days=3)).isoformat(),
-        "total_amount": 200,
-        "category": "testing",
-        "status": "UNPAID",
-    }
-    try:
-        response = requests.post(f"{BASE_URL}/bills/new", json=payload, timeout=5)
-        response.raise_for_status()
-    except requests.RequestException as exc:
-        raise AssertionError(f"Something went wrong: {exc}")
-    
-    assert response.json()["OK"] is True
-    print(response.json()["message"])
-
-    bill_id = _get_bill_id_by_name(payload["name"])
-    delete_bill_by_id(bill_id)

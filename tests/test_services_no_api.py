@@ -1,8 +1,12 @@
 from datetime import date, timedelta
 import time
 
-from backend.app.services import *
-from backend.app.db.queries import *
+from backend.app.services.bill_creation import create_bill_service
+from backend.app.services.bill_listing import list_bills_service
+from backend.app.services.bill_status import mark_bill_status_service
+from backend.app.services.bill_deletion import delete_bill_service
+from backend.app.db.queries import select_all, select_num_day_dues, delete_bill_by_id
+from backend.app.services_utils import get_bill_id_by_name
 
 
 def _create_test_bill_via_service():
@@ -12,15 +16,10 @@ def _create_test_bill_via_service():
     return name
 
 
-def _get_bill_id_by_name(name):
-    rows = select_all()
-    return next(r[0] for r in rows if r[1] == name)
-
-
 def test_create_bill_service():
     name = _create_test_bill_via_service()
     try:
-        bill_id = _get_bill_id_by_name(name)
+        bill_id = get_bill_id_by_name(name)
         assert isinstance(bill_id, int)
     finally:
         rows = select_all()
@@ -37,7 +36,7 @@ def test_list_bills_service():
 
 def test_mark_bill_status_service():
     name = _create_test_bill_via_service()
-    bill_id = _get_bill_id_by_name(name)
+    bill_id = get_bill_id_by_name(name)
     try:
         out = mark_bill_status_service(bill_id, "PAID")
         assert out["OK"] is True
@@ -49,7 +48,7 @@ def test_mark_bill_status_service():
 
 def test_delete_bill_service():
     name = _create_test_bill_via_service()
-    bill_id = _get_bill_id_by_name(name)
+    bill_id = get_bill_id_by_name(name)
     try:
         out = delete_bill_service(bill_id)
         rows = select_all()
