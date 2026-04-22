@@ -1,4 +1,4 @@
-import backend.app.db.queries as dbq
+from ..db import queries as dbq
 
 def delete_bill_service(id):
     if not isinstance(id, int) or id <= 0:

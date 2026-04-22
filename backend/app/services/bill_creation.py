@@ -1,5 +1,5 @@
 from datetime import date
-import backend.app.db.queries as dbq
+from ..db import queries as dbq
 
 def _value_validation(name, due_date, total_amount, category=None, status="UNPAID"):
     if not name or not str(name).strip():

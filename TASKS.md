@@ -31,13 +31,11 @@
 
 ## Day 3 – API Development
 
-* [ ] Create API routes (`routes/bills.py`)
-
+* [ ] Create API routes
   * [ ] POST /bills
   * [ ] GET /bills
   * [ ] GET /bills/upcoming
   * [ ] PUT /bills/{id}
-
 * [ ] Add request validation (`schemas.py` using Pydantic)
 
 * [ ] Implement response formatting (JSON)

@@ -1,4 +1,4 @@
-import backend.app.db.queries as dbq
+from ..db import queries as dbq
 
 def _format_tuple(row):
     return {
