@@ -57,6 +57,21 @@ Expected response:
 
 ---
 
+## `tests/test_services_no_api.py`
+
+Service functions tests for `backend/app/services/`
+
+Functions:
+- test_create_bill_service : creates a test bill, get name by bill id, assert if valid, delete it afterwards
+- test_list_bills_service : fetches list of bills, asserts the returned values
+- test_mark_bill_status_service : creates a test bill, get name by id, change the status to PAID, asserts the data and the existence in UNPAID due bills bby 3 days
+- test_delete_bill_service : creates a test bill, get name by id, delete bill by id, asserts data and validates if bill is in database
+
+
+- **When scaling up the appilication in future, the assertions will split and harden service logic, raw SQL layer, and DB operations, so that python-side full-data validation can be avoided**
+
+---
+
 ## Run Commands
 
 ### Start backend server

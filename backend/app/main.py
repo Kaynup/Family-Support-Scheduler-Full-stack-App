@@ -1,10 +1,5 @@
 from fastapi import FastAPI
 from .db.connection import get_connection
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-DB_T = os.getenv('DB_TABLE')
 
 app = FastAPI()
 
@@ -16,7 +11,7 @@ def status():
 def test_db():
     conn = get_connection()
     curr = conn.cursor(dictionary=True)
-    curr.execute(f"SELECT * FROM {DB_T}")
+    curr.execute(f"SELECT * FROM sample_bills")
     
     data = curr.fetchall()
 
