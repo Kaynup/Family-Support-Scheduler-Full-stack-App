@@ -32,8 +32,7 @@
 ## Day 3 – API Development
 
 * [✔️] Create API routes
-* [..] Remove redundancies
-* [ ] Add request validation (`schemas.py` using Pydantic)
-* [ ] Re-evaluate layers
-* [ ] Test endpoints
+* [✔️] Remove redundancies
+* [✔️] Add request validation (`schemas.py` using Pydantic)
+* [✔️] Test endpoints
 ---
