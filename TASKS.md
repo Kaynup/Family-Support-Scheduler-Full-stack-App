@@ -33,6 +33,7 @@
 
 * [✔️] Create API routes
 * [✔️] Remove redundancies
-* [✔️] Add request validation (`schemas.py` using Pydantic)
+* [✔️] Add request validation with Pydantic
+* [✔️] Validated 3 days of due date filteration
 * [✔️] Test endpoints
 ---
