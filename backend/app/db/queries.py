@@ -69,12 +69,17 @@ def update_bill_status(id_, status):
     try:
         curr.execute(query, (status, id_))
         conn.commit()
+        curr.execute(f"SELECT status FROM {DB_T} WHERE id = %s", (id_, ))
+
+        status = curr.fetchall()[0][0]
     except mysql.connector.Error as e:
         conn.rollback()
         raise
     finally:
         curr.close()
         conn.close()
+    
+    return id_, status
 
 def delete_bill_by_id(id_):
     conn = get_connection()

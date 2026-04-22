@@ -7,7 +7,7 @@ from backend.app.db.queries import *
 
 def _create_test_bill_via_service():
     name = f"pytest-svc-{time.time_ns()}"
-    due_date = date.today() + timedelta(days=1)
+    due_date = (date.today() + timedelta(days=1)).isoformat()
     create_bill_service(name=name, due_date=due_date, total_amount=100.0, status="UNPAID", category="test")
     return name
 
@@ -23,7 +23,10 @@ def test_create_bill_service():
         bill_id = _get_bill_id_by_name(name)
         assert isinstance(bill_id, int)
     finally:
-        delete_bill_by_id(_get_bill_id_by_name(name))
+        rows = select_all()
+        for row in rows:
+            if row[1] == name:
+                delete_bill_by_id(row[0])
 
 
 def test_list_bills_service():
@@ -47,8 +50,14 @@ def test_mark_bill_status_service():
 def test_delete_bill_service():
     name = _create_test_bill_via_service()
     bill_id = _get_bill_id_by_name(name)
-    out = delete_bill_service(bill_id)
-    rows = select_all()
-    assert out["OK"] is True
-    assert out["data"]["id"] == bill_id
-    assert not any(r[0] == bill_id for r in rows)
+    try:
+        out = delete_bill_service(bill_id)
+        rows = select_all()
+        assert out["OK"] is True
+        assert out["data"]["id"] == bill_id
+        assert not any(r[0] == bill_id for r in rows)
+    finally:
+        rows = select_all()
+        for row in rows:
+            if row[1] == name:
+                delete_bill_by_id(row[0])

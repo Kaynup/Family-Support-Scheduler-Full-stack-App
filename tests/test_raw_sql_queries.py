@@ -32,9 +32,10 @@ def test_insert_bill():
         bill_id = _get_bill_id_by_name(name)
         assert isinstance(bill_id, int)
     finally:
-        delete_bill_by_id(_get_bill_id_by_name(name))
         rows = select_all()
-        print("\n\nrows:", rows)
+        bill_ids = [r[0] for r in rows if r[1] == name]
+        for bill_id in bill_ids:
+            delete_bill_by_id(bill_id)
 
 
 def test_select_num_day_dues():
@@ -44,8 +45,6 @@ def test_select_num_day_dues():
         assert any(r[0] == bill_id for r in select_num_day_dues(3))
     finally:
         delete_bill_by_id(bill_id)
-        rows = select_all()
-        print("\n\nrows:", rows)
 
 
 def test_update_bill_status():
@@ -60,14 +59,17 @@ def test_update_bill_status():
         assert not any(r[0] == bill_id for r in select_num_day_dues(3))
     finally:
         delete_bill_by_id(bill_id)
-        rows = select_all()
-        print("\n\nrows:", rows)
 
 
 def test_delete_bill_by_id():
     name = _create_test_bill()
     bill_id = _get_bill_id_by_name(name)
-    delete_bill_by_id(bill_id)
-    rows = select_all()
-    print("\n\nrows:", rows)
-    assert not any(r[0] == bill_id for r in rows)
+    try:
+        delete_bill_by_id(bill_id)
+        rows = select_all()
+        assert not any(r[0] == bill_id for r in rows)
+    finally:
+        rows = select_all()
+        for row in rows:
+            if row[1] == name:
+                delete_bill_by_id(row[0])

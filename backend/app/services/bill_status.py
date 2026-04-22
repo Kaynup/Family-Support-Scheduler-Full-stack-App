@@ -6,16 +6,15 @@ def _value_validation(id, status):
     if status.upper().strip() not in ("PAID", "UNPAID"):
         raise ValueError("status must be PAID or UNPAID")
 
-def mark_bill_status_service(id, status):
-    _value_validation(id, status)
+def mark_bill_status_service(id_, status):
+    _value_validation(id_, status)
 
-    dbq.update_bill_status(id, status)
-
+    id_, status = dbq.update_bill_status(id_, status)
     return {
         "OK": True,
         "message": "bill status updated successfully",
         "data": {
-            "id": id,
+            "id": id_,
             "status": status
         }
     }
