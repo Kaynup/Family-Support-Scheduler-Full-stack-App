@@ -1,22 +1,22 @@
 from fastapi import APIRouter, HTTPException, Query
-from ..services import *
+from ..services.bill_creation import create_bill_service
+from ..services.bill_listing import list_bills_service
+from ..services.bill_status import mark_bill_status_service
+from ..services.bill_deletion import delete_bill_service
+from ..schemas import BillCreateRequest, BillUpdateRequest
 
 router = APIRouter(prefix="/bills", tags=["bills"])
 
 
-@router.get("")
-def status():
-    return {"message":"healthy"}
-
 @router.post("/new")
-def create_bill(payload: dict):
+def create_bill(payload: BillCreateRequest):
     try:
         return create_bill_service(
-            name=payload["name"],
-            due_date=payload["due_date"],
-            total_amount=payload["total_amount"],
-            category=payload.get("category"),
-            status=payload.get("status", "UNPAID"),
+            name=payload.name,
+            due_date=payload.due_date,
+            total_amount=payload.total_amount,
+            category=payload.category,
+            status=payload.status,
         )
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc))
@@ -28,9 +28,9 @@ def list_bills(upcoming_only: bool = False, days: int = Query(3, ge=1)):
 
 
 @router.put("/{bill_id}")
-def update_status(bill_id: int, payload: dict):
+def update_status(bill_id: int, payload: BillUpdateRequest):
     try:
-        return mark_bill_status_service(bill_id, payload["status"])
+        return mark_bill_status_service(bill_id, payload.status)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
