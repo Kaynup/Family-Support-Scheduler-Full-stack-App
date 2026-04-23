@@ -51,4 +51,9 @@
   * [✔️] updating documentation
 
 * [...] working on frontend
-* [✔️] created react template in frontend
+  * [✔️] created and edited react template in frontend as in docs/frontend/structure.md
+  * [] API client
+  * [] bills list page
+  * [] create bill form
+  * [] update status + delete actions
+  * [] basic loading/error states
