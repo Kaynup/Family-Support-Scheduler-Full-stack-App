@@ -48,4 +48,7 @@
   * [✔️] editted layers to handle errors differently
   * [✔️] made changes in the tests/ scripts
   * [✔️] changed documentation structure
-  * [..] updating documentation
+  * [✔️] updating documentation
+
+* [...] working on frontend
+* [✔️] created react template in frontend
