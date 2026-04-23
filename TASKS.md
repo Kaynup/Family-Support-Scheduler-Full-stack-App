@@ -36,4 +36,16 @@
 * [✔️] Add request validation with Pydantic
 * [✔️] Validated 3 days of due date filteration
 * [✔️] Test endpoints
+
 ---
+
+## Day 4 - Frontend Developement
+
+### Prerequisites: -
+* [✔️] Validate services functionality
+  * [✔️] manually
+  * [✔️] with tests
+  * [✔️] editted layers to handle errors differently
+  * [✔️] made changes in the tests/ scripts
+  * [✔️] changed documentation structure
+  * [..] updating documentation

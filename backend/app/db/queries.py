@@ -2,15 +2,11 @@ from .connection import get_connection
 import mysql.connector
 from dotenv import load_dotenv
 import os
-from datetime import date
 
 load_dotenv()
 DB_T = os.getenv('DB_TABLE')
 
-def insert_bill(name, due_date, total_amount, creation_date=None, status='UNPAID', category=None):
-    if creation_date is None:
-        creation_date = date.today()
-
+def insert_bill(name, due_date, total_amount, creation_date, status='UNPAID', category=None):
     conn = get_connection()
     curr = conn.cursor()
 
@@ -21,6 +17,7 @@ def insert_bill(name, due_date, total_amount, creation_date=None, status='UNPAID
     values = (name, creation_date, due_date, total_amount, status, category)
     try:
         curr.execute(query, values)
+        id_ = curr.lastrowid
         conn.commit()
     except mysql.connector.Error as e:
         conn.rollback()
@@ -28,6 +25,8 @@ def insert_bill(name, due_date, total_amount, creation_date=None, status='UNPAID
     finally:
         curr.close()
         conn.close()
+
+    return id_
 
 def select_all():
     conn = get_connection()
@@ -61,6 +60,20 @@ def select_num_day_dues(num_days=3):
 
     return data
 
+
+def select_bill_by_id(id_):
+    conn = get_connection()
+    curr = conn.cursor()
+
+    query = f"SELECT * FROM {DB_T} WHERE id = %s"
+    curr.execute(query, (id_, ))
+    data = curr.fetchone()
+
+    curr.close()
+    conn.close()
+
+    return data
+
 def update_bill_status(id_, status):
     conn = get_connection()
     curr = conn.cursor()
@@ -68,6 +81,8 @@ def update_bill_status(id_, status):
     query = f"UPDATE {DB_T} SET status = %s WHERE id = %s"
     try:
         curr.execute(query, (status, id_))
+        if curr.rowcount == 0:
+            raise mysql.connector.Error("No bill found for given id")
         conn.commit()
     except mysql.connector.Error as e:
         conn.rollback()
@@ -75,8 +90,8 @@ def update_bill_status(id_, status):
     finally:
         curr.close()
         conn.close()
-    
-    return id_, status
+
+    return id_
 
 def delete_bill_by_id(id_):
     conn = get_connection()
@@ -85,6 +100,8 @@ def delete_bill_by_id(id_):
     query = f"DELETE FROM {DB_T} WHERE id = %s"
     try:
         curr.execute(query, (id_, ))
+        if curr.rowcount == 0:
+            raise mysql.connector.Error("No bill found for given id")
         conn.commit()
     except mysql.connector.Error as e:
         conn.rollback()

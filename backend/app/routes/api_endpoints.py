@@ -18,8 +18,12 @@ def create_bill(payload: BillCreateRequest):
             category=payload.category,
             status=payload.status,
         )
-    except Exception as exc:
+    except ValueError as exc:
+        if "No bill found" in str(exc):
+            raise HTTPException(status_code=404, detail=str(exc))
         raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @router.get("/all")
@@ -31,13 +35,21 @@ def list_bills(upcoming_only: bool = False, days: int = Query(3, ge=1)):
 def update_status(bill_id: int, payload: BillUpdateRequest):
     try:
         return mark_bill_status_service(bill_id, payload.status)
-    except Exception as exc:
+    except ValueError as exc:
+        if "No bill found" in str(exc):
+            raise HTTPException(status_code=404, detail=str(exc))
         raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @router.delete("/{bill_id}")
 def delete_bill(bill_id: int):
     try:
         return delete_bill_service(bill_id)
-    except Exception as exc:
+    except ValueError as exc:
+        if "No bill found" in str(exc):
+            raise HTTPException(status_code=404, detail=str(exc))
         raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))

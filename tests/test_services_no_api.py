@@ -10,7 +10,7 @@ from backend.app.services_utils import get_bill_id_by_name
 
 
 def _create_test_bill_with_due_days(days_ahead=1):
-    name = f"pytest-svc-upcoming-{days_ahead}-{time.time_ns()}"
+    name = f"pytest-{days_ahead}-{time.time_ns()}"
     due_date = (date.today() + timedelta(days=days_ahead)).isoformat()
     create_bill_service(name=name, due_date=due_date, total_amount=100.0, status="UNPAID", category="test")
     return name
@@ -40,7 +40,7 @@ def test_mark_bill_status_service():
     try:
         out = mark_bill_status_service(bill_id, "PAID")
         assert out["OK"] is True
-        assert out["data"]["status"] == "PAID"
+        assert out["data"]["id"] == bill_id
         assert not any(r[0] == bill_id for r in select_num_day_dues(3))
     finally:
         delete_bill_by_id(bill_id)

@@ -1,7 +1,11 @@
+import mysql.connector
 from ..db import queries as dbq
 
 def delete_bill_service(id):
-    dbq.delete_bill_by_id(id)
+    try:
+        dbq.delete_bill_by_id(id)
+    except mysql.connector.Error as e:
+        raise ValueError(str(e))
 
     return {
         "OK": True,

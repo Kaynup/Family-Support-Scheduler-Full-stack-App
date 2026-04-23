@@ -6,6 +6,4 @@ __pycache__/
 **/.env
 
 *.pdf
-docs/dev-notes.md
-docs/tasks.md
-docs/file_hierarchy.md
+dev-docs/
