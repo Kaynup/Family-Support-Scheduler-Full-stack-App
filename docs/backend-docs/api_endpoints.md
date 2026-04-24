@@ -2,28 +2,26 @@
 
 ## Navigation
 
-- Hub: [../index.md](../index.md)
-- Services: [bill_services.md](bill_services.md)
-- SQL: [sql_queries.md](sql_queries.md)
-- Errors: [error_handling.md](error_handling.md)
+- Index: [../index.md](../index.md)
+- Services: [Bill Services](bill_services.md)
+- SQL layer: [SQL Queries](sql_queries.md)
+- Errors: [Error Handling](error_handling.md)
 
-## What This Module Is Responsible For
+## Intent
 
-This file is the HTTP face of the backend. It does not contain SQL and it does not implement business rules. Its job is to:
-
-- accept request data in the shape FastAPI expects,
-- call the correct service function,
-- translate service errors into HTTP responses,
+- accept request data in the shape FastAPI expects from service layer
+- translating the service errors into HTTP responses
 - expose the route contract that a client or test can call.
 
 ## Route-by-Route Breakdown
 
+> Pydantic models are used for validation of fields and integrity `backend/app/schemas.py`
+
 ### `GET /health`
 
-- Purpose: a small liveness probe.
+- Purpose: Backend status checkup.
 - Function: `status()` in `backend/app/main.py`.
 - Output: `{"message": "backend is live"}`.
-- Why it exists: to prove the app process is up before deeper checks are attempted.
 
 ### `POST /bills/new`
 
@@ -32,6 +30,7 @@ This file is the HTTP face of the backend. It does not contain SQL and it does n
 - Input model: `BillCreateRequest`.
 - Payload fields used by the route:
 	- `name`
+	- `creation_date`
 	- `due_date`
 	- `total_amount`
 	- `category`
@@ -39,8 +38,8 @@ This file is the HTTP face of the backend. It does not contain SQL and it does n
 - What the route does:
 	- receives a validated Pydantic model,
 	- forwards the values to `create_bill_service()`,
-	- returns the service response as-is when successful.
-- Failure handling:
+	- returns the service response when successful.
+- Error handling:
 	- `ValueError` with `No bill found` is treated as 404,
 	- other `ValueError` instances become 400,
 	- any unexpected exception becomes 500.
@@ -52,10 +51,8 @@ This file is the HTTP face of the backend. It does not contain SQL and it does n
 - Query arguments:
 	- `upcoming_only`: switches between full listing and due-soon listing.
 	- `days`: controls the upcoming window and is constrained to be at least 1.
-- What the route does:
-	- passes the query flags to `list_bills_service()`.
-- Why the route is thin:
-	- the service decides how rows are formatted; the route only passes the request through.
+- The route passes the query flags to `list_bills_service()`.
+- The service decides how rows are formatted; the route only passes the request through.
 
 ### `PUT /bills/{bill_id}`
 
@@ -84,14 +81,17 @@ This file is the HTTP face of the backend. It does not contain SQL and it does n
 ### `BillCreateRequest`
 
 - `name`: required, non-empty, trimmed string.
-- `due_date`: ISO date string, validated before service code runs.
+- `creation_date`: required date.
+- `due_date`: required date.
 - `total_amount`: numeric value greater than zero.
 - `category`: optional text field.
-- `status`: must be `PAID` or `UNPAID`.
+- `status`: enum `BillStatus` with values `PAID` or `UNPAID`.
+- date integrity rule: `creation_date` cannot be greater than `due_date`.
+- due date rule: `due_date` cannot be in the past.
 
 ### `BillUpdateRequest`
 
-- `status`: required and normalized to uppercase.
+- `status`: required enum `BillStatus` (`PAID` or `UNPAID`).
 
 ## Route Execution Path
 

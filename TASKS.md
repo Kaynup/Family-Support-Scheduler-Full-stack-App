@@ -50,9 +50,16 @@
   * [✔️] changed documentation structure
   * [✔️] updating documentation
 
-* [...] working on frontend
+## Day 5 - Learning React
+* [✔️] working on documentation and backend features
+  * [✔️] added pydantic validation for creation_date
+  * [✔️] backend layer tests resolved
+  * [✔️] completed documentation of backend
+  * [✔️] created UCD and Sequence diagrams in mermaid [AI help]
+* [X] working on frontend
   * [✔️] created and edited react template in frontend as in docs/frontend/structure.md
-  * [] API client
+  * [✔️] API client
+    * [✔️] created client.js
   * [] bills list page
   * [] create bill form
   * [] update status + delete actions

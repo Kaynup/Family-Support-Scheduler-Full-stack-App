@@ -23,7 +23,7 @@ recurring family bills
 ---
 
 ## Tech stack
-- Frontend: JavaScript (React Native), HTML5, CSS3.
+- Frontend: JavaScript (React Native) react@19.2.5
 - Backend: Python 3.10.20 (FastAPI v0.135.3).
 - Database: MySQL (8.0.45)
 - Automation: Native Linux Bash shell scripting

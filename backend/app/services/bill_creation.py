@@ -24,9 +24,11 @@ def create_bill_service(name, due_date, total_amount, creation_date=None, catego
         "OK": True,
         "message": f"bill created successfully on {creation_date}",
         "data": {
+            "id": id_,
             "name": name,
             "due_date": due_date,
             "total_amount": total_amount,
+            "creation_date": creation_date,
             "status": status,
             "category": category
         }

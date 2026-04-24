@@ -3,6 +3,7 @@ import time
 from backend.app.db.queries import (
     insert_bill,
     select_all,
+    select_bill_by_id,
     select_num_day_dues,
     update_bill_status,
     delete_bill_by_id

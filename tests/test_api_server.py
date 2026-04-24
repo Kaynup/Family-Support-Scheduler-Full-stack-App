@@ -5,7 +5,6 @@ from datetime import date, timedelta
 import time
 
 from backend.app.db.queries import delete_bill_by_id
-from backend.app.services_utils import get_bill_id_by_name
 
 load_dotenv()
 BASE_URL = os.getenv('API_BASE_URL')
@@ -16,27 +15,26 @@ def _create_temp_bill_via_api():
     payload = {
         "name": unique_name,
         "due_date": (date.today() + timedelta(days=3)).isoformat(),
+        "creation_date": date.today().isoformat(),
         "total_amount": 200,
         "category": "testing",
-        "status": "UNPAID",
+        "status": "UNPAID"
     }
     response = requests.post(f"{BASE_URL}/bills/new", json=payload, timeout=5)
     response.raise_for_status()
-    return unique_name
+    return response.json()['data']['id']
 
 
 def test_create_bill():
-    name = _create_temp_bill_via_api()
-    bill_id = get_bill_id_by_name(name)
+    bill_id = _create_temp_bill_via_api()
     try:
         assert bill_id > 0
     finally:
         delete_bill_by_id(bill_id)
 
 def test_update_status():
-    name = _create_temp_bill_via_api()
-    bill_id = get_bill_id_by_name(name)
-    payload = {"status": "PAID"}
+    bill_id = _create_temp_bill_via_api()
+    payload = {"id": bill_id, "status": "PAID"}
     try:
         response = requests.put(f"{BASE_URL}/bills/{bill_id}", json=payload, timeout=5)
         response.raise_for_status()
@@ -48,8 +46,7 @@ def test_update_status():
         delete_bill_by_id(bill_id)
 
 def test_delete_bill():
-    name = _create_temp_bill_via_api()
-    bill_id = get_bill_id_by_name(name)
+    bill_id = _create_temp_bill_via_api()
     try:
         response = requests.delete(f"{BASE_URL}/bills/{bill_id}", timeout=5)
         response.raise_for_status()

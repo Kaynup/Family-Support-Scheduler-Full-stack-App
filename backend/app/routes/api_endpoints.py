@@ -13,10 +13,11 @@ def create_bill(payload: BillCreateRequest):
     try:
         return create_bill_service(
             name=payload.name,
-            due_date=payload.due_date,
+            due_date=payload.due_date.isoformat(),
             total_amount=payload.total_amount,
+            creation_date=payload.creation_date,
             category=payload.category,
-            status=payload.status,
+            status=payload.status.value,
         )
     except ValueError as exc:
         if "No bill found" in str(exc):
@@ -34,7 +35,7 @@ def list_bills(upcoming_only: bool = False, days: int = Query(3, ge=1)):
 @router.put("/{bill_id}")
 def update_status(bill_id: int, payload: BillUpdateRequest):
     try:
-        return mark_bill_status_service(bill_id, payload.status)
+        return mark_bill_status_service(bill_id, payload.status.value)
     except ValueError as exc:
         if "No bill found" in str(exc):
             raise HTTPException(status_code=404, detail=str(exc))

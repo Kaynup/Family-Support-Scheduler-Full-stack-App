@@ -2,22 +2,22 @@
 
 ## Navigation
 
-- Hub: [../index.md](../index.md)
-- Routes: [api_endpoints.md](api_endpoints.md)
-- Services: [bill_services.md](bill_services.md)
-- SQL: [sql_queries.md](sql_queries.md)
+- Index: [../index.md](../index.md)
+- API Routes: [API endpoints](api_endpoints.md)
+- Services: [Bill Services](bill_services.md)
+- SQL: [SQL Queries](sql_queries.md)
 
-## Failure Path Explained
-
-The backend handles failure in layers rather than in one giant place.
+> The backend handles failure in layers
 
 ### 1. Query layer
 
-This is where actual MySQL interaction happens. If the SQL engine errors, the query function rolls the transaction back and re-raises the connector exception. This layer also checks `rowcount` for update and delete operations so the backend can detect a no-op write.
+- If the SQL engine give an error, the query function rolls the transaction back and re-raises the connector exception
+- This layer also checks `rowcount` for update and delete operations so the backend can detect a no-op write
 
 ### 2. Service layer
 
-The service layer catches connector errors and converts them into `ValueError`. That keeps the service interface simple for the routes and tests while still preserving the error message.
+- The service layer catches connector errors and converts them into `ValueError`
+- That keeps the service interface simple for the routes and tests while still preserving the error message
 
 ### 3. Route layer
 
@@ -27,13 +27,6 @@ The route layer turns `ValueError` into HTTP responses.
 - Other value errors become `400`.
 - Unexpected errors become `500`.
 
-## Why this split exists
-
-- The query layer understands SQL facts.
-- The service layer understands application meaning.
-- The route layer understands HTTP meaning.
-
-This avoids mixing SQL rules, application rules, and network rules in one function.
 
 ## Specific Error Cases In This Project
 
@@ -57,16 +50,13 @@ This avoids mixing SQL rules, application rules, and network rules in one functi
 - Raised exception: `mysql.connector.Error("No bill found for given id")`
 - Route response: HTTP 404
 
-## What Is Not Treated As A Separate Error Class
 
-- There is no custom exception class file anymore.
-- The project intentionally keeps error handling simple with built-in exceptions and message-based HTTP mapping.
+## Layered Debugging
 
-## Mental Model For Debugging
+> The error handling is regressive therefore detectable:
 
-If something fails, ask these questions in order:
+- Query layer Error -> Service layer Error -> API layer Error
+- Service layer Error -> API layer Error
+- API layer Error -> HTTP error
 
-1. Did the query layer roll back and re-raise?
-2. Did the service convert the exception into `ValueError`?
-3. Did the route map the message to the correct HTTP status code?
-
+---

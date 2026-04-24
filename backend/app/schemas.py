@@ -1,62 +1,50 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from datetime import date
 from typing import Optional
+from enum import Enum
 
+
+class BillStatus(str, Enum):
+    PAID = "PAID"
+    UNPAID = "UNPAID"
 
 class BillCreateRequest(BaseModel):
     name: str = Field(..., min_length=1)
-    due_date: str
+    due_date: date
+    creation_date: date
     total_amount: float = Field(..., gt=0)
     category: Optional[str] = None
-    status: str = Field(default="UNPAID")
+    status: BillStatus = BillStatus.UNPAID
 
     @field_validator('name')
     @classmethod
-    def name_not_empty(class_, value):
-        if not value or not str(value).strip():
+    def name_not_empty(cls, value):
+        value = value.strip()
+        if not value:
             raise ValueError('name is required')
-        return value.strip()
+        return value
 
-    @field_validator('due_date')
-    @classmethod
-    def due_date_not_past(class_, value):
-        try:
-            dt = date.fromisoformat(value)
-        except ValueError:
-            raise ValueError('due_date must be ISO format')
-        if dt < date.today():
+    @model_validator(mode='after')
+    def validate_dates(self):
+        if self.creation_date > self.due_date:
+            raise ValueError('creation_date cannot be greater than due_date')
+        if self.due_date < date.today():
             raise ValueError('due_date cannot be in past')
-        return value
-
-    @field_validator('status')
-    @classmethod
-    def status_valid(class_, value):
-        if value not in ('PAID', 'UNPAID'):
-            raise ValueError("status must be 'PAID' or 'UNPAID'")
-        return value
-
+        return self
 
 class BillUpdateRequest(BaseModel):
-    status: str = Field(...)
-
-    @field_validator('status')
-    @classmethod
-    def status_valid(class_, value):
-        if value.upper().strip() not in ('PAID', 'UNPAID'):
-            raise ValueError("status must be 'PAID' or 'UNPAID'")
-        return value.upper().strip()
-
+    status: BillStatus
 
 class BillResponse(BaseModel):
     id: int
     name: str
-    creation_date: str
-    due_date: str
+    creation_date: date
+    due_date: date
     total_amount: float
-    status: str
+    status: BillStatus
     category: Optional[str] = None
 
 class BillListResponse(BaseModel):
     OK: bool = True
     total_count: int
-    date: list[BillResponse]
+    data: list[BillResponse]
