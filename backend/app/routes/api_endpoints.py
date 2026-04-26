@@ -31,6 +31,9 @@ def create_bill(payload: BillCreateRequest):
 def list_bills(upcoming_only: bool = False, days: int = Query(3, ge=1)):
     return list_bills_service(upcoming_only=upcoming_only, days=days)
 
+@router.get("/upcoming")
+def list_upcoming_bills(upcoming_only: bool = True, days: int = Query(3, ge=1)):
+    return list_bills_service(upcoming_only=upcoming_only, days=days)
 
 @router.put("/{bill_id}")
 def update_status(bill_id: int, payload: BillUpdateRequest):

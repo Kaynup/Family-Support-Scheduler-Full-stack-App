@@ -50,10 +50,16 @@
   * [✔️] changed documentation structure
   * [✔️] updating documentation
 
-## Day 5 - Learning React
+## Day 5-6 - Learning React
 * [✔️] working on documentation and backend features
   * [✔️] added pydantic validation for creation_date
   * [✔️] backend layer tests resolved
   * [✔️] completed documentation of backend
   * [✔️] created UCD and Sequence diagrams in mermaid [AI help]
-* [...] working on automation
+* [x] working on frontend (skipped for now)
+
+## Day 6-7 – Bash Automation Script
+
+* [ ] Write `check_due_bills.sh`
+
+---
