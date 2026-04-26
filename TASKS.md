@@ -56,11 +56,4 @@
   * [✔️] backend layer tests resolved
   * [✔️] completed documentation of backend
   * [✔️] created UCD and Sequence diagrams in mermaid [AI help]
-* [X] working on frontend
-  * [✔️] created and edited react template in frontend as in docs/frontend/structure.md
-  * [✔️] API client
-    * [✔️] created client.js
-  * [] bills list page
-  * [] create bill form
-  * [] update status + delete actions
-  * [] basic loading/error states
+* [...] working on automation

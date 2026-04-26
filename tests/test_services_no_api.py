@@ -57,7 +57,7 @@ def test_list_bills_service_upcoming_boundary_days_3():
     created_ids = [id2, id3, id4]
     try:
         out = list_bills_service(upcoming_only=True, days=3)
-        ids = {row["id"] for row in out["date"]}
+        ids = {row["id"] for row in out["data"]}
 
         assert id2 in ids
         assert id4 not in ids

@@ -19,5 +19,5 @@ def list_bills_service(upcoming_only=False, days=3):
     return {
         "OK":True,
         "total_count": len(rows),
-        "date": [_format_tuple(r) for r in rows]
+        "data": [_format_tuple(r) for r in rows]
     }
