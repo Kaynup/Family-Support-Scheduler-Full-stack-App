@@ -11,7 +11,7 @@ class BillStatus(str, Enum):
 class BillCreateRequest(BaseModel):
     name: str = Field(..., min_length=1)
     due_date: date
-    creation_date: date
+    creation_date: Optional[date] = None
     total_amount: float = Field(..., gt=0)
     category: Optional[str] = None
     status: BillStatus = BillStatus.UNPAID
@@ -26,8 +26,9 @@ class BillCreateRequest(BaseModel):
 
     @model_validator(mode='after')
     def validate_dates(self):
-        if self.creation_date > self.due_date:
-            raise ValueError('creation_date cannot be greater than due_date')
+        if self.creation_date is not None:
+            if self.creation_date > self.due_date:
+                raise ValueError('creation_date cannot be greater than due_date')
         if self.due_date < date.today():
             raise ValueError('due_date cannot be in past')
         return self
