@@ -32,8 +32,8 @@ def select_all():
     conn = get_connection()
     curr = conn.cursor()
 
-    query = f"SELECT * from {DB_T}"
-    curr.execute(query)
+    query = f"SELECT * from {DB_T} WHERE Is_deleted = %s"
+    curr.execute(query, ('N', ))
 
     data = curr.fetchall()
     
@@ -48,10 +48,11 @@ def select_num_day_dues(num_days=3):
 
     query = f"""
     SELECT * from {DB_T} WHERE status = %s
-    AND due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL %s DAY)
+    AND Is_deleted = %s
+    AND due_date <= DATE_ADD(CURDATE(), INTERVAL %s DAY)
     ORDER BY due_date ASC
     """
-    curr.execute(query, ('UNPAID', num_days))
+    curr.execute(query, ('UNPAID', 'N', num_days))
 
     data = curr.fetchall()
     
@@ -65,8 +66,8 @@ def select_bill_by_id(id_):
     conn = get_connection()
     curr = conn.cursor()
 
-    query = f"SELECT * FROM {DB_T} WHERE id = %s"
-    curr.execute(query, (id_, ))
+    query = f"SELECT * FROM {DB_T} WHERE id = %s AND Is_deleted = %s"
+    curr.execute(query, (id_, 'N'))
     data = curr.fetchone()
 
     curr.close()
@@ -78,9 +79,9 @@ def update_bill_status(id_, status):
     conn = get_connection()
     curr = conn.cursor()
 
-    query = f"UPDATE {DB_T} SET status = %s WHERE id = %s"
+    query = f"UPDATE {DB_T} SET status = %s WHERE id = %s AND Is_deleted = %s"
     try:
-        curr.execute(query, (status, id_))
+        curr.execute(query, (status, id_, 'N'))
         if curr.rowcount == 0:
             raise mysql.connector.Error("No bill found for given id")
         conn.commit()
@@ -97,7 +98,24 @@ def delete_bill_by_id(id_):
     conn = get_connection()
     curr = conn.cursor()
 
-    query = f"DELETE FROM {DB_T} WHERE id = %s"
+    query = f"UPDATE {DB_T} SET Is_deleted = %s WHERE id = %s;"
+    try:
+        curr.execute(query, ('Y', id_))
+        if curr.rowcount == 0:
+            raise mysql.connector.Error("No bill found for given id")
+        conn.commit()
+    except mysql.connector.Error as e:
+        conn.rollback()
+        raise
+    finally:
+        curr.close()
+        conn.close()
+
+def delete_bill_by_id_HARD(id_):
+    conn = get_connection()
+    curr = conn.cursor()
+
+    query = f"DELETE FROM {DB_T} WHERE id = %s;"
     try:
         curr.execute(query, (id_, ))
         if curr.rowcount == 0:

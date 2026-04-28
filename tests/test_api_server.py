@@ -4,14 +4,14 @@ from dotenv import load_dotenv
 from datetime import date, timedelta
 import time
 
-from backend.app.db.queries import delete_bill_by_id
+from backend.app.db.queries import delete_bill_by_id, delete_bill_by_id_HARD
 
 load_dotenv()
 BASE_URL = os.getenv('API_BASE_URL')
 
 
 def _create_temp_bill_via_api():
-    unique_name = f"api-test-{time.time_ns()}"
+    unique_name = f"pytest-api-{time.time_ns()}"
     payload = {
         "name": unique_name,
         "due_date": (date.today() + timedelta(days=3)).isoformat(),
@@ -30,7 +30,7 @@ def test_create_bill():
     try:
         assert bill_id > 0
     finally:
-        delete_bill_by_id(bill_id)
+        delete_bill_by_id_HARD(bill_id)
 
 def test_update_status():
     bill_id = _create_temp_bill_via_api()
@@ -43,7 +43,7 @@ def test_update_status():
     except requests.RequestException as exc:
         raise AssertionError(f"Something went wrong: {exc}")
     finally:
-        delete_bill_by_id(bill_id)
+        delete_bill_by_id_HARD(bill_id)
 
 def test_delete_bill():
     bill_id = _create_temp_bill_via_api()
@@ -52,6 +52,8 @@ def test_delete_bill():
         response.raise_for_status()
     except requests.RequestException as exc:
         raise AssertionError(f"Something went wrong: {exc}")
+    finally:
+        delete_bill_by_id_HARD(bill_id)
     
     assert response.json()["OK"] == True
     print(response.json()["message"])

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bill Management System</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main>
+    <h1>Bill Management System</h1>
+    <div class="controls">
+      <label>
+        Due in
+        <input id="days" type="number" min="1" value="3" />
+        days
+      </label>
+      <button id="load">Check</button>
+      <a href="index.html">Logout</a>
+    </div>
+    <div id="status"></div>
+    <div class="dashboard-grid">
+      <div class="bill-area">
+        <section class="section-card">
+          <h2>Due Bills</h2>
+          <div id="bills"></div>
+        </section>
+        <section class="section-card">
+          <h2>Paid Bills</h2>
+          <div id="paid-bills"></div>
+        </section>
+      </div>
+      <aside class="action-panel">
+        <p id="selected-text">Select a bill to see actions.</p>
+        <div class="actions">
+          <button id="mark-paid" disabled>Mark PAID</button>
+          <button id="delete-bill" disabled>Delete</button>
+        </div>
+      </aside>
+    </div>
+    <div id="create-modal" class="modal hidden">
+      <div class="modal-content">
+        <button id="close-create-modal" class="modal-close" type="button">×</button>
+        <h2>Create Bill</h2>
+        <form id="create-bill-form">
+          <label for="bill-name">
+            Name
+            <input id="bill-name" name="name" type="text" required placeholder="Electricity Bill" />
+          </label>
+          <label for="bill-amount">
+            Amount
+            <input id="bill-amount" name="total_amount" type="number" min="0" step="0.01" required placeholder="1200.50" />
+          </label>
+          <label for="bill-due">
+            Due Date
+            <input id="bill-due" name="due_date" type="date" required />
+          </label>
+          <label for="bill-category">
+            Category
+            <input id="bill-category" name="category" type="text" placeholder="optional" />
+          </label>
+          <button type="submit">Create Bill</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Consolas, "Courier New", monospace;
+  background: #f7f9fc;
+  color: #0f172a;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+main {
+  width: min(960px, 100%);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.25rem;
+}
+
+h1 {
+  margin: 0 0 1rem;
+  font-size: 1.4rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+input,
+button,
+a {
+  font: inherit;
+}
+
+input,
+button {
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #dbe2ea;
+}
+
+input {
+  width: 5rem;
+}
+
+button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.action-panel form {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+
+.action-panel form label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+}
+
+.action-panel form input {
+  width: 100%;
+}
+
+.action-panel form button {
+  width: 100%;
+}
+
+#status {
+  margin-bottom: 1rem;
+  min-height: 1.25rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.bill-area {
+  display: grid;
+  gap: 1rem;
+}
+
+.section-card,
+.action-panel {
+  background: #f8fafc;
+  border: 1px solid #dbe2ea;
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.action-panel {
+  align-self: start;
+}
+
+.section-card h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+#bills,
+#paid-bills {
+  display: block;
+}
+
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.bill-add-row td {
+  padding: 1rem 0.35rem;
+  text-align: center;
+  border: none;
+}
+
+.bill-add-button {
+  border: 1px solid #2563eb;
+  background: #ffffff;
+  color: #2563eb;
+  font-size: 1.2rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.bill-add-button:hover {
+  background: #eff6ff;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 20;
+  padding: 1rem;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  position: relative;
+  width: min(460px, 100%);
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 1.25rem;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  border: none;
+  background: transparent;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.modal-content form {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1rem;
+  justify-items: center;
+}
+
+.modal-content label {
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+  max-width: 420px;
+}
+
+.modal-content input,
+.modal-content button {
+  width: min(420px, 100%);
+}
+
+.bill-table th,
+.bill-table td {
+  padding: 0.9rem 1rem;
+  border: 1px solid #dbe2ea;
+  text-align: left;
+}
+
+.bill-table th {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+
+.bill-row {
+  cursor: pointer;
+}
+
+.bill-row:hover,
+.bill-row.selected {
+  background: #eef4ff;
+}
+
+.bill-empty-note {
+  color: #64748b;
+  padding: 0.75rem 0.5rem;
+}
+
+#status {
+  margin-bottom: 1rem;
+  min-height: 1.25rem;
+}
+
+.action-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+#selected-text {
+  margin: 0;
+  min-height: 3rem;
+}
+
+.actions {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+}
+
+.actions button {
+  width: auto;
+  min-width: 120px;
+  min-height: 40px;
+  padding: 0.65rem 0.9rem;
+}

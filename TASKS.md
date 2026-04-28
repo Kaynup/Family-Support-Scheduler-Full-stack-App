@@ -50,6 +50,8 @@
   * [✔️] changed documentation structure
   * [✔️] updating documentation
 
+---
+
 ## Day 5-6 - Learning React
 * [✔️] working on documentation and backend features
   * [✔️] added pydantic validation for creation_date
@@ -58,8 +60,21 @@
   * [✔️] created UCD and Sequence diagrams in mermaid [AI help]
 * [x] working on frontend (skipped for now)
 
+---
+
 ## Day 6-7 – Bash Automation Script
 
-* [ ] Write `check_due_bills.sh`
+* [✔️] Terminal integration with backend complete
+* [✔️] created scripts/
+
+---
+
+## Day 7-8 - Frontend creation in HTML, CSS, vanilla JS
+
+* [✔️] workable frontend completion
+* [✔️] `bills` table is default set
+* [✔️] new field added in schema - `Is_deleted` (for soft deletion)
+* [✔️] updated test scripts
+* [✔️] created makefile for backend
 
 ---
