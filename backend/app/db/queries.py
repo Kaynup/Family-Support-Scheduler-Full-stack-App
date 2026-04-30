@@ -75,6 +75,19 @@ def select_bill_by_id(id_):
 
     return data
 
+def select_by_name_match(name):
+    conn = get_connection()
+    curr = conn.cursor()
+
+    query = f"SELECT * FROM {DB_T} WHERE LOWER(name) LIKE LOWER(%s)"
+    curr.execute(query, (f"%{name}%", ))
+    data = curr.fetchall()
+
+    curr.close()
+    conn.close()
+
+    return data
+
 def update_bill_status(id_, status):
     conn = get_connection()
     curr = conn.cursor()

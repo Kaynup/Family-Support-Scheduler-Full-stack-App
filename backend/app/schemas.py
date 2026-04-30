@@ -35,17 +35,3 @@ class BillCreateRequest(BaseModel):
 
 class BillUpdateRequest(BaseModel):
     status: BillStatus
-
-class BillResponse(BaseModel):
-    id: int
-    name: str
-    creation_date: date
-    due_date: date
-    total_amount: float
-    status: BillStatus
-    category: Optional[str] = None
-
-class BillListResponse(BaseModel):
-    OK: bool = True
-    total_count: int
-    data: list[BillResponse]

@@ -3,6 +3,7 @@ from ..services.bill_creation import create_bill_service
 from ..services.bill_listing import list_bills_service
 from ..services.bill_status import mark_bill_status_service
 from ..services.bill_deletion import delete_bill_service
+from ..services.bill_search import select_by_name_service
 from ..schemas import BillCreateRequest, BillUpdateRequest
 
 router = APIRouter(prefix="/bills", tags=["bills"])
@@ -26,6 +27,9 @@ def create_bill(payload: BillCreateRequest):
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
+@router.get("/search")
+def search_bill(name: str):
+    return select_by_name_service(name=name)
 
 @router.get("/all")
 def list_bills(upcoming_only: bool = False, days: int = Query(3, ge=1)):
