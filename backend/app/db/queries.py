@@ -6,15 +6,15 @@ import os
 load_dotenv()
 DB_T = os.getenv('DB_TABLE')
 
-def insert_bill(name, due_date, total_amount, creation_date, status='UNPAID', category=None):
+def insert_bill(name, due_date, total_amount, creation_date, status='UNPAID', category=None, recurring_interval='NONE'):
     conn = get_connection()
     curr = conn.cursor()
 
     query = f"""
-    INSERT INTO {DB_T} (name, creation_date, due_date, total_amount, status, category)
-    VALUES (%s, %s, %s, %s, %s, %s)
+    INSERT INTO {DB_T} (name, creation_date, due_date, total_amount, status, category, recurring_interval)
+    VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
-    values = (name, creation_date, due_date, total_amount, status, category)
+    values = (name, creation_date, due_date, total_amount, status, category, recurring_interval)
     try:
         curr.execute(query, values)
         id_ = curr.lastrowid

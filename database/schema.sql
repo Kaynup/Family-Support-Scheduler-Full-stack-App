@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS bills (
     total_amount DECIMAL(10,2) NOT NULL,
     status VARCHAR(10) NOT NULL,
     category VARCHAR(50),
+    recurring_interval VARCHAR(20) DEFAULT 'NONE',
     Is_deleted CHAR(1) NOT NULL DEFAULT 'N',
 
     CONSTRAINT chk_due_date CHECK (due_date >= creation_date),

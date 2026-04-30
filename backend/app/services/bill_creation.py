@@ -2,7 +2,7 @@ from datetime import date
 import mysql.connector
 from ..db import queries as dbq
 
-def create_bill_service(name, due_date, total_amount, creation_date=None, category=None, status="UNPAID"):
+def create_bill_service(name, due_date, total_amount, creation_date=None, category=None, recurring_interval='NONE', status="UNPAID"):
 
     if creation_date is None:
         creation_date = date.today()
@@ -15,7 +15,8 @@ def create_bill_service(name, due_date, total_amount, creation_date=None, catego
             total_amount=total_amount,
             creation_date=creation_date,
             status=status,
-            category=category
+            category=category,
+            recurring_interval=recurring_interval
         )
     except mysql.connector.Error as e:
         raise ValueError(str(e))

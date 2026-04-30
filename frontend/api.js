@@ -42,3 +42,8 @@ export async function createBill(payload) {
     body: JSON.stringify(payload),
   });
 }
+
+export async function searchBills(name) {
+  const result = await requestJson(`/bills/search?name=${encodeURIComponent(name)}`);
+  return Array.isArray(result) ? result : result.data || [];
+}

@@ -18,6 +18,7 @@ def create_bill(payload: BillCreateRequest):
             total_amount=payload.total_amount,
             creation_date=payload.creation_date,
             category=payload.category,
+            recurring_interval=payload.recurring_interval,
             status=payload.status.value,
         )
     except ValueError as exc:

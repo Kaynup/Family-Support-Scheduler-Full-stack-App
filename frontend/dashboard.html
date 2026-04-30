@@ -1,42 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bill Management System</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
   <main>
     <h1>Bill Management System</h1>
-    <div class="controls">
-      <label>
-        Due in
-        <input id="days" type="number" min="1" value="3" />
-        days
-      </label>
-      <button id="load">Check</button>
+    <div class="controls" style="justify-content: flex-end;">
       <a href="index.html">Logout</a>
     </div>
     <div id="status"></div>
     <div class="dashboard-grid">
-      <div class="bill-area">
+      <div class="col-left">
+        <aside class="left-panel" style="margin-bottom: 1rem;">
+          <section class="section-card calendar-panel">
+            <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h2 style="margin: 0;">Calendar</h2>
+            <div style="display: flex; gap: 0.25rem;">
+              <button id="prev-month" style="padding: 0.25rem 0.5rem;">&lt;</button>
+              <span id="calendar-month-year" style="font-size: 0.9rem; font-weight: bold; min-width: 100px; text-align: center;"></span>
+              <button id="next-month" style="padding: 0.25rem 0.5rem;">&gt;</button>
+            </div>
+          </div>
+          <div id="calendar-grid" class="calendar-grid"></div>
+          </section>
+        </aside>
         <section class="section-card">
           <h2>Due Bills</h2>
           <div id="bills"></div>
         </section>
+      </div>
+      
+      <div class="col-right">
+        <aside class="action-panel" style="margin-bottom: 1rem;">
+          <section class="search-panel" style="margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
+            <h2 style="margin-top: 0;">Search Bills</h2>
+            <div class="controls" style="margin-bottom: 0.5rem; display: flex; gap: 0.5rem;">
+              <input type="text" id="search-input" placeholder="Name..." style="flex: 1;" />
+              <button id="search-btn" style="width: 80px;">Search</button>
+            </div>
+            <div id="search-results-list"></div>
+          </section>
+          <p id="selected-text" style="font-weight: bold;">Select a bill to see actions.</p>
+          <div class="actions">
+            <button id="mark-paid" disabled>Mark PAID</button>
+            <button id="delete-bill" disabled>Delete</button>
+          </div>
+        </aside>
         <section class="section-card">
           <h2>Paid Bills</h2>
           <div id="paid-bills"></div>
         </section>
       </div>
-      <aside class="action-panel">
-        <p id="selected-text">Select a bill to see actions.</p>
-        <div class="actions">
-          <button id="mark-paid" disabled>Mark PAID</button>
-          <button id="delete-bill" disabled>Delete</button>
-        </div>
-      </aside>
     </div>
     <div id="create-modal" class="modal hidden">
       <div class="modal-content">
@@ -49,7 +69,8 @@
           </label>
           <label for="bill-amount">
             Amount
-            <input id="bill-amount" name="total_amount" type="number" min="0" step="0.01" required placeholder="1200.50" />
+            <input id="bill-amount" name="total_amount" type="number" min="0" step="0.01" required
+              placeholder="1200.50" />
           </label>
           <label for="bill-due">
             Due Date
@@ -59,6 +80,14 @@
             Category
             <input id="bill-category" name="category" type="text" placeholder="optional" />
           </label>
+          <label for="bill-recurring">
+            Recurring
+            <select id="bill-recurring" name="recurring_interval">
+              <option value="NONE">None</option>
+              <option value="WEEKLY">Weekly</option>
+              <option value="MONTHLY">Monthly</option>
+            </select>
+          </label>
           <button type="submit">Create Bill</button>
         </form>
       </div>
@@ -67,4 +96,5 @@
 
   <script type="module" src="dashboard.js"></script>
 </body>
+
 </html>

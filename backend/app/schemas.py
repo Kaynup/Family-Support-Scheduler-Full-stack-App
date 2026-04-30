@@ -14,6 +14,7 @@ class BillCreateRequest(BaseModel):
     creation_date: Optional[date] = None
     total_amount: float = Field(..., gt=0)
     category: Optional[str] = None
+    recurring_interval: str = Field(default="NONE")
     status: BillStatus = BillStatus.UNPAID
 
     @field_validator('name')
