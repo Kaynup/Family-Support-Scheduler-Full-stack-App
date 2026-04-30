@@ -156,8 +156,38 @@ a {
   font-weight: bold;
   color: #b91c1c;
 }
+.calendar-day.glow-paid {
+  background: #dcfce7;
+  border-color: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+  font-weight: bold;
+  color: #15803d;
+}
+.calendar-day.glow-mixed {
+  background: #ffedd5;
+  border-color: #f97316;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.6);
+  font-weight: bold;
+  color: #c2410c;
+}
+.calendar-day.glow-expired {
+  background: #f3f4f6;
+  border-color: #111827;
+  box-shadow: 0 0 8px rgba(17, 24, 39, 0.6);
+  font-weight: bold;
+  color: #000000;
+}
+.calendar-day.today {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+  font-weight: bold;
+  color: #1d4ed8;
+  position: relative;
+}
 
-.section-card h2 {
+.section-card h2,
+.search-panel h2 {
   margin: 0 0 0.75rem;
   font-size: 1rem;
 }

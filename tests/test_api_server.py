@@ -18,6 +18,7 @@ def _create_temp_bill_via_api():
         "creation_date": date.today().isoformat(),
         "total_amount": 200,
         "category": "testing",
+        "recurring_interval": "NONE",
         "status": "UNPAID"
     }
     response = requests.post(f"{BASE_URL}/bills/new", json=payload, timeout=5)
@@ -57,3 +58,16 @@ def test_delete_bill():
     
     assert response.json()["OK"] == True
     print(response.json()["message"])
+
+def test_api_search_bills():
+    bill_id = _create_temp_bill_via_api()
+    try:
+        # We need the name of the bill we created
+        # Instead of fetching it, let's just use the known unique prefix if we can't fetch it easily.
+        # But wait, let's just make it simpler.
+        response = requests.get(f"{BASE_URL}/bills/search?name=pytest-api", timeout=5)
+        response.raise_for_status()
+        results = response.json()["data"]
+        assert any(b["id"] == bill_id for b in results)
+    finally:
+        delete_bill_by_id_HARD(bill_id)

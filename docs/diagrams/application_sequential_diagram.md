@@ -190,11 +190,19 @@ sequenceDiagram
     
     Service->>API: Return {OK: true,<br/>data: {id: 42}}
     
+    opt If recurring_interval is WEEKLY or MONTHLY and status is PAID
+        Service->>Service: Calculate next due date
+        Service->>Query: Call insert_bill() for next cycle
+        Query->>DB: INSERT next bill record
+        DB->>Query: Return new bill_id
+    end
+    
     API->>Frontend: HTTP 200 OK<br/>JSON: {OK: true, data: {id: 42}}
     Frontend->>Frontend: Update bill in state
     Frontend->>User: Show "Bill marked as paid"
 
     Note over DB: Bill 42 status changed<br/>to PAID (committed)
+    Note right of DB: New bill record created<br/>if recurring_interval matches
 ```
 
 ---
@@ -273,7 +281,38 @@ sequenceDiagram
 
 ---
 
-## Sequence 8: Transaction & Rollback (Database Error)
+## Sequence 8: Search Bills (Happy Path)
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Frontend as 🌐 Frontend<br/>React App
+    participant API as 🔶 API Route<br/>GET /bills/search
+    participant Service as ⚙️ Service<br/>bill_search
+    participant Query as 🔍 Query Layer<br/>select_by_name_match()
+    participant DB as 💾 MySQL<br/>bills table
+
+    User->>Frontend: Enter "Elec" in search box
+    Frontend->>API: GET /bills/search?name=Elec
+    
+    API->>Service: Call select_by_name_service("Elec")
+    
+    Service->>Query: Call select_by_name_match("Elec")
+    Query->>DB: SELECT * FROM bills<br/>WHERE LOWER(name) LIKE '%elec%'
+    DB->>Query: Return matching tuples
+    
+    Query->>Service: Return list of results
+    Service->>Service: Format tuples to dicts
+    Service->>API: Return {OK: true, data: [...]}
+    
+    API->>Frontend: HTTP 200 OK<br/>JSON: matching bills
+    Frontend->>Frontend: Render search results
+    Frontend->>User: Display matching bills
+```
+
+---
+
+## Sequence 9: Transaction & Rollback (Database Error)
 
 ```mermaid
 sequenceDiagram

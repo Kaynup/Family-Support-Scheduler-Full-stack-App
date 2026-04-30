@@ -10,6 +10,14 @@ export function closeCreateModal() {
   elements.createModal.classList.add('hidden');
 }
 
+export function openDeleteModal() {
+  elements.deleteModal.classList.remove('hidden');
+}
+
+export function closeDeleteModal() {
+  elements.deleteModal.classList.add('hidden');
+}
+
 export function setDueDateDefaults() {
   if (!elements.dueDateInput) return;
 

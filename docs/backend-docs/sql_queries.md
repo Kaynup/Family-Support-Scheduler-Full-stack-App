@@ -26,7 +26,7 @@ The SQL handles the connection of the python functions to the SQL functions with
 
 ### `backend/app/db/queries.py`
 
-#### - `insert_bill(name, due_date, total_amount, creation_date, status='UNPAID', category=None)`
+#### - `insert_bill(name, due_date, total_amount, creation_date, status='UNPAID', category=None, recurring_interval='NONE')`
 
 - Inserts one row into the bill table with given parameters from service layer `~/services/*`
 - Returns `lastrowid` so the caller gets the id created by MySQL
@@ -45,11 +45,13 @@ The SQL handles the connection of the python functions to the SQL functions with
 - `%s` being `num_days`
 - Results order by `due_date` in ascending, powers the due-soon listing behavior
 
-#### - `select_bill_by_id(id_)`
-
-- Reads one row by primary key `id`
-- Returns a single list of tuple or `None`
 - Useful for identity lookups without scanning the full table
+
+#### - `select_by_name_match(name)`
+
+- Filters rows using `LOWER(name) LIKE LOWER(%s)`.
+- Returns all bills whose name contains the search string.
+- Case-insensitive matching.
 
 #### - `update_bill_status(id_, status)`
 

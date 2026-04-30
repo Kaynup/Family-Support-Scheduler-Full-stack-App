@@ -16,6 +16,9 @@ export const elements = {
   calendarMonthYear: document.getElementById('calendar-month-year'),
   prevMonthBtn: document.getElementById('prev-month'),
   nextMonthBtn: document.getElementById('next-month'),
+  deleteModal: document.getElementById('delete-modal'),
+  confirmDeleteButton: document.getElementById('confirm-delete'),
+  cancelDeleteButton: document.getElementById('cancel-delete'),
 };
 
 export function showStatus(message) {

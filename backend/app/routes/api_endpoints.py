@@ -33,12 +33,16 @@ def search_bill(name: str):
     return select_by_name_service(name=name)
 
 @router.get("/all")
-def list_bills(upcoming_only: bool = False, days: int = Query(3, ge=1)):
-    return list_bills_service(upcoming_only=upcoming_only, days=days)
+def list_bills(upcoming_only: bool = False, expired_only: bool = False, days: int = Query(3, ge=1)):
+    return list_bills_service(upcoming_only=upcoming_only, expired_only=expired_only, days=days)
 
 @router.get("/upcoming")
-def list_upcoming_bills(upcoming_only: bool = True, days: int = Query(3, ge=1)):
-    return list_bills_service(upcoming_only=upcoming_only, days=days)
+def list_upcoming_bills(days: int = Query(3, ge=1)):
+    return list_bills_service(upcoming_only=True, days=days)
+
+@router.get("/expired")
+def list_expired_bills():
+    return list_bills_service(expired_only=True)
 
 @router.put("/{bill_id}")
 def update_status(bill_id: int, payload: BillUpdateRequest):

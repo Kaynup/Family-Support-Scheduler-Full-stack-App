@@ -7,7 +7,8 @@ from backend.app.db.queries import (
     select_num_day_dues,
     update_bill_status,
     delete_bill_by_id,
-    delete_bill_by_id_HARD
+    delete_bill_by_id_HARD,
+    select_by_name_match
 )
 
 # Utils
@@ -20,7 +21,8 @@ def _create_test_bill(category="test"):
         total_amount=100.0,
         creation_date=date.today(),
         status="UNPAID",
-        category=category
+        category=category,
+        recurring_interval="NONE"
     )
     return bill_id
 
@@ -66,5 +68,21 @@ def test_delete_bill_by_id():
         delete_bill_by_id(bill_id)
         rows = select_all()
         assert not any(r[0] == bill_id for r in rows)
+    finally:
+        delete_bill_by_id_HARD(bill_id)
+
+def test_select_by_name_match():
+    name = f"search-test-{time.time_ns()}"
+    bill_id = insert_bill(
+        name=name,
+        due_date=date.today(),
+        total_amount=50.0,
+        creation_date=date.today(),
+        status="UNPAID",
+        category="search"
+    )
+    try:
+        results = select_by_name_match(name[:10]) # Partial match
+        assert any(r[0] == bill_id for r in results)
     finally:
         delete_bill_by_id_HARD(bill_id)

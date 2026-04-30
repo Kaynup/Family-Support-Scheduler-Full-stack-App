@@ -14,7 +14,7 @@ The services layers handling and arranges the query functions from the query lay
 
 ## Bill Creation Service `backend/app/services/bill_creation.py`
 
-#### - `create_bill_service(name, due_date, total_amount, creation_date=None, category=None, status="UNPAID")`
+#### - `create_bill_service(name, due_date, total_amount, creation_date=None, category=None, recurring_interval='NONE', status="UNPAID")`
 
 - Creates a bill row while normalizing the date fields and preserving the response shape the API expects.
 
@@ -37,6 +37,7 @@ The services layers handling and arranges the query functions from the query lay
   - `creation_date`
   - `status`
   - `category`
+  - `recurring_interval`
 
 ## Bill Listing Service
 
@@ -54,11 +55,20 @@ The services layers handling and arranges the query functions from the query lay
 
 Reshape the database tuple into a JSON-friendly object.
 
+## Bill Search Service `backend/app/services/bill_search.py`
+
+#### - `select_by_name_service(name)`
+
+- Filters the database for bill names that match the input string.
+- Uses `select_by_name_match(name)`.
+- Returns a list of formatted bill dictionaries.
+
 ## Bill Status Service
 
 #### - `mark_bill_status_service(id_, status)`
 
 - Changes the status of a single bill and return the id of the affected bill.
+- **Auto-Generation Logic**: If the status is updated to `PAID` and the bill has a `recurring_interval` of `WEEKLY` or `MONTHLY`, the service calculates the next due date (+7 or +30 days) and creates a new `UNPAID` instance of the bill.
 - It delegates the actual update to `update_bill_status()`.
 - If the query layer reports a MySQL error, the service raises `ValueError`.
 - The service response returns the `id`.

@@ -60,6 +60,25 @@ def select_num_day_dues(num_days=3):
     conn.close()
 
     return data
+    
+def select_expired_bills():
+    conn = get_connection()
+    curr = conn.cursor()
+
+    query = f"""
+    SELECT * from {DB_T} WHERE status = %s
+    AND Is_deleted = %s
+    AND (Is_expired = %s OR due_date < CURDATE())
+    ORDER BY due_date ASC
+    """
+    curr.execute(query, ('UNPAID', 'N', 'Y'))
+
+    data = curr.fetchall()
+    
+    curr.close()
+    conn.close()
+
+    return data
 
 
 def select_bill_by_id(id_):

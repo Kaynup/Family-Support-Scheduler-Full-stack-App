@@ -5,13 +5,14 @@ from backend.app.services.bill_creation import create_bill_service
 from backend.app.services.bill_listing import list_bills_service
 from backend.app.services.bill_status import mark_bill_status_service
 from backend.app.services.bill_deletion import delete_bill_service
+from backend.app.services.bill_search import select_by_name_service
 from backend.app.db.queries import select_all, select_num_day_dues, delete_bill_by_id, delete_bill_by_id_HARD, select_bill_by_id
 
 
-def _create_test_bill_with_due_days(days_ahead=1):
+def _create_test_bill_with_due_days(days_ahead=1, recurring="NONE"):
     name = f"pytest-serve-{days_ahead}-{time.time_ns()}"
     due_date = (date.today() + timedelta(days=days_ahead)).isoformat()
-    return create_bill_service(name=name, due_date=due_date, total_amount=100.0, status="UNPAID", category="test")['data']['id']
+    return create_bill_service(name=name, due_date=due_date, total_amount=100.0, status="UNPAID", category="test", recurring_interval=recurring)['data']['id']
 
 
 def test_create_bill_service():
@@ -64,3 +65,38 @@ def test_list_bills_service_upcoming_boundary_days_3():
     finally:
         for bill_id in created_ids:
             delete_bill_by_id_HARD(bill_id)
+
+def test_select_by_name_service():
+    bill_id = _create_test_bill_with_due_days()
+    try:
+        bill = select_bill_by_id(bill_id)
+        name = bill[1]
+        out = select_by_name_service(name[:5])
+        assert any(b["id"] == bill_id for b in out["data"])
+    finally:
+        delete_bill_by_id_HARD(bill_id)
+
+def test_recurring_bill_auto_generation():
+    # Create a weekly recurring bill
+    bill_id = _create_test_bill_with_due_days(days_ahead=0, recurring="WEEKLY")
+    try:
+        # Mark as PAID
+        mark_bill_status_service(bill_id, "PAID")
+        
+        # Check if a new UNPAID bill exists for the same name
+        bill = select_bill_by_id(bill_id)
+        name = bill[1]
+        
+        all_bills = select_all()
+        new_bills = [b for b in all_bills if b[1] == name and b[5] == "UNPAID" and b[0] != bill_id]
+        
+        assert len(new_bills) == 1
+        new_bill = new_bills[0]
+        # Check if due_date is +7 days from original
+        expected_due = bill[3] + timedelta(days=7)
+        assert new_bill[3] == expected_due
+        
+        # Cleanup the auto-generated bill
+        delete_bill_by_id_HARD(new_bill[0])
+    finally:
+        delete_bill_by_id_HARD(bill_id)

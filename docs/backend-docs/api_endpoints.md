@@ -34,6 +34,7 @@
 	- `due_date`
 	- `total_amount`
 	- `category`
+	- `recurring_interval`
 	- `status`
 - What the route does:
 	- receives a validated Pydantic model,
@@ -43,6 +44,20 @@
 	- `ValueError` with `No bill found` is treated as 404,
 	- other `ValueError` instances become 400,
 	- any unexpected exception becomes 500.
+
+### `GET /bills/search`
+- Purpose: Search bills by name match.
+- Function: `search_bill(name: str)`.
+- Query arguments:
+	- `name`: partial or full title to match.
+- Behavior:
+	- forwards the string to `select_by_name_service()`.
+	- returns all matching records.
+
+### `GET /bills/upcoming`
+- Purpose: fetch bills due in a specific window.
+- Function: `list_upcoming_bills(upcoming_only: bool = True, days: int = Query(3, ge=1))`.
+- Shares implementation with `/bills/all` but defaults `upcoming_only` to `True`.
 
 ### `GET /bills/all`
 
@@ -85,6 +100,7 @@
 - `due_date`: required date.
 - `total_amount`: numeric value greater than zero.
 - `category`: optional text field.
+- `recurring_interval`: string defaulting to `NONE`. values: `NONE`, `WEEKLY`, `MONTHLY`.
 - `status`: enum `BillStatus` with values `PAID` or `UNPAID`.
 - date integrity rule: `creation_date` cannot be greater than `due_date`.
 - due date rule: `due_date` cannot be in the past.

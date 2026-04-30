@@ -27,6 +27,7 @@ This folder is the map of the backend project. Each doc is intentionally narrow:
 ### Testing
 
 - [Backend testing](testing-docs/backend_testing.md): what each test file checks, how cleanup is done, and how to run them.
+- [Automation & Alerts](automation.md): cron configuration, terminal alerts, and .bashrc integration.
 
 ## Writing Rules For This Project
 

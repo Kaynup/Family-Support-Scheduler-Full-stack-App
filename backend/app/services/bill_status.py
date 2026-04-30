@@ -11,9 +11,6 @@ def mark_bill_status_service(id_, status):
             
         id_ = dbq.update_bill_status(id_, status)
         
-        # bill tuple indices: 0:id, 1:name, 2:creation_date, 3:due_date, 4:total_amount, 5:status, 6:category, 7:recurring_interval, 8:Is_deleted
-        # Wait, I need to check schema.sql to see order of columns. Let's just do it directly.
-        
         if status == "PAID" and bill[7] and bill[7] != 'NONE':
             next_due_date = bill[3]
             if bill[7] == 'WEEKLY':

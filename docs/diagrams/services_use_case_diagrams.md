@@ -17,8 +17,10 @@ graph TB
     ListBills["List Bills<br/>Service"]
     UpdateStatus["Update Bill Status<br/>Service"]
     DeleteBill["Delete Bill<br/>Service"]
+    SearchBills["Search Bills<br/>Service"]
     
     FilterUpcoming["Filter Upcoming<br/>Bills"]
+    RecurringLogic["Auto-generate<br/>Next Bill"]
     ValidateInputs["Validate Bill<br/>Inputs"]
     ValidateStatus["Validate Status<br/>Change"]
     CheckBillExists["Check Bill<br/>Exists"]
@@ -27,17 +29,21 @@ graph TB
     Actor -->|View all bills| ListBills
     Actor -->|Mark as paid/unpaid| UpdateStatus
     Actor -->|Remove bill| DeleteBill
+    Actor -->|Search by name| SearchBills
     
     CreateBill -->|Enforces| ValidateInputs
     ListBills -->|Optional| FilterUpcoming
     UpdateStatus -->|Enforces| ValidateStatus
+    UpdateStatus -->|Triggers| RecurringLogic
     UpdateStatus -->|Requires| CheckBillExists
     DeleteBill -->|Requires| CheckBillExists
+    SearchBills -->|Requires| System
     
     CreateBill -.->|Success| System
     ListBills -.->|Success| System
     UpdateStatus -.->|Success| System
     DeleteBill -.->|Success| System
+    SearchBills -.->|Success| System
 ```
 
 ---
@@ -58,6 +64,7 @@ graph TB
    - due_date: required, must be ≥ today
    - total_amount: numeric value
    - category: string
+   - recurring_interval: NONE, WEEKLY, or MONTHLY
    - status: must be PAID or UNPAID
 3. System inserts bill into database
 4. System returns newly created bill with auto-generated id and timestamp
@@ -110,6 +117,28 @@ graph TB
 
 ---
 
+### UC-5: Search Bills
+
+**Actor:** Frontend User
+
+**Description:** User searches for bills by name.
+
+**Main Flow:**
+1. User enters search term (e.g., "Elec").
+2. System performs case-insensitive partial match on bill names.
+3. System returns list of matching bill records.
+
+**Error Cases:**
+- **E1 - Database Error:** System returns 500 with error details.
+
+**Preconditions:**
+- API server is running.
+
+**Postconditions:**
+- Frontend displays matching bills or "No matching bills found".
+
+---
+
 ### UC-3: Update Bill Status
 
 **Actor:** Frontend User
@@ -122,7 +151,8 @@ graph TB
    - Bill id exists in database
    - Status is valid enum value (PAID or UNPAID)
 3. System updates bill's status field
-4. System returns confirmation with bill id and new status
+4. **Recurring Logic**: If status is `PAID` and `recurring_interval` is `WEEKLY` or `MONTHLY`, system automatically creates a new `UNPAID` bill for the next cycle (+7 or +30 days).
+5. System returns confirmation with bill id and new status
 
 **Error Cases:**
 - **E1 - Bill Not Found:** System returns 404 "No bill found with that id"
@@ -175,6 +205,7 @@ graph TB
 | bill_listing | GET /bills/all | UC-2: List Bills | (optional) upcoming_only | BillListResponse |
 | bill_status | PUT /bills/{bill_id} | UC-3: Update Status | BillUpdateRequest | BillResponse |
 | bill_deletion | DELETE /bills/{bill_id} | UC-4: Delete Bill | bill_id (path param) | {OK, data: {id}} |
+| bill_search | GET /bills/search | UC-5: Search Bills | name (query param) | BillListResponse |
 
 ---
 
