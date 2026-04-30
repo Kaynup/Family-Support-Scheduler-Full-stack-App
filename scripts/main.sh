@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source ".env"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../.env"
 
 echo -e "\n============ Bill Management System ============\n"
 

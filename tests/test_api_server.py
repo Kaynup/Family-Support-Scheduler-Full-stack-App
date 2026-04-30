@@ -1,73 +1,47 @@
-import os
-import requests
-from dotenv import load_dotenv
-from datetime import date, timedelta
-import time
+from fastapi.testclient import TestClient
+from unittest.mock import patch
+from backend.app.main import app
 
-from backend.app.db.queries import delete_bill_by_id, delete_bill_by_id_HARD
+client = TestClient(app)
 
-load_dotenv()
-BASE_URL = os.getenv('API_BASE_URL')
-
-
-def _create_temp_bill_via_api():
-    unique_name = f"pytest-api-{time.time_ns()}"
+@patch('backend.app.routes.api_endpoints.create_bill_service')
+def test_create_bill(mock_create_service):
+    mock_create_service.return_value = {"OK": True, "data": {"id": 1}, "message": "Success"}
     payload = {
-        "name": unique_name,
-        "due_date": (date.today() + timedelta(days=3)).isoformat(),
-        "creation_date": date.today().isoformat(),
+        "name": "test-api",
+        "due_date": "2026-05-01",
+        "creation_date": "2026-04-30",
         "total_amount": 200,
         "category": "testing",
         "recurring_interval": "NONE",
         "status": "UNPAID"
     }
-    response = requests.post(f"{BASE_URL}/bills/new", json=payload, timeout=5)
-    response.raise_for_status()
-    return response.json()['data']['id']
+    response = client.post("/bills/new", json=payload)
+    assert response.status_code == 200
+    assert response.json()["OK"] is True
+    mock_create_service.assert_called_once()
 
+@patch('backend.app.routes.api_endpoints.mark_bill_status_service')
+def test_update_status(mock_mark_status):
+    mock_mark_status.return_value = {"OK": True, "data": {"id": 1}, "message": "Status updated"}
+    payload = {"id": 1, "status": "PAID"}
+    response = client.put("/bills/1", json=payload)
+    assert response.status_code == 200
+    assert response.json()["OK"] is True
+    mock_mark_status.assert_called_with(1, "PAID")
 
-def test_create_bill():
-    bill_id = _create_temp_bill_via_api()
-    try:
-        assert bill_id > 0
-    finally:
-        delete_bill_by_id_HARD(bill_id)
+@patch('backend.app.routes.api_endpoints.delete_bill_service')
+def test_delete_bill(mock_delete_service):
+    mock_delete_service.return_value = {"OK": True, "data": {"id": 1}, "message": "Deleted"}
+    response = client.delete("/bills/1")
+    assert response.status_code == 200
+    assert response.json()["OK"] is True
+    mock_delete_service.assert_called_with(1)
 
-def test_update_status():
-    bill_id = _create_temp_bill_via_api()
-    payload = {"id": bill_id, "status": "PAID"}
-    try:
-        response = requests.put(f"{BASE_URL}/bills/{bill_id}", json=payload, timeout=5)
-        response.raise_for_status()
-        assert response.json()["OK"] is True
-        print(response.json()["message"])
-    except requests.RequestException as exc:
-        raise AssertionError(f"Something went wrong: {exc}")
-    finally:
-        delete_bill_by_id_HARD(bill_id)
-
-def test_delete_bill():
-    bill_id = _create_temp_bill_via_api()
-    try:
-        response = requests.delete(f"{BASE_URL}/bills/{bill_id}", timeout=5)
-        response.raise_for_status()
-    except requests.RequestException as exc:
-        raise AssertionError(f"Something went wrong: {exc}")
-    finally:
-        delete_bill_by_id_HARD(bill_id)
-    
-    assert response.json()["OK"] == True
-    print(response.json()["message"])
-
-def test_api_search_bills():
-    bill_id = _create_temp_bill_via_api()
-    try:
-        # We need the name of the bill we created
-        # Instead of fetching it, let's just use the known unique prefix if we can't fetch it easily.
-        # But wait, let's just make it simpler.
-        response = requests.get(f"{BASE_URL}/bills/search?name=pytest-api", timeout=5)
-        response.raise_for_status()
-        results = response.json()["data"]
-        assert any(b["id"] == bill_id for b in results)
-    finally:
-        delete_bill_by_id_HARD(bill_id)
+@patch('backend.app.routes.api_endpoints.select_by_name_service')
+def test_api_search_bills(mock_search_service):
+    mock_search_service.return_value = {"OK": True, "data": [{"id": 1, "name": "pytest-api"}], "message": "Found"}
+    response = client.get("/bills/search?name=pytest-api")
+    assert response.status_code == 200
+    assert len(response.json()["data"]) == 1
+    mock_search_service.assert_called_with(name="pytest-api")

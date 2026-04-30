@@ -1,5 +1,6 @@
 #!/bin/bash
-source ../.env
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../../.env"
 
 read -p "Bill Name: " name
 read -p "Amount: " amount

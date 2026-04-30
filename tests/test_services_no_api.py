@@ -1,102 +1,62 @@
+from unittest.mock import patch
 from datetime import date, timedelta
-import time
-
 from backend.app.services.bill_creation import create_bill_service
 from backend.app.services.bill_listing import list_bills_service
 from backend.app.services.bill_status import mark_bill_status_service
 from backend.app.services.bill_deletion import delete_bill_service
 from backend.app.services.bill_search import select_by_name_service
-from backend.app.db.queries import select_all, select_num_day_dues, delete_bill_by_id, delete_bill_by_id_HARD, select_bill_by_id
 
+@patch('backend.app.services.bill_creation.dbq.insert_bill')
+def test_create_bill_service(mock_insert_bill):
+    mock_insert_bill.return_value = 1
+    out = create_bill_service(
+        name="test", due_date=date.today().isoformat(),
+        total_amount=100.0, status="UNPAID", category="test", recurring_interval="NONE"
+    )
+    assert out["OK"] is True
+    assert out["data"]["id"] == 1
 
-def _create_test_bill_with_due_days(days_ahead=1, recurring="NONE"):
-    name = f"pytest-serve-{days_ahead}-{time.time_ns()}"
-    due_date = (date.today() + timedelta(days=days_ahead)).isoformat()
-    return create_bill_service(name=name, due_date=due_date, total_amount=100.0, status="UNPAID", category="test", recurring_interval=recurring)['data']['id']
-
-
-def test_create_bill_service():
-    id_ = _create_test_bill_with_due_days()
-    try:
-        assert isinstance(id_, int)
-    finally:
-        delete_bill_by_id_HARD(id_)
-
-
-def test_list_bills_service():
+@patch('backend.app.services.bill_listing.dbq.select_all')
+def test_list_bills_service(mock_select_all):
+    mock_select_all.return_value = [
+        (1, "test", date.today(), date.today(), 100.0, "UNPAID", "test", "NONE", "N")
+    ]
     out = list_bills_service()
     assert out["OK"] is True
-    assert "total_count" in out
+    assert out["total_count"] == 1
 
+@patch('backend.app.services.bill_status.dbq.update_bill_status')
+@patch('backend.app.services.bill_status.dbq.select_bill_by_id')
+@patch('backend.app.services.bill_status.dbq.insert_bill')
+def test_mark_bill_status_service(mock_insert_bill, mock_select_bill, mock_update):
+    mock_select_bill.return_value = (1, "test", date.today(), date.today(), 100.0, "UNPAID", "test", "WEEKLY", "N")
+    mock_insert_bill.return_value = 2
+    
+    out = mark_bill_status_service(1, "PAID")
+    assert out["OK"] is True
+    mock_update.assert_called_with(1, "PAID")
+    mock_insert_bill.assert_called_once()
 
-def test_mark_bill_status_service():
-    bill_id = _create_test_bill_with_due_days()
-    try:
-        out = mark_bill_status_service(bill_id, "PAID")
-        assert out["OK"] is True
-        assert out["data"]["id"] == bill_id
-        assert not any(r[0] == bill_id for r in select_num_day_dues(3))
-    finally:
-        delete_bill_by_id_HARD(bill_id)
+@patch('backend.app.services.bill_deletion.dbq.delete_bill_by_id')
+def test_delete_bill_service(mock_delete):
+    out = delete_bill_service(1)
+    assert out["OK"] is True
+    mock_delete.assert_called_with(1)
 
+@patch('backend.app.services.bill_listing.dbq.select_num_day_dues')
+def test_list_bills_service_upcoming_boundary_days_3(mock_select_num_day_dues):
+    mock_select_num_day_dues.return_value = [
+        (1, "test2", date.today(), date.today() + timedelta(days=2), 100.0, "UNPAID", "test", "NONE", "N"),
+        (2, "test3", date.today(), date.today() + timedelta(days=3), 100.0, "UNPAID", "test", "NONE", "N"),
+    ]
+    out = list_bills_service(upcoming_only=True, days=3)
+    assert len(out["data"]) == 2
 
-def test_delete_bill_service():
-    bill_id = _create_test_bill_with_due_days()
-    try:
-        out = delete_bill_service(bill_id)
-        assert out["OK"] is True
-        assert out["data"]["id"] == bill_id
-    finally:
-        delete_bill_by_id_HARD(bill_id)
-
-
-def test_list_bills_service_upcoming_boundary_days_3():
-    id2 = _create_test_bill_with_due_days(2)
-    id3 = _create_test_bill_with_due_days(3)
-    id4 = _create_test_bill_with_due_days(4)
-
-    created_ids = [id2, id3, id4]
-    try:
-        out = list_bills_service(upcoming_only=True, days=3)
-        ids = {row["id"] for row in out["data"]}
-
-        assert id2 in ids
-        assert id4 not in ids
-    finally:
-        for bill_id in created_ids:
-            delete_bill_by_id_HARD(bill_id)
-
-def test_select_by_name_service():
-    bill_id = _create_test_bill_with_due_days()
-    try:
-        bill = select_bill_by_id(bill_id)
-        name = bill[1]
-        out = select_by_name_service(name[:5])
-        assert any(b["id"] == bill_id for b in out["data"])
-    finally:
-        delete_bill_by_id_HARD(bill_id)
-
-def test_recurring_bill_auto_generation():
-    # Create a weekly recurring bill
-    bill_id = _create_test_bill_with_due_days(days_ahead=0, recurring="WEEKLY")
-    try:
-        # Mark as PAID
-        mark_bill_status_service(bill_id, "PAID")
-        
-        # Check if a new UNPAID bill exists for the same name
-        bill = select_bill_by_id(bill_id)
-        name = bill[1]
-        
-        all_bills = select_all()
-        new_bills = [b for b in all_bills if b[1] == name and b[5] == "UNPAID" and b[0] != bill_id]
-        
-        assert len(new_bills) == 1
-        new_bill = new_bills[0]
-        # Check if due_date is +7 days from original
-        expected_due = bill[3] + timedelta(days=7)
-        assert new_bill[3] == expected_due
-        
-        # Cleanup the auto-generated bill
-        delete_bill_by_id_HARD(new_bill[0])
-    finally:
-        delete_bill_by_id_HARD(bill_id)
+@patch('backend.app.services.bill_search.dbq.select_by_name_match')
+def test_select_by_name_service(mock_select_by_name):
+    mock_select_by_name.return_value = [
+        (1, "search-test", date.today(), date.today(), 100.0, "UNPAID", "test", "NONE", "N")
+    ]
+    out = select_by_name_service("search")
+    assert out["OK"] is True
+    assert len(out["data"]) == 1

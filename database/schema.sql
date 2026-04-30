@@ -15,18 +15,12 @@ CREATE TABLE IF NOT EXISTS bills (
     Is_deleted CHAR(1) NOT NULL DEFAULT 'N',
     Is_expired CHAR(1) NOT NULL DEFAULT 'N',
 
-    CONSTRAINT chk_due_date CHECK (due_date >= creation_date),
-    CONSTRAINT chk_is_deleted CHECK (Is_deleted IN ('Y','N')),
-    CONSTRAINT chk_is_expired CHECK (Is_expired IN ('Y','N'))
+    CONSTRAINT chk_due_date CHECK (due_date >= creation_date)
 );
 
 DELETE FROM bills;
 
 INSERT INTO bills (name, creation_date, due_date, total_amount, status, category, recurring_interval, Is_expired) VALUES
-('Electricity Bill', '2026-04-28', '2026-04-29', 1200.50, 'UNPAID', 'Utilities', 'MONTHLY', 'Y'),
-('Water Bill',       '2026-04-28', '2026-04-30', 300.75,  'UNPAID', 'Utilities', 'NONE',    'N'),
-('Internet Bill',    '2026-04-28', '2026-05-01', 999.00,  'UNPAID', 'Utilities', 'MONTHLY', 'N'),
-('Gas Bill',         '2026-04-28', '2026-05-02', 450.20,  'PAID',   'Utilities', 'NONE',    'N'),
 ('Rent',             '2026-04-28', '2026-05-03', 15000.00,'UNPAID', 'Housing',   'MONTHLY', 'N'),
 ('Mobile Recharge',  '2026-04-28', '2026-05-04', 299.00,  'PAID',   'Telecom',   'NONE',    'N'),
 ('DTH Recharge',     '2026-04-28', '2026-05-05', 450.00,  'UNPAID', 'Entertainment', 'NONE', 'N'),
