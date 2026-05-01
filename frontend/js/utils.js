@@ -6,40 +6,41 @@ export function getDaysUntilDue(bill) {
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 }
 
-export function getProjectedBills(bills, targetYear, targetMonth) {
+export function getProjectedBills(bills, targetYear, targetMonth, projectionCount = 12) {
   const allBills = [...bills];
-  // Project until the end of the year after the current view
-  const horizon = new Date(targetYear + 1, 11, 31);
-
   const recurringBills = bills.filter(b => b.recurring_interval && b.recurring_interval !== 'NONE');
   
-  // Group by name to find the latest instance to project from
+  // Group by name to find the latest real instance to project from
   const latestInstances = {};
   recurringBills.forEach(b => {
+    // Only project from "real" bills or the latest known instance
     if (!latestInstances[b.name] || b.due_date > latestInstances[b.name].due_date) {
       latestInstances[b.name] = b;
     }
   });
 
   Object.values(latestInstances).forEach(bill => {
-    let currentDue = new Date(`${bill.due_date}T00:00:00`);
+    // Let JS handle the parsing - use T12:00:00 to keep it safe from DST
+    let current = new Date(`${bill.due_date}T12:00:00`);
+    const anchorDay = current.getDate();
     
-    while (true) {
+    for (let i = 0; i < projectionCount; i++) {
       if (bill.recurring_interval === 'WEEKLY') {
-        currentDue.setDate(currentDue.getDate() + 7);
+        current.setDate(current.getDate() + 7);
       } else if (bill.recurring_interval === 'MONTHLY') {
-        currentDue.setMonth(currentDue.getMonth() + 1);
+        current.setMonth(current.getMonth() + 1);
+        // Correct for month-end drift (e.g., Jan 31 -> Feb 28)
+        if (current.getDate() !== anchorDay) {
+          current.setDate(0); 
+        }
       } else {
         break;
       }
 
-      if (currentDue > horizon) break;
-
-      const dateStr = currentDue.toISOString().slice(0, 10);
+      // Automatically get YYYY-MM-DD using the Canadian locale
+      const dateStr = current.toLocaleDateString('en-CA');
       
-      // Only project if this date doesn't already have an entry for this bill in the database
       const exists = bills.some(b => b.name === bill.name && b.due_date === dateStr);
-      
       if (!exists) {
         allBills.push({
           ...bill,
@@ -54,3 +55,4 @@ export function getProjectedBills(bills, targetYear, targetMonth) {
 
   return allBills;
 }
+

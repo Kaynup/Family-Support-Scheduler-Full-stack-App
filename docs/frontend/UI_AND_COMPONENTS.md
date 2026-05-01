@@ -10,8 +10,9 @@ and the visual design tokens used across the frontend.
 ### index.html -- Login Page
 
 A minimal authentication screen with two input fields and a submit button.
-The page uses the same styles.css as the dashboard but only renders a
+The page uses the same modular CSS system as the dashboard but only renders a
 single centered card (`.login-card` inside `.login-page`).
+
 
 HTML structure:
 

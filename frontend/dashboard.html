@@ -9,76 +9,74 @@
 </head>
 
 <body>
-  <main>
+  <main class="dashboard-page">
     <h1>Bill Management System</h1>
-    <div class="controls" style="justify-content: flex-end;">
+    <div class="controls">
       <a href="index.html">Logout</a>
     </div>
     <div id="status"></div>
     <div class="dashboard-grid">
-      <div class="col-left">
-        <aside class="left-panel" style="margin-bottom: 1rem;">
-          <section class="section-card calendar-panel">
-            <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <h2 style="margin: 0;">Calendar</h2>
-            <div style="display: flex; gap: 0.25rem;">
-              <button id="prev-month" style="padding: 0.25rem 0.5rem;">&lt;</button>
-              <span id="calendar-month-year" style="font-size: 0.9rem; font-weight: bold; min-width: 100px; text-align: center;"></span>
-              <button id="next-month" style="padding: 0.25rem 0.5rem;">&gt;</button>
+      <aside class="left-panel">
+        <section class="section-card calendar-panel">
+          <div class="calendar-header">
+            <h2>Calendar</h2>
+            <div class="calendar-controls">
+              <button id="prev-month">&lt;</button>
+              <span id="calendar-month-year"></span>
+              <button id="next-month">&gt;</button>
             </div>
           </div>
           <div id="calendar-grid" class="calendar-grid"></div>
-          <div class="calendar-legend" style="display: flex; gap: 0.75rem; margin-top: 0.75rem; font-size: 0.75rem; justify-content: center; flex-wrap: wrap; padding-top: 0.5rem; border-top: 1px solid #eee;">
-            <div style="display: flex; align-items: center; gap: 0.25rem;">
-              <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #eff6ff; border: 1px solid #3b82f6;"></span>
+          <div class="calendar-legend">
+            <div class="legend-item">
+              <span class="legend-dot dot-today"></span>
               <span>Today</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.25rem;">
-              <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #fee2e2; border: 1px solid #ef4444;"></span>
+            <div class="legend-item">
+              <span class="legend-dot dot-due"></span>
               <span>Due</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.25rem;">
-              <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #dcfce7; border: 1px solid #22c55e;"></span>
+            <div class="legend-item">
+              <span class="legend-dot dot-paid"></span>
               <span>Paid</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.25rem;">
-              <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #ffedd5; border: 1px solid #f97316;"></span>
+            <div class="legend-item">
+              <span class="legend-dot dot-both"></span>
               <span>Both</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.25rem;">
-              <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #f3f4f6; border: 1px solid #111827;"></span>
+            <div class="legend-item">
+              <span class="legend-dot dot-expired"></span>
               <span>Expired</span>
             </div>
           </div>
-          </section>
-        </aside>
-        <section class="section-card">
-          <h2>Due Bills</h2>
-          <div id="bills"></div>
         </section>
-      </div>
-      
-      <div class="col-right">
-        <aside class="action-panel" style="margin-bottom: 1rem;">
-          <section class="search-panel" style="margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
-            <h2 style="margin-top: 0;">Search Bills</h2>
-            <div class="controls" style="margin-bottom: 0.5rem; display: flex; gap: 0.5rem;">
-              <input type="text" id="search-input" placeholder="Name..." style="flex: 1;" />
-              <button id="search-btn" style="width: 80px;">Search</button>
-            </div>
-            <div id="search-results-list"></div>
-          </section>
-          <p id="selected-text" style="font-weight: bold;">Select a bill to see actions.</p>
-          <div class="actions">
-            <button id="mark-paid" disabled>Mark PAID</button>
-            <button id="delete-bill" disabled>Delete</button>
+      </aside>
+
+      <aside class="action-panel">
+        <section class="search-panel">
+          <h2>Search Bills</h2>
+          <div class="search-controls">
+            <input type="text" id="search-input" placeholder="Name..." />
+            <button id="search-btn">Search</button>
           </div>
-        </aside>
-        <section class="section-card">
-          <h2>Paid Bills</h2>
-          <div id="paid-bills"></div>
+          <div id="search-results-list"></div>
         </section>
-      </div>
+        <p id="selected-text">Select a bill to see actions.</p>
+        <div class="actions">
+          <button id="mark-paid" disabled>Mark PAID</button>
+          <button id="delete-bill" disabled>Delete</button>
+        </div>
+      </aside>
+
+      <section class="section-card">
+        <h2>Due Bills</h2>
+        <div id="bills"></div>
+      </section>
+
+      <section class="section-card">
+        <h2>Paid Bills</h2>
+        <div id="paid-bills"></div>
+      </section>
     </div>
     <div id="create-modal" class="modal hidden">
       <div class="modal-content">
@@ -91,8 +89,7 @@
           </label>
           <label for="bill-amount">
             Amount
-            <input id="bill-amount" name="total_amount" type="number" min="0" step="0.01" required
-              placeholder="1200.50" />
+            <input id="bill-amount" name="total_amount" type="number" min="0" step="0.01" required placeholder="Rs." />
           </label>
           <label for="bill-due">
             Due Date
@@ -110,17 +107,19 @@
               <option value="MONTHLY">Monthly</option>
             </select>
           </label>
-          <button type="submit">Create Bill</button>
+          <div class="modal-actions">
+            <button type="submit">Create</button>
+          </div>
         </form>
       </div>
     </div>
     <div id="delete-modal" class="modal hidden">
-      <div class="modal-content" style="max-width: 400px; text-align: center;">
+      <div class="modal-content">
         <h2>Delete Bill</h2>
         <p id="delete-confirm-text">Are you sure you want to delete this bill?</p>
-        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
-          <button id="cancel-delete" style="background: #e2e8f0; color: #475569;">Cancel</button>
-          <button id="confirm-delete" style="background: #ef4444; color: white;">Delete</button>
+        <div class="modal-actions">
+          <button id="cancel-delete">Cancel</button>
+          <button id="confirm-delete">Delete</button>
         </div>
       </div>
     </div>

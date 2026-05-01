@@ -17,15 +17,3 @@ CREATE TABLE IF NOT EXISTS bills (
 
     CONSTRAINT chk_due_date CHECK (due_date >= creation_date)
 );
-
-DELETE FROM bills;
-
-INSERT INTO bills (name, creation_date, due_date, total_amount, status, category, recurring_interval, Is_expired) VALUES
-('Rent',             '2026-04-28', '2026-05-03', 15000.00,'UNPAID', 'Housing',   'MONTHLY', 'N'),
-('Mobile Recharge',  '2026-04-28', '2026-05-04', 299.00,  'PAID',   'Telecom',   'NONE',    'N'),
-('DTH Recharge',     '2026-04-28', '2026-05-05', 450.00,  'UNPAID', 'Entertainment', 'NONE', 'N'),
-('Groceries',        '2026-04-28', '2026-05-06', 2500.00, 'PAID',   'Food',      'NONE',    'N'),
-('Insurance',        '2026-04-28', '2026-05-07', 5000.00, 'UNPAID', 'Finance',   'MONTHLY', 'N'),
-('Gym Fee',          '2026-04-28', '2026-05-08', 1200.00, 'PAID',   'Health',    'MONTHLY', 'N'),
-('School Fee',       '2026-04-28', '2026-05-09', 8000.00, 'UNPAID', 'Education', 'NONE',    'N'),
-('Car EMI',          '2026-04-28', '2026-05-10', 10000.00,'UNPAID', 'Loan',      'MONTHLY', 'N');

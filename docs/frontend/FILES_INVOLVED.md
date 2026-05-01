@@ -61,73 +61,32 @@ is updated dynamically by dashboard.js before the modal is shown.
 
 ---
 
-## 2. Stylesheet
+## 2. Stylesheets
 
 ### frontend/styles.css
 
-The complete visual design system. 334 lines covering all UI components.
+The main CSS entry point. It uses `@import` to load the modular CSS files.
 
-This file is organized into the following sections:
+### frontend/css/base.css
 
-Base reset and page layout (lines 1-10):
-    Body uses CSS Grid with place-items:center for vertical and
-    horizontal centering. min-height: 100vh ensures the page fills
-    the viewport. The monospace font stack (Consolas, Courier New)
-    gives the application a technical, developer-oriented aesthetic.
+Base reset and core elements. Body uses CSS Grid with `place-items: center` for vertical and horizontal centering. The monospace font stack gives the application its technical aesthetic.
 
-Main container (lines 12-18):
-    Constrained to 1200px using min() for responsive behavior.
-    White background with subtle border and 16px radius for the
-    card aesthetic.
+### frontend/css/layout.css
 
-Form controls (lines 33-66):
-    All inputs, buttons, and links inherit the page font.
-    Inputs and buttons share the same padding and 12px radius.
-    Buttons use blue (#2563eb) background with white text.
-    Inputs have a fixed 5rem width as a base.
+Structural layout. Defines the `main` container constraints and the `dashboard-grid`.
 
-Dashboard grid (lines 93-104):
-    Two equal columns (1fr 1fr) with 1rem gap.
-    Both columns use their own internal grid for stacking cards.
-    align-items: start prevents cards from stretching vertically.
+### frontend/css/components.css
 
-Card components (lines 106-118):
-    Three card variants (section-card, action-panel, left-panel)
-    share the same visual treatment: light background (#f8fafc),
-    subtle border, and 16px radius.
+UI building blocks. Contains the styling for cards, tables, and buttons.
 
-Calendar styles (lines 120-187):
-    Calendar header buttons use a distinct gray palette with
-    0.2s transition for hover effects.
-    The calendar grid is a 7-column CSS Grid with 4px gap.
-    Day cells are 0.5rem padded with 4px radius.
-    Five glow classes provide the status color system:
-    - .glow: red background, red border, red shadow
-    - .glow-paid: green background, green border, green shadow
-    - .glow-mixed: orange background, orange border, orange shadow
-    - .glow-expired: gray background, black border, dark shadow
-    - .today: light blue background, blue border, blue shadow
+### frontend/css/calendar.css
 
-Bill table styles (lines 201-305):
-    Full-width tables with collapsed borders.
-    Header row uses a light gray background (#f1f5f9).
-    Bill rows have pointer cursor and hover/selected highlight (#eef4ff).
-    The add button row has no border and centers a circular button.
-    Empty state text uses a muted color (#64748b).
+Calendar-specific styling. Defines the calendar grid and the "glow" system for bill statuses.
 
-Modal styles (lines 228-280):
-    Fixed positioning with inset:0 covers the entire viewport.
-    Semi-transparent dark backdrop (rgba with 0.45 alpha).
-    Content box uses 18px radius (slightly larger than cards)
-    and a prominent drop shadow for depth.
-    The close button is absolutely positioned in the top-right corner.
-    Form elements inside modals are centered and constrained to 420px.
+### frontend/css/modals.css
 
-Action panel styles (lines 312-333):
-    The actions container uses a grid layout for button arrangement.
-    Buttons have a minimum width of 120px and height of 40px.
-    The selected text paragraph has a minimum height of 3rem
-    to prevent layout jumps when the text changes length.
+Overlay and modal content. Handles the background overlay and the centered content boxes.
+
 
 ---
 

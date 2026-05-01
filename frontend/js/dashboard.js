@@ -13,12 +13,16 @@ function selectBill(bill, row) {
   ui.elements.markPaidButton.textContent = bill.status === 'PAID' ? 'Mark UNPAID' : 'Mark PAID';
   
   // Disable actions for projected bills since they don't exist in the DB yet
-  const isProjected = typeof bill.id === 'string' && bill.id.startsWith('proj-');
+  // We check for both the explicit flag and the ID prefix as a fallback
+  const isProjected = bill.isProjected === true || (typeof bill.id === 'string' && bill.id.startsWith('proj-'));
+  
   ui.elements.markPaidButton.disabled = isProjected;
   ui.elements.deleteButton.disabled = isProjected;
   
   if (isProjected) {
-    ui.showStatus('This is a projected recurring bill. You can create it when the previous one is paid.');
+    ui.showStatus('Projected bill: Actions are disabled until the current instance is paid.');
+  } else {
+    ui.showStatus(`Selected: ${bill.name}. You can now Mark Paid or Delete.`);
   }
 
   row.classList.add('selected');
@@ -34,7 +38,8 @@ async function fetchBills() {
 
   try {
     const rawBills = await api.fetchAllBills();
-    const allBills = getProjectedBills(rawBills, state.currentYear, state.currentMonth);
+    // Use the custom projection count from state
+    const allBills = getProjectedBills(rawBills, state.currentYear, state.currentMonth, state.projectionCount);
     
     calendar.renderCalendar(allBills, (dateStr) => {
       state.selectedDate = dateStr;

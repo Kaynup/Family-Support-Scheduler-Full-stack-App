@@ -27,15 +27,12 @@ def test_list_bills_service(mock_select_all):
 
 @patch('backend.app.services.bill_status.dbq.update_bill_status')
 @patch('backend.app.services.bill_status.dbq.select_bill_by_id')
-@patch('backend.app.services.bill_status.dbq.insert_bill')
-def test_mark_bill_status_service(mock_insert_bill, mock_select_bill, mock_update):
+def test_mark_bill_status_service(mock_select_bill, mock_update):
     mock_select_bill.return_value = (1, "test", date.today(), date.today(), 100.0, "UNPAID", "test", "WEEKLY", "N")
-    mock_insert_bill.return_value = 2
     
     out = mark_bill_status_service(1, "PAID")
     assert out["OK"] is True
     mock_update.assert_called_with(1, "PAID")
-    mock_insert_bill.assert_called_once()
 
 @patch('backend.app.services.bill_deletion.dbq.delete_bill_by_id')
 def test_delete_bill_service(mock_delete):

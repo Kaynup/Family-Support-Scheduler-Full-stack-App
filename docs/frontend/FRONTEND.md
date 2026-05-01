@@ -96,8 +96,17 @@ The dashboard has a "Logout" link that navigates back to index.html.
 
 ## Design System
 
-The visual identity is defined entirely in styles.css with no external
-CSS framework. The design uses:
+The visual identity is defined using a **modular CSS** architecture with no external CSS framework. The styles are split into logical modules under the `css/` directory and imported by a main manifest file.
+
+    styles.css         -- Main manifest (imports all modules)
+    css/
+        base.css       -- Global resets, typography, and default element styles
+        layout.css     -- Main container and dashboard grid positioning
+        components.css -- Cards, tables, and buttons
+        calendar.css   -- Calendar grid and status coloring logic
+        modals.css     -- Modal overlay and form layout styles
+
+### Visual Tokens
 
     Font:       Consolas / Courier New (monospace)
     Background: #f7f9fc (light blue-gray)
@@ -105,6 +114,5 @@ CSS framework. The design uses:
     Primary:    #2563eb (blue)
     Danger:     #ef4444 (red)
 
-The layout uses CSS Grid for the two-column dashboard and the 7-column
-calendar. The main container is constrained to 1200px with a responsive
-min() function.
+The layout uses CSS Grid for the two-column dashboard and the 7-column calendar. The main container is constrained to 1200px with a responsive min() function.
+
