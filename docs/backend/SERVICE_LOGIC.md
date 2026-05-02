@@ -25,18 +25,13 @@ The service layer never imports FastAPI -- it is framework-agnostic.
 
 ---
 
-## Service Registry
-
-The services `__init__.py` file exports four public functions:
+The services `__init__.py` file exports five public functions:
 
     create_bill_service
     list_bills_service
     mark_bill_status_service
     delete_bill_service
-
-A fifth service, `select_by_name_service`, exists in `bill_search.py`
-but is imported directly by the routes module rather than through
-the registry. This is a minor inconsistency in the codebase.
+    select_by_name_service
 
 ---
 
@@ -153,54 +148,16 @@ data volume but would need to change for pagination support.
 
 ### Responsibility
 
-Updates a bill's payment status and handles recurring bill generation.
-
-This is the most complex service in the system. It has two jobs:
-updating the status field, and creating the next bill in a recurring series.
-
 ### Behavior -- Status Update
 
     1. Fetch the bill by ID to verify it exists and to read its metadata.
     2. Execute the UPDATE query to change the status.
     3. If the update affects zero rows, raise ValueError.
 
-### Behavior -- Recurring Bill Generation
-
-After a successful status change to PAID, the service checks whether
-the bill has a recurring interval:
-
-    bill[7] -> recurring_interval (positional index from SELECT *)
-
-If the interval is WEEKLY or MONTHLY (and not NONE or null), the service
-calculates the next due date:
-
-    WEEKLY:  current due_date + 7 days (timedelta)
-    MONTHLY: current due_date + 30 days (timedelta)
-
-Note: MONTHLY uses a flat 30-day offset, not calendar month arithmetic.
-This means a bill due on January 31 will next be due on March 2, not
-February 28. This is a known simplification. Calendar-accurate month
-arithmetic would require the `dateutil.relativedelta` library.
-
-The service then inserts a new bill with:
-- The same name, amount, category, and recurring_interval.
-- The same creation_date as the original.
-- The calculated next due_date.
-- Status set to UNPAID.
-
-This creates a self-perpetuating chain: paying a MONTHLY bill on May 3
-creates a new UNPAID bill due on June 2, and paying that one creates
-one for July 2, and so on.
-
-### Positional Index Dependency
-
-The service accesses bill fields by tuple index (bill[1], bill[3], bill[7], etc.)
-rather than by column name. This creates a coupling between the service
-and the column order defined in the database schema. If a column is added
-or reordered in the schema, the indices in this service must be updated manually.
-
-This is a known trade-off of using raw tuples instead of an ORM.
-The system does not use SQLAlchemy or any object-relational mapper.
+Note: Recurrence logic (creating the next bill in a series) is intentionally
+excluded from this service. The system relies on visual projection in the 
+frontend to handle recurring bills, keeping the database as a record of 
+actual realized transactions.
 
 ### Response Format
 
@@ -211,9 +168,6 @@ The system does not use SQLAlchemy or any object-relational mapper.
             "id": <int>
         }
     }
-
-The response does not include the new recurring bill's ID if one was created.
-The frontend compensates by refetching the full bill list after every status update.
 
 ---
 
@@ -255,20 +209,15 @@ Performs case-insensitive substring matching on bill names.
 
 The service passes the search term to `queries.select_by_name_match()`,
 which executes a LIKE query with wildcards on both sides of the term.
+The query filters out deleted bills (`Is_deleted = 'N'`), ensuring
+consistency with the listing service.
 
-Results include all matching bills regardless of status or deletion state.
-This is a notable difference from the listing service, which filters out
-deleted bills. The search service returns deleted bills if their name
-matches the query. This could be considered a bug or a feature depending
-on whether the user needs to find archived records.
+### Tuple Format
 
-### Tuple Format Divergence
-
-The search service has its own `_format_tuple()` function that only maps
-7 fields (id through category). It does not include `recurring_interval`
-or `is_expired`. This means search results have a different shape than
-listing results. The frontend currently handles this gracefully by
-treating missing fields as undefined.
+The search service uses the standard `_format_tuple()` pattern, mapping
+all 9 fields (including `recurring_interval` and `is_expired`). This ensures
+that search results are structurally identical to listing results,
+preventing unexpected errors in the frontend.
 
 ### Response Format
 

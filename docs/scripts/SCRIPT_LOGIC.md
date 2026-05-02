@@ -71,8 +71,8 @@ The command scripts in the `commands/` directory execute the active CRUD operati
 
 ### Data Mutation: Creation (`add_bill.sh`)
 
-This script implements the creation flow. It prompts for four variables:
-`name`, `amount`, `due`, and `tag` (category).
+This script implements the creation flow. It prompts for five variables:
+`name`, `amount`, `due`, `tag` (category), and `interval` (recurrence).
 
 **Type Coercion Logic**:
 The backend API strictly requires the `total_amount` field to be a numeric float,
@@ -95,20 +95,13 @@ The script then executes a POST request with the constructed payload and the
 This script implements the update flow. It prompts for two variables:
 `id` and `status`.
 
-**API Method Divergence**:
-The script executes the HTTP request using the PATCH method:
+The script executes the HTTP request using the PUT method, matching the
+FastAPI backend's requirement for this endpoint.
 
-    curl -s -X PATCH "$API_BASE_URL/bills/$id"
+    curl -s -X PUT "$API_BASE_URL/bills/$id"
 
-However, the FastAPI backend strictly defines this endpoint as a PUT route:
-`@router.put("/{bill_id}")`.
-
-FastAPI is highly strict regarding HTTP methods. When a client sends a PATCH request
-to a PUT route, FastAPI automatically rejects it with a `405 Method Not Allowed`
-response without ever reaching the business logic.
-
-This means that running the `change_status.sh` script will fail at the routing layer.
-To fix this, the script must be updated to use `-X PUT` instead of `-X PATCH`.
+FastAPI is highly strict regarding HTTP methods. By using the correct 
+PUT method, the script ensures successful routing and state mutation.
 
 ### Argument Parsing and Defaults (`upcoming.sh`)
 

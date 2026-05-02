@@ -22,31 +22,31 @@ Navigation between them is handled by standard HTML links and form
 actions, not by JavaScript routing. Once inside dashboard.html, all
 interactions are handled by JavaScript without page reloads.
 
-The JavaScript layer is split into seven ES6 modules under the `js/`
-directory. Each module has a single responsibility:
+The JavaScript layer is organized into a highly modular, enterprise-grade architecture under the `js/` directory:
 
     js/
-        dashboard.js   -- Orchestrator (event wiring, data flow)
-        api.js         -- HTTP client (fetch wrapper)
-        ui.js          -- DOM element registry and rendering functions
-        calendar.js    -- Calendar grid generation and status coloring
-        modal.js       -- Modal open/close/defaults logic
-        state.js       -- Centralized application state
-        utils.js       -- Date math and bill projection engine
+        core/
+            api.js         -- HTTP client (fetch wrapper)
+            state.js       -- Centralized application state
+            utils.js       -- Date math and bill projection engine
+        components/
+            ui.js          -- DOM element registry and rendering functions
+            calendar.js    -- Calendar grid generation and status coloring
+            modal.js       -- Modal open/close/defaults logic
+        features/
+            billListing.js -- Fetching, projecting, and rendering bill lists
+            billStatus.js  -- Patching bill status (paid/unpaid)
+            billDeletion.js-- Deletion confirmation and API call
+            billCreation.js-- Form submission and creation API call
+            billSearch.js  -- Search logic and rendering
+        dashboard.js       -- The entry point (wiring event listeners)
 
-The module dependency graph flows in one direction:
+The module dependency graph strictly separates concerns:
 
-    dashboard.js imports from all other modules.
-    calendar.js imports from ui.js and state.js.
-    modal.js imports from ui.js.
-    utils.js imports nothing (pure functions).
-    state.js imports nothing (pure data).
-    api.js imports nothing (pure HTTP).
-    ui.js imports nothing (pure DOM).
-
-No module creates circular dependencies. dashboard.js is the only
-file that ties everything together and is the sole entry point
-loaded by the HTML page.
+    dashboard.js imports from core, components, and features to wire events.
+    features/* orchestrate the logic by importing core state and component renderers.
+    components/* handle pure UI rendering, only reading from core state.
+    core/* are fundamental utilities that depend on nothing else.
 
 ## Serving Model
 

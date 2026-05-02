@@ -44,8 +44,10 @@ The cycle proceeds as follows:
 
     Step 3: Project Recurring Bills
         - Pass the raw bills array through getProjectedBills().
-        - This function generates virtual future instances for every
-          recurring bill (WEEKLY or MONTHLY) up to the end of next year.
+        - This function serves as the **sole source of truth** for 
+          recurring bill forecasting. It generates virtual future 
+          instances for every recurring bill (WEEKLY or MONTHLY) 
+          up to the specified projection count.
         - The result is a combined array of real and projected bills.
 
     Step 4: Render Calendar
@@ -69,15 +71,16 @@ The cycle proceeds as follows:
 
 ---
 
-## 3. Bill Projection Engine (utils.js)
+## 3. Bill Projection Engine (core/utils.js)
 
 ### Purpose
 
-The database only contains bills that have been explicitly created --
-either by the user or by the recurring generation logic in the backend.
-If a MONTHLY bill was created on May 3 and has not been paid yet, the
-database contains exactly one record. The user cannot see that the same
-bill will be due on June 2, July 2, August 1, etc.
+The database only contains bills that have been explicitly created 
+by the user. If a MONTHLY bill was created on May 3 and has not 
+been paid yet, the database contains exactly one record. 
+The user cannot see that the same bill will be due on June 2, 
+July 2, August 1, etc., because the backend does not 
+automatically generate future rows.
 
 The projection engine fills this gap by generating virtual bill objects
 that represent future recurring instances.
@@ -141,14 +144,14 @@ Projected bills are identified by two markers:
     2. The isProjected field is set to true.
        Real bills do not have this field.
 
-The dashboard.js selectBill() function checks for the "proj-" prefix
+The selectBill() function checks for the "proj-" prefix
 and disables the Mark PAID and Delete buttons when a projected bill
 is selected. This prevents the user from trying to operate on a
 record that does not exist in the database.
 
 ---
 
-## 4. Calendar Rendering Algorithm (calendar.js)
+## 4. Calendar Rendering Algorithm (components/calendar.js)
 
 ### Grid Construction
 
@@ -241,7 +244,7 @@ fetchBills()) to re-render the entire UI with the new month context.
 
 ---
 
-## 5. Bill List Rendering (ui.js)
+## 5. Bill List Rendering (components/ui.js)
 
 ### Table Generation
 
@@ -289,7 +292,7 @@ shifts when bills are loaded.
 
 ---
 
-## 6. Modal Lifecycle (modal.js)
+## 6. Modal Lifecycle (components/modal.js)
 
 ### Visibility Pattern
 
@@ -334,7 +337,7 @@ The setDueDateDefaults() function runs on init and on every modal open:
 
 ---
 
-## 7. API Communication Layer (api.js)
+## 7. API Communication Layer (core/api.js)
 
 ### Request Wrapper
 
@@ -380,26 +383,11 @@ badge). The automation shell script calls the same endpoint directly.
 
 ---
 
-## 8. Event Handling Architecture (dashboard.js)
+## 8. Event Handling Architecture (features/*)
 
-### Event Registration
+The business logic is modularized into feature files. `dashboard.js` wires these features to UI elements via event listeners.
 
-All event listeners are registered in setupEventListeners(), called
-once during init(). The function wires the following interactions:
-
-    Mark PAID button -> toggles between PAID and UNPAID via patchBill()
-    Delete button -> opens the delete confirmation modal
-    Confirm Delete button -> executes deletion via handleConfirmDelete()
-    Cancel Delete button -> closes the delete modal
-    Create form submit -> validates and creates via createBill()
-    Close create modal button -> closes the create modal
-    Window click -> closes modals when clicking on backdrop
-    Search button -> executes handleSearch()
-    Search input Enter key -> executes handleSearch()
-    Previous month button -> calendar.changeMonth(-1, fetchBills)
-    Next month button -> calendar.changeMonth(+1, fetchBills)
-
-### Bill Selection Logic
+### Bill Selection Logic (in billListing.js)
 
 When a bill row is clicked, selectBill() executes:
 
@@ -413,7 +401,7 @@ When a bill row is clicked, selectBill() executes:
        - If real: enable both action buttons.
     6. Add .selected class to the clicked row.
 
-### Status Update Flow
+### Status Update Flow (in billStatus.js)
 
 When Mark PAID is clicked:
 
@@ -424,12 +412,14 @@ When Mark PAID is clicked:
        show success message, and call fetchBills() to refresh.
     5. On failure: show error message in status bar.
 
-The backend's recurring bill generation is triggered as a side effect
-of this status update. The frontend does not need to handle it
-explicitly -- the next fetchBills() call will pick up the newly
-created recurring bill.
+The system relies on the **Bill Projection Engine** (Step 3) to visually 
+forecast future bills. When a user marks a bill as PAID, the 
+`fetchBills()` cycle is re-triggered. The engine then uses the 
+newly-paid bill as the "anchor" to project the next upcoming 
+instance, which will appear in the calendar as a virtual UNPAID bill.
+The backend does not generate any rows automatically.
 
-### Deletion Flow
+### Deletion Flow (in billDeletion.js)
 
 When Delete is clicked:
 
@@ -440,7 +430,7 @@ When Delete is clicked:
     5. On success: close the modal, call fetchBills() to refresh.
     6. On failure: show error message in status bar.
 
-### Creation Flow
+### Creation Flow (in billCreation.js)
 
 When the create form is submitted:
 
@@ -452,7 +442,7 @@ When the create form is submitted:
        and call fetchBills() to refresh.
     6. On failure: show the backend's validation error in the status bar.
 
-### Search Flow
+### Search Flow (in billSearch.js)
 
 When the search button is clicked or Enter is pressed in the input:
 

@@ -8,7 +8,7 @@ sudo mysql -u root -p< database/schema.sql
 To seed database with sample data, run from project root:
 
 ```bash
-c
+sudo mysql -u root -p < database/sample-data.sql
 ```
 
 > enter password: {look under .env}

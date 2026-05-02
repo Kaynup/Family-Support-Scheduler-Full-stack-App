@@ -35,8 +35,8 @@ on three distinct levels of the backend application:
    These tests import the business logic functions from `backend.app.services`.
    They bypass the FastAPI routing and HTTP serialization layers. Crucially, they
    mock the underlying database queries (`backend.app.db.queries`) using `unittest.mock.patch`.
-   This allows the tests to verify complex business rules (like recurring bill
-   auto-generation) instantly without the overhead of network requests or real
+   This allows the tests to verify complex business rules (like boundary
+   date calculations) instantly without the overhead of network requests or real
    database connections.
 
 3. **API Integration Tests**: `test_api_server.py`

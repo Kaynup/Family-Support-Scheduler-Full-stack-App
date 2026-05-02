@@ -67,6 +67,24 @@ The startup sequence is:
 Hot reload is enabled via the `--reload` flag, so code changes in the
 backend directory are picked up automatically without restarting the server.
 
+## Manual Execution
+
+While the Makefile is the preferred way to launch the backend, it can be started
+manually from the project root by following these steps:
+
+1.  **Activate Environment**: Source the virtual environment (located in the 
+    neighboring `Assigments` directory).
+    ```bash
+    source ../Assigments/remitpy3-10/bin/activate
+    ```
+2.  **Launch Server**: Run Uvicorn from within the `backend` directory.
+    ```bash
+    cd backend && uvicorn app.main:app --reload
+    ```
+
+Note: The virtual environment directory is intentionally named `Assigments` 
+(without the 'n') to match the local filesystem structure.
+
 ## Dependencies
 
 The backend depends on six packages, declared in `requirements.txt`:

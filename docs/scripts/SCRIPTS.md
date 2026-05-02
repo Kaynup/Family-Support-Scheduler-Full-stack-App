@@ -36,8 +36,8 @@ several modular command scripts located in the `commands/` subdirectory.
 The architecture is explicitly decoupled from the backend logic. The scripts do
 not interact with the MySQL database directly. Instead, they act as HTTP clients,
 exactly like the web frontend, communicating solely through the exposed REST API.
-This ensures that all business logic (validation, recurrence calculation, soft
-deletion) remains centralized in the backend service layer.
+Ensure that all business logic (validation and soft deletion) 
+remains centralized in the backend service layer.
 
 ## Connection Model
 

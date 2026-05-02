@@ -57,16 +57,16 @@ and asserts that the service correctly processes and formats both bills into
 its final JSON-serializable dictionary output.
 
 ### `test_mark_bill_status_service`
-Verifies the complex multi-step state mutation, including the side-effect of
-generating a new bill when a recurring bill is paid.
+Verifies the state mutation while ensuring that no unexpected side-effects
+(like auto-generation of new bills) occur in the backend.
 1. It patches `select_bill_by_id`, `update_bill_status`, and `insert_bill`.
 2. It sets up `select_bill_by_id` to return a `WEEKLY` recurring bill.
 3. It calls `mark_bill_status_service(1, "PAID")`.
 4. It asserts `mock_update.assert_called_with(1, "PAID")` to ensure the original
    bill's status was updated.
-5. It asserts `mock_insert_bill.assert_called_once()` to verify the system
-   correctly identified the `WEEKLY` interval and triggered the generation
-   of the next cycle's bill.
+5. It asserts `mock_insert.assert_not_called()` to verify that the backend 
+   correctly avoids generating new bills, as this logic has been moved to 
+   the frontend.
 
 ---
 
@@ -99,3 +99,10 @@ Verifies the GET request with URL query parameters.
 4. It asserts `mock_search_service.assert_called_with("pytest-api")`, proving
    FastAPI correctly extracted the `name` parameter from the URL query string
    and passed it to the underlying search service.
+
+### Health Check Validation: `test_health_check`
+A simple verification of the backend's status endpoint.
+1. It sends a GET request to `/health`.
+2. It asserts the response `status_code == 200`.
+3. It asserts the response body matches `{"message": "backend is live"}`.
+   This ensures the application factory correctly registered the health route.

@@ -45,50 +45,65 @@ export function renderList(container, bills, emptyText, onSelectBill, onAddClick
   const table = document.createElement('table');
   table.className = 'bill-table';
 
-  const headerRow = document.createElement('tr');
-  headerRow.innerHTML = '<th>Name</th><th>Category</th><th>Amount</th><th>Due (Calendar)</th>';
-
-  const thead = document.createElement('thead');
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
+  table.appendChild(createTableHeader());
 
   const tbody = document.createElement('tbody');
 
   if (!bills.length) {
-    const noteRow = document.createElement('tr');
-    const noteCell = document.createElement('td');
-    noteCell.colSpan = 4;
-    noteCell.className = 'bill-empty-note';
-    noteCell.textContent = emptyText;
-    noteRow.appendChild(noteCell);
-    tbody.appendChild(noteRow);
+    renderEmptyState(tbody, emptyText);
   } else {
-    bills.forEach((bill) => {
-      const row = document.createElement('tr');
-      row.className = 'bill-row';
-      row.innerHTML = `
-        <td>${bill.name}</td>
-        <td>${bill.category || '-'}</td>
-        <td>Rs.${bill.total_amount}</td>
-        <td>${bill.due_date}</td>
-      `;
-      row.addEventListener('click', () => onSelectBill(bill, row));
-      tbody.appendChild(row);
-    });
+    renderBillRows(tbody, bills, onSelectBill);
   }
 
   if (onAddClick && container.id === 'bills') {
-    const addRow = document.createElement('tr');
-    addRow.className = 'bill-add-row';
-    addRow.innerHTML = `
-      <td colspan="4">
-        <button type="button" class="bill-add-button">+</button>
-      </td>
-    `;
-    addRow.querySelector('.bill-add-button').addEventListener('click', onAddClick);
-    tbody.appendChild(addRow);
+    renderAddRow(tbody, onAddClick);
   }
 
   table.appendChild(tbody);
   container.appendChild(table);
+}
+
+function createTableHeader() {
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  headerRow.innerHTML = '<th>Name</th><th>Category</th><th>Amount</th><th>Due (Calendar)</th>';
+  thead.appendChild(headerRow);
+  return thead;
+}
+
+function renderEmptyState(tbody, emptyText) {
+  const noteRow = document.createElement('tr');
+  const noteCell = document.createElement('td');
+  noteCell.colSpan = 4;
+  noteCell.className = 'bill-empty-note';
+  noteCell.textContent = emptyText;
+  noteRow.appendChild(noteCell);
+  tbody.appendChild(noteRow);
+}
+
+function renderBillRows(tbody, bills, onSelectBill) {
+  bills.forEach((bill) => {
+    const row = document.createElement('tr');
+    row.className = 'bill-row';
+    row.innerHTML = `
+      <td>${bill.name}</td>
+      <td>${bill.category || '-'}</td>
+      <td>Rs.${bill.total_amount}</td>
+      <td>${bill.due_date}</td>
+    `;
+    row.addEventListener('click', () => onSelectBill(bill, row));
+    tbody.appendChild(row);
+  });
+}
+
+function renderAddRow(tbody, onAddClick) {
+  const addRow = document.createElement('tr');
+  addRow.className = 'bill-add-row';
+  addRow.innerHTML = `
+    <td colspan="4">
+      <button type="button" class="bill-add-button">+</button>
+    </td>
+  `;
+  addRow.querySelector('.bill-add-button').addEventListener('click', onAddClick);
+  tbody.appendChild(addRow);
 }

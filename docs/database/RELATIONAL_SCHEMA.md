@@ -28,8 +28,10 @@ Table: `bills`
 
 ## Seed Data
 
-The schema file includes pre-loaded records spanning categories like
-Utilities, Housing, Telecom, Entertainment, Food, Finance, Health, Education, and Loan.
-These records provide immediate testing coverage for all recurring intervals and status combinations.
+The project includes a separate seed script (`database/sample-data.sql`) with ~28 
+pre-loaded records spanning categories like Utilities, Housing, Telecom, 
+Entertainment, Food, Finance, Health, Education, and Loan. These records 
+provide immediate testing coverage for all recurring intervals and status 
+combinations across multiple months.
 
 ---

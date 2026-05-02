@@ -12,20 +12,30 @@ The canonical schema definition file.
 - Creates the `family_supp_sche` database if it does not exist.
 - Drops and recreates the `bills` table on every run (destructive reset).
 - Defines all columns, types, defaults, and the temporal constraint.
-- Seeds the table with 12 test records covering all category and status combinations.
 - Executed manually via `sudo mysql -u root -p < database/schema.sql` from the project root.
 - This file is the single source of truth for the table structure.
 
 ---
 
-## 2. database/README.md
+## 2. database/sample-data.sql
+
+The seed data file.
+
+- Clears the `bills` table (`DELETE FROM bills`).
+- Inserts ~28 test records covering all category, status, and recurrence combinations.
+- Provides realistic data for development and testing (dates spanning multiple months).
+- Executed manually via `sudo mysql -u root -p < database/sample-data.sql`.
+
+---
+
+## 3. database/README.md
 
 A short reference file containing the exact command to initialize the database.
 Points the developer to the `.env` file for the MySQL root password.
 
 ---
 
-## 3. backend/app/db/connection.py
+## 4. backend/app/db/connection.py
 
 The connection pool initializer.
 
@@ -37,7 +47,7 @@ The connection pool initializer.
 
 ---
 
-## 4. backend/app/db/queries.py
+## 5. backend/app/db/queries.py
 
 The raw SQL execution layer. This is the only file that writes SQL strings.
 

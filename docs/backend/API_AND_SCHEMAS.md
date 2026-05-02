@@ -116,7 +116,7 @@ Query parameters:
 
 The search uses SQL LIKE with wildcards on both sides,
 so searching for "elect" will match "Electricity Bill".
-The comparison is case-insensitive.
+The comparison is case-insensitive and filters out deleted records.
 
 Response:
 
@@ -145,15 +145,9 @@ Request body (JSON):
 | status | string | YES      | One of: PAID, UNPAID.    |
 
 Side effects:
-
-When a bill with a recurring_interval (WEEKLY or MONTHLY) is updated
-to PAID, the service layer automatically creates the next bill in the series.
-The next due date is calculated as:
-- WEEKLY: current due_date + 7 days
-- MONTHLY: current due_date + 30 days
-
-The new bill inherits the name, amount, category, and recurring_interval
-of the original. Its status is set to UNPAID.
+None. Recurrence logic (calculating the next due date and projecting 
+future instances) is handled by the frontend. The backend remains 
+stateless regarding future billing cycles.
 
 Error responses:
 

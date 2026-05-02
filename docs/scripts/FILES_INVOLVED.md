@@ -78,7 +78,7 @@ Implements the creation workflow.
 - **Execution Context**: Executed interactively via `main.sh`.
 - **Workflow**:
   - Uses `read -p` to sequentially prompt the user for "Bill Name", "Amount",
-    "Due Date", and "Category".
+    "Due Date", "Category", and "Recurring Interval".
   - Constructs a JSON payload using `jq -n` to safely interpolate the bash variables.
     Critically, it applies the `|tonumber` filter to convert the amount string into
     a JSON numeric type.
@@ -96,9 +96,8 @@ Implements the status update workflow.
     provides the user with contextual information (bill IDs) before prompting.
   - Prompts the user for "Bill ID" and "Change Status (paid/unpaid)".
   - Constructs a minimal JSON payload containing only the `status` field.
-  - Executes a `curl -X PATCH` request to `/bills/$id`. Note: This method conflicts
-    with the backend's strict PUT requirement for this endpoint, indicating a bug
-    at the routing layer.
+  - Executes a `curl -X PUT` request to `/bills/$id`, matching the backend's
+    strict requirement for this endpoint.
 
 ### `scripts/commands/delete_bill.sh`
 

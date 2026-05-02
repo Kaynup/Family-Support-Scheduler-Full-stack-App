@@ -9,8 +9,8 @@ def test_create_bill(mock_create_service):
     mock_create_service.return_value = {"OK": True, "data": {"id": 1}, "message": "Success"}
     payload = {
         "name": "test-api",
-        "due_date": "2026-05-01",
-        "creation_date": "2026-04-30",
+        "due_date": "2099-05-01",
+        "creation_date": "2099-04-30",
         "total_amount": 200,
         "category": "testing",
         "recurring_interval": "NONE",
@@ -45,3 +45,8 @@ def test_api_search_bills(mock_search_service):
     assert response.status_code == 200
     assert len(response.json()["data"]) == 1
     mock_search_service.assert_called_with(name="pytest-api")
+
+def test_health_check():
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"message": "backend is live"}

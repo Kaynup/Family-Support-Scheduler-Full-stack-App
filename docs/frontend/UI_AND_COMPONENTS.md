@@ -245,24 +245,24 @@ The complete registry:
 
 | ID | Element | Module Consumer |
 | -- | ------- | --------------- |
-| bills | div | ui.js (bill list container) |
-| paid-bills | div | ui.js (paid list container) |
-| status | div | ui.js (status bar) |
-| selected-text | p | ui.js (action panel text) |
-| mark-paid | button | ui.js, dashboard.js |
-| delete-bill | button | ui.js, dashboard.js |
-| create-bill-form | form | ui.js, dashboard.js |
-| bill-due | input | ui.js, modal.js |
-| create-modal | div | ui.js, modal.js, dashboard.js |
-| close-create-modal | button | ui.js, dashboard.js |
-| search-input | input | ui.js, dashboard.js |
-| search-btn | button | ui.js, dashboard.js |
-| search-results-list | div | ui.js, dashboard.js |
-| calendar-grid | div | ui.js, calendar.js |
-| calendar-month-year | span | ui.js, calendar.js |
-| prev-month | button | ui.js, dashboard.js |
-| next-month | button | ui.js, dashboard.js |
-| delete-modal | div | ui.js, modal.js, dashboard.js |
-| confirm-delete | button | ui.js, dashboard.js |
-| cancel-delete | button | ui.js, dashboard.js |
-| delete-confirm-text | p | dashboard.js (direct getElementById) |
+| bills | div | components/ui.js (bill list container) |
+| paid-bills | div | components/ui.js (paid list container) |
+| status | div | components/ui.js (status bar) |
+| selected-text | p | components/ui.js (action panel text) |
+| mark-paid | button | components/ui.js, dashboard.js |
+| delete-bill | button | components/ui.js, dashboard.js |
+| create-bill-form | form | components/ui.js, dashboard.js |
+| bill-due | input | components/ui.js, components/modal.js |
+| create-modal | div | components/ui.js, components/modal.js, dashboard.js |
+| close-create-modal | button | components/ui.js, dashboard.js |
+| search-input | input | components/ui.js, dashboard.js |
+| search-btn | button | components/ui.js, dashboard.js |
+| search-results-list | div | components/ui.js, dashboard.js |
+| calendar-grid | div | components/ui.js, components/calendar.js |
+| calendar-month-year | span | components/ui.js, components/calendar.js |
+| prev-month | button | components/ui.js, dashboard.js |
+| next-month | button | components/ui.js, dashboard.js |
+| delete-modal | div | components/ui.js, components/modal.js, dashboard.js |
+| confirm-delete | button | components/ui.js, dashboard.js |
+| cancel-delete | button | components/ui.js, dashboard.js |
+| delete-confirm-text | p | features/billDeletion.js (direct getElementById) |

@@ -126,8 +126,8 @@ they return an empty data array with total_count of 0.
 
 Package initializer that exports four service functions.
 Provides an __all__ list for explicit public API declaration.
-The search service (select_by_name_service) is notably absent
-from this registry -- it is imported directly by the routes module.
+The search service (select_by_name_service) is included in this 
+registry and exported for use by the routes module.
 
 ### backend/app/services/bill_creation.py
 
@@ -151,14 +151,11 @@ for JSON serialization compatibility.
 
 ### backend/app/services/bill_status.py
 
-The most complex service file. Handles two operations in one call:
-updating the bill status, and generating the next recurring bill.
-Reads the existing bill by ID to access its metadata.
-If the new status is PAID and the bill has a recurring interval,
-calculates the next due date using timedelta (7 days for WEEKLY,
-30 days for MONTHLY) and inserts a new UNPAID bill with identical
-metadata. Uses positional tuple indices to access bill fields,
-creating a coupling with the database column order.
+Updates the payment status of an existing bill.
+Reads the existing bill by ID to access its metadata and verify existence.
+Updates the status field in the database.
+Does not handle recurring bill generation (this is offloaded to the frontend).
+Wraps MySQL errors as ValueError for the route layer.
 
 ### backend/app/services/bill_deletion.py
 
@@ -167,14 +164,10 @@ to the query layer. Does not verify whether the bill is already
 deleted -- the query layer handles this by filtering on Is_deleted = 'N'
 and raising an error if zero rows are affected.
 
-### backend/app/services/bill_search.py
-
 Performs case-insensitive substring search on bill names.
-Contains its own _format_tuple function that maps only 7 fields
-(excluding recurring_interval and is_expired), making search
-results structurally different from listing results.
-Does not filter out deleted bills -- this is inherited from
-the underlying query which lacks the Is_deleted filter.
+Contains its own `_format_tuple` function that maps all 9 fields 
+for consistency with the listing service.
+Filters out deleted bills by delegating to the query layer.
 
 ---
 
@@ -184,9 +177,9 @@ the underlying query which lacks the Is_deleted filter.
 
 Package initializer for the database sub-package.
 Exports the connection function and five query functions.
-The recently added select_expired_bills and select_by_name_match
-are not listed in this export registry -- they are imported
-directly by the service modules.
+The registry is fully populated, including select_expired_bills 
+and select_by_name_match. Service modules import these functions 
+through the package interface.
 
 ### backend/app/db/connection.py
 
@@ -221,7 +214,7 @@ The raw SQL execution layer. Contains nine functions:
   Filters on Is_deleted = 'N'. Returns None if not found.
 
 - select_by_name_match: Case-insensitive LIKE search with wildcards.
-  Does not filter on Is_deleted, so deleted bills may appear in results.
+  Filters on Is_deleted = 'N' to respect soft deletion.
 
 - update_bill_status: Sets the status column for a given ID.
   Checks rowcount to verify the update affected a row.

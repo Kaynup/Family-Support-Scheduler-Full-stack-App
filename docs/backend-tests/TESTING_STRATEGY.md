@@ -31,8 +31,8 @@ functions that execute SQL strings. These tests verify:
 The middle level (`test_services_no_api.py`) tests the core logic. These tests verify:
 - Complex temporal calculations (e.g., ensuring the upcoming bills filter correctly
   includes a bill due in 2 days but excludes one due in 4 days).
-- Multi-step operations (e.g., the recurring bill generation, which involves an
-  UPDATE followed immediately by an INSERT).
+- State mutation operations (e.g., status updates and soft deletion, ensuring 
+  the business logic correctly handles row-not-found scenarios).
 - Tuple-to-Dict conversion formatting (ensuring the `_format_tuple` helper correctly
   maps the raw database array into a JSON-serializable dictionary).
 

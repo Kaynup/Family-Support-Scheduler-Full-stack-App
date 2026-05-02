@@ -25,14 +25,21 @@ def test_list_bills_service(mock_select_all):
     assert out["OK"] is True
     assert out["total_count"] == 1
 
+@patch('backend.app.services.bill_status.dbq.insert_bill')
 @patch('backend.app.services.bill_status.dbq.update_bill_status')
 @patch('backend.app.services.bill_status.dbq.select_bill_by_id')
-def test_mark_bill_status_service(mock_select_bill, mock_update):
+def test_mark_bill_status_service(mock_select_bill, mock_update, mock_insert):
+    # Mock a WEEKLY recurring bill
     mock_select_bill.return_value = (1, "test", date.today(), date.today(), 100.0, "UNPAID", "test", "WEEKLY", "N")
     
     out = mark_bill_status_service(1, "PAID")
     assert out["OK"] is True
+    
+    # Verify status was updated
     mock_update.assert_called_with(1, "PAID")
+    
+    # CRITICAL: Verify NO new bill was inserted (recurrence logic is now frontend-only)
+    mock_insert.assert_not_called()
 
 @patch('backend.app.services.bill_deletion.dbq.delete_bill_by_id')
 def test_delete_bill_service(mock_delete):

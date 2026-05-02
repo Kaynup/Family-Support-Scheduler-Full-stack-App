@@ -92,158 +92,47 @@ Overlay and modal content. Handles the background overlay and the centered conte
 
 ## 3. JavaScript Modules
 
-### frontend/js/state.js
+### frontend/js/core/state.js
 
-The smallest module. 7 lines. Exports a single mutable object.
-
-Contains four properties:
-- selectedBill: Initially null. Set to a bill object when the user
-  clicks a row in any bill table. Reset to null on every fetchBills() call.
-- currentMonth: Initialized to the current month (0-11) from Date.
-  Modified by calendar.changeMonth() when the user navigates months.
-- currentYear: Initialized to the current year from Date.
-  Modified alongside currentMonth during month navigation.
-- selectedDate: Initially null. Set to a YYYY-MM-DD string when the
-  user clicks a calendar day cell. Persists across fetchBills() calls
-  so the selected date remains highlighted after data refresh.
-
+The smallest module. Exports a single mutable object containing:
+- selectedBill, currentMonth, currentYear, selectedDate, and projectionCount (controls how far into the future recurring bills are generated).
 This module has no imports and no functions. It is pure shared state.
 
-### frontend/js/api.js
+### frontend/js/core/api.js
 
-The HTTP client layer. 50 lines. Exports six async functions.
+The HTTP client layer. Exports wrapper functions for the backend API.
+Handles JSON parsing, error extraction, and normalization of responses from `http://127.0.0.1:8000`.
 
-Contains one private function (requestJson) that wraps the Fetch API.
-This wrapper handles JSON parsing, error extraction, and response
-validation. All exported functions delegate to this wrapper.
+### frontend/js/core/utils.js
 
-The API base URL is hardcoded as "http://127.0.0.1:8000".
-This matches the default Uvicorn port used by the backend.
+The mathematical computation layer.
+Contains `getProjectedBills()`, the critical function replacing old backend-driven recurrence logic. It projects future instances of WEEKLY/MONTHLY bills, using an anchor date strategy to prevent monthly drift (e.g., Feb 28th vs Jan 31st) and the Noon strategy to prevent timezone DST shifts.
 
-Response normalization logic handles two response shapes:
-the backend's { OK, data: [...] } format and a potential plain
-array format. This dual-format handling was added for forward
-compatibility during development.
+### frontend/js/components/ui.js
 
-Error messages are extracted from the response body in priority order:
-payload.detail (FastAPI validation errors), payload.message (custom
-service errors), response.statusText (HTTP standard), or a generic
-"HTTP {code}" fallback.
+The DOM interface layer. Exports the `elements` registry mapping HTML IDs to DOM references.
+Also exports visual rendering functions like `showStatus`, `updateSelectedText`, `clearSelection`, and `renderList`, which builds tables dynamically.
 
-### frontend/js/ui.js
+### frontend/js/components/calendar.js
 
-The DOM interface layer. 94 lines. Exports an elements registry
-and three functions.
+The calendar rendering engine.
+`renderCalendar()` builds the entire grid, calculating month boundaries and mapping bills to specific days to apply CSS glow effects (`glow-paid`, `glow-expired`, etc.).
 
-The elements object maps 21 HTML IDs to DOM references. These
-references are resolved once at module load time and reused
-throughout the application lifetime. This avoids repeated
-getElementById calls and provides a single source of truth
-for all DOM references.
+### frontend/js/components/modal.js
 
-The showStatus function sets the status bar text.
-The updateSelectedText function formats the selected bill's details
-into a concatenated string with dot separators.
-The clearSelection function removes the .selected class from all
-rows and disables both action buttons.
-The renderList function generates a complete HTML table from a
-bill array, with click handlers, empty state handling, and an
-optional add button.
+The modal lifecycle manager.
+Toggles modal visibility (create, delete) and manages form defaults (like setting the minimum due date constraint).
 
-### frontend/js/calendar.js
+### frontend/js/features/*
 
-The calendar rendering engine. 96 lines. Exports two functions.
-
-renderCalendar() builds the entire calendar grid from scratch on
-every call. It clears the existing content, constructs header cells,
-calculates padding for the first weekday, generates day cells with
-appropriate classes, and attaches click handlers.
-
-The status aggregation algorithm iterates all bills once to build
-a date-indexed lookup map with Set-based status tracking and boolean
-expiration flags. This O(n) preprocessing step enables O(1) lookups
-during the day cell generation loop.
-
-changeMonth() handles month arithmetic with year rollover detection.
-It delegates the UI refresh to a callback parameter rather than
-importing fetchBills directly, keeping the module decoupled from
-the orchestrator.
-
-### frontend/js/modal.js
-
-The modal lifecycle manager. 31 lines. Exports five functions.
-
-Three visibility functions (openCreateModal, closeCreateModal,
-openDeleteModal, closeDeleteModal -- four total, despite the file
-exporting five with setDueDateDefaults) toggle modals by adding
-or removing the 'hidden' CSS class.
-
-openCreateModal additionally calls setDueDateDefaults and focuses
-the name input for immediate typing.
-
-setDueDateDefaults calculates two dates: today (for the min attribute)
-and today+3 (for the default value). Both are formatted as ISO strings
-using toISOString().slice(0,10). This function runs at init and on
-every modal open to ensure the constraints reflect the current date.
-
-### frontend/js/utils.js
-
-The mathematical computation layer. 57 lines. Exports two functions.
-
-getDaysUntilDue() computes the number of days between today and
-a bill's due date. It normalizes both dates to midnight to avoid
-time-of-day interference. The result can be negative (overdue),
-zero (due today), or positive (upcoming). This function is defined
-but not currently called by any module -- it exists for potential
-future use in sorting or badge displays.
-
-getProjectedBills() is the bill projection engine. It takes the
-array of real bills and generates virtual future instances for
-recurring bills. The algorithm groups bills by name, projects from
-the latest instance of each name, and avoids duplicating dates
-that already have real database records. Projected bills are
-marked with string IDs and an isProjected flag so the UI can
-distinguish them from real records.
+This directory holds the isolated business logic, mirroring the backend architecture:
+- **billListing.js**: Orchestrates fetching data, calling the projection engine, and instructing the UI and Calendar components to update.
+- **billStatus.js**: Handles the PATCH logic for marking bills as PAID/UNPAID.
+- **billDeletion.js**: Manages the delete confirmation workflow.
+- **billCreation.js**: Extracts form values and handles POST requests for new bills.
+- **billSearch.js**: Handles the search bar input and rendering results.
 
 ### frontend/js/dashboard.js
 
-The orchestrator module. 182 lines. Imports from all other modules.
-
-This is the only module loaded by the HTML page. It ties together
-state management, API communication, UI rendering, calendar display,
-modal control, and bill projection into a cohesive application.
-
-Functions in this module:
-
-- selectBill: Handles bill row clicks. Updates state, UI text,
-  button labels, and button enabled/disabled states. Detects
-  projected bills and disables actions for them.
-
-- fetchBills: The central refresh cycle. Fetches data, projects
-  recurring bills, renders the calendar, and populates bill lists.
-  Called on init, after every mutation, and on month/date changes.
-
-- patchBill: Sends a status update to the backend and refreshes.
-
-- openDeleteConfirmation: Updates the confirmation text and shows
-  the delete modal.
-
-- handleConfirmDelete: Executes the deletion API call, closes the
-  modal, and refreshes.
-
-- createBill: Reads form values, validates locally, sends to the
-  backend, resets the form, closes the modal, and refreshes.
-
-- openCreateModal: Delegates to modal.openCreateModal().
-
-- handleSearch: Reads the search input, calls the search API,
-  and renders results in the search panel.
-
-- setupEventListeners: Wires all click, submit, and keyup handlers.
-  Includes backdrop click handling for both modals.
-
-- init: The bootstrap function. Sets date defaults, registers
-  event listeners, and triggers the first data fetch.
-
-The module executes init() at the bottom of the file scope.
-This is the application's entry point.
+The application entry point.
+This file is minimal. It simply imports the features from `js/features/` and wires them to the DOM elements mapped in `js/components/ui.js`. It is the only script loaded directly by `dashboard.html`.

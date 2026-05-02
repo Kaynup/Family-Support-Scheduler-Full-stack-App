@@ -1,8 +1,14 @@
+-- Family Support Scheduler - Sample Seed Data
+-- Provides a diverse set of records for development and testing.
+
 CREATE DATABASE IF NOT EXISTS family_supp_sche;
 USE family_supp_sche;
 
+-- Clear existing data before seeding
 DELETE FROM bills;
 
+-- Insert records spanning multiple categories, statuses, and recurring intervals.
+-- Includes historical (expired) data and future-dated bills.
 INSERT INTO bills (name, creation_date, due_date, total_amount, status, category, recurring_interval, Is_expired) VALUES
 ('March Rent',         '2026-03-01', '2026-03-05', 15000.00,'UNPAID', 'Housing',   'MONTHLY', 'Y'),
 ('Electricity - Mar',  '2026-03-10', '2026-03-20', 2450.00, 'UNPAID', 'Utilities', 'NONE',    'Y'),

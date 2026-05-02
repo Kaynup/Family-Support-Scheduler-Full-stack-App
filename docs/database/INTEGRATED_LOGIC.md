@@ -77,19 +77,21 @@ This catches both explicitly flagged records and implicitly overdue ones.
 The `recurring_interval` column stores the recurrence type for each bill.
 Valid values are `NONE`, `WEEKLY`, and `MONTHLY`.
 
-When a bill with a recurring interval is marked as PAID, the backend service
-automatically creates the next bill in the series by calculating the next due date:
+Recurrence logic is decoupled from the persistence layer. The backend does not 
+automatically generate new records when a recurring bill is paid. Instead, the 
+frontend implementation performs dynamic projection:
 
-- WEEKLY: current due_date + 7 days
-- MONTHLY: current due_date + 30 days
+- **Visual Projection**: The frontend reads the latest "real" instance of a recurring 
+  bill and projects future occurrences into the calendar view in-memory.
+- **In-Memory Generation**: Dates are calculated based on the interval (7 days for 
+  WEEKLY, 1 month for MONTHLY) with logic to handle month-end drift (e.g., Jan 31 -> Feb 28).
+- **Interactive Guards**: Projected entries are marked with an `isProjected` flag. 
+  The UI displays these for planning purposes but disables actions (Mark Paid/Delete) 
+  until a "real" bill is created in the database.
 
-The new bill is inserted with status UNPAID and the same recurring_interval,
-creating a self-perpetuating chain of bills.
-
-Additionally, the frontend projects future recurring instances into the calendar
-without waiting for the database to contain them. This projection is purely visual --
-the projected entries are generated in-memory from the latest real bill and are
-marked with an `isProjected` flag so the UI can distinguish them from actual records.
+This architecture ensures that the database remains a clean record of "realized" 
+obligations, while the user interface provides a full forecast of upcoming expenses 
+without polluting the table with thousands of future rows.
 
 ---
 

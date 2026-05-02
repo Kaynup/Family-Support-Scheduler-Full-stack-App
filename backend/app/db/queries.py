@@ -98,8 +98,8 @@ def select_by_name_match(name):
     conn = get_connection()
     curr = conn.cursor()
 
-    query = f"SELECT * FROM {DB_T} WHERE LOWER(name) LIKE LOWER(%s)"
-    curr.execute(query, (f"%{name}%", ))
+    query = f"SELECT * FROM {DB_T} WHERE LOWER(name) LIKE LOWER(%s) AND Is_deleted = %s"
+    curr.execute(query, (f"%{name}%", 'N'))
     data = curr.fetchall()
 
     curr.close()
