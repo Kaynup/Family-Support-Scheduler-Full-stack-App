@@ -1,8 +1,8 @@
 export const elements = {
-  billsEl: document.getElementById('bills'),
-  paidBillsEl: document.getElementById('paid-bills'),
-  statusEl: document.getElementById('status'),
-  selectedText: document.getElementById('selected-text'),
+  billsContainerEl: document.getElementById('bills'),
+  paidBillsContainerEl: document.getElementById('paid-bills'),
+  statusDisplayEl: document.getElementById('status'),
+  selectedBillSummaryEl: document.getElementById('selected-text'),
   markPaidButton: document.getElementById('mark-paid'),
   deleteButton: document.getElementById('delete-bill'),
   createBillForm: document.getElementById('create-bill-form'),
@@ -11,9 +11,9 @@ export const elements = {
   closeCreateModalButton: document.getElementById('close-create-modal'),
   searchInput: document.getElementById('search-input'),
   searchButton: document.getElementById('search-btn'),
-  searchResultsEl: document.getElementById('search-results-list'),
-  calendarGrid: document.getElementById('calendar-grid'),
-  calendarMonthYear: document.getElementById('calendar-month-year'),
+  searchResultsContainerEl: document.getElementById('search-results-list'),
+  calendarGridEl: document.getElementById('calendar-grid'),
+  calendarMonthYearEl: document.getElementById('calendar-month-year'),
   prevMonthBtn: document.getElementById('prev-month'),
   nextMonthBtn: document.getElementById('next-month'),
   deleteModal: document.getElementById('delete-modal'),
@@ -21,89 +21,89 @@ export const elements = {
   cancelDeleteButton: document.getElementById('cancel-delete'),
 };
 
-export function showStatus(message) {
-  elements.statusEl.textContent = message;
+export function displayStatusMessage(message) {
+  elements.statusDisplayEl.textContent = message;
 }
 
-export function updateSelectedText(bill) {
+export function renderSelectedBillSummary(bill) {
   if (bill.name === 'Select a bill to see actions.') {
-    elements.selectedText.textContent = bill.name;
+    elements.selectedBillSummaryEl.textContent = bill.name;
   } else {
-    elements.selectedText.textContent = `${bill.name} · Rs.${bill.total_amount} · due ${bill.due_date} · ${bill.status} · ${bill.recurring_interval || 'NONE'}`;
+    elements.selectedBillSummaryEl.textContent = `${bill.name} · Rs.${bill.total_amount} · due ${bill.due_date} · ${bill.status} · ${bill.recurring_interval || 'NONE'}`;
   }
 }
 
-export function clearSelection() {
-  document.querySelectorAll('.selected').forEach((row) => row.classList.remove('selected'));
+export function clearSelectionHighlights() {
+  document.querySelectorAll('.selected').forEach((rowEl) => rowEl.classList.remove('selected'));
   elements.markPaidButton.disabled = true;
   elements.deleteButton.disabled = true;
 }
 
-export function renderList(container, bills, emptyText, onSelectBill, onAddClick) {
-  container.textContent = '';
+export function renderBillTable(containerEl, billsList, emptyMessage, onSelectBill, onAddClick) {
+  containerEl.textContent = '';
 
-  const table = document.createElement('table');
-  table.className = 'bill-table';
+  const tableEl = document.createElement('table');
+  tableEl.className = 'bill-table';
 
-  table.appendChild(createTableHeader());
+  tableEl.appendChild(getTableHeaderHTML());
 
-  const tbody = document.createElement('tbody');
+  const tbodyEl = document.createElement('tbody');
 
-  if (!bills.length) {
-    renderEmptyState(tbody, emptyText);
+  if (!billsList.length) {
+    renderEmptyStateHTML(tbodyEl, emptyMessage);
   } else {
-    renderBillRows(tbody, bills, onSelectBill);
+    renderBillRowsHTML(tbodyEl, billsList, onSelectBill);
   }
 
-  if (onAddClick && container.id === 'bills') {
-    renderAddRow(tbody, onAddClick);
+  if (onAddClick && containerEl.id === 'bills') {
+    renderAddButtonRowHTML(tbodyEl, onAddClick);
   }
 
-  table.appendChild(tbody);
-  container.appendChild(table);
+  tableEl.appendChild(tbodyEl);
+  containerEl.appendChild(tableEl);
 }
 
-function createTableHeader() {
-  const thead = document.createElement('thead');
-  const headerRow = document.createElement('tr');
-  headerRow.innerHTML = '<th>Name</th><th>Category</th><th>Amount</th><th>Due (Calendar)</th>';
-  thead.appendChild(headerRow);
-  return thead;
+function getTableHeaderHTML() {
+  const theadEl = document.createElement('thead');
+  const headerRowEl = document.createElement('tr');
+  headerRowEl.innerHTML = '<th>Name</th><th>Category</th><th>Amount</th><th>Due (Calendar)</th>';
+  theadEl.appendChild(headerRowEl);
+  return theadEl;
 }
 
-function renderEmptyState(tbody, emptyText) {
-  const noteRow = document.createElement('tr');
-  const noteCell = document.createElement('td');
-  noteCell.colSpan = 4;
-  noteCell.className = 'bill-empty-note';
-  noteCell.textContent = emptyText;
-  noteRow.appendChild(noteCell);
-  tbody.appendChild(noteRow);
+function renderEmptyStateHTML(tbodyEl, emptyText) {
+  const noteRowEl = document.createElement('tr');
+  const noteCellEl = document.createElement('td');
+  noteCellEl.colSpan = 4;
+  noteCellEl.className = 'bill-empty-note';
+  noteCellEl.textContent = emptyText;
+  noteRowEl.appendChild(noteCellEl);
+  tbodyEl.appendChild(noteRowEl);
 }
 
-function renderBillRows(tbody, bills, onSelectBill) {
-  bills.forEach((bill) => {
-    const row = document.createElement('tr');
-    row.className = 'bill-row';
-    row.innerHTML = `
+function renderBillRowsHTML(tbodyEl, billsList, onSelectBill) {
+  billsList.forEach((bill) => {
+    const rowEl = document.createElement('tr');
+    rowEl.className = 'bill-row';
+    rowEl.innerHTML = `
       <td>${bill.name}</td>
       <td>${bill.category || '-'}</td>
       <td>Rs.${bill.total_amount}</td>
       <td>${bill.due_date}</td>
     `;
-    row.addEventListener('click', () => onSelectBill(bill, row));
-    tbody.appendChild(row);
+    rowEl.addEventListener('click', () => onSelectBill(bill, rowEl));
+    tbodyEl.appendChild(rowEl);
   });
 }
 
-function renderAddRow(tbody, onAddClick) {
-  const addRow = document.createElement('tr');
-  addRow.className = 'bill-add-row';
-  addRow.innerHTML = `
+function renderAddButtonRowHTML(tbodyEl, onAddClick) {
+  const addRowEl = document.createElement('tr');
+  addRowEl.className = 'bill-add-row';
+  addRowEl.innerHTML = `
     <td colspan="4">
       <button type="button" class="bill-add-button">+</button>
     </td>
   `;
-  addRow.querySelector('.bill-add-button').addEventListener('click', onAddClick);
-  tbody.appendChild(addRow);
+  addRowEl.querySelector('.bill-add-button').addEventListener('click', onAddClick);
+  tbodyEl.appendChild(addRowEl);
 }

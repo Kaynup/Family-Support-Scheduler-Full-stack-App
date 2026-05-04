@@ -1,27 +1,27 @@
-import * as api from '../core/api.js';
-import * as ui from '../components/ui.js';
+import * as API from '../core/api.js';
+import * as UI from '../components/ui.js';
 import { state } from '../core/state.js';
-import { fetchBills } from './billListing.js';
-import { openDeleteModal, closeDeleteModal } from '../components/modal.js';
+import * as BillListing from './billListing.js';
+import * as Modal from '../components/modal.js';
 
-export function openDeleteConfirmation() {
+export function handleOpenDeleteConfirmation() {
   if (!state.selectedBill) return;
-  const textEl = document.getElementById('delete-confirm-text');
-  if (textEl) {
-    textEl.textContent = `Are you sure you want to delete "${state.selectedBill.name}"?`;
+  const confirmTextEl = document.getElementById('delete-confirm-text');
+  if (confirmTextEl) {
+    confirmTextEl.textContent = `Are you sure you want to delete "${state.selectedBill.name}"?`;
   }
-  openDeleteModal();
+  Modal.handleOpenDeleteModal();
 }
 
 export async function handleConfirmDelete() {
   if (!state.selectedBill) return;
-  ui.showStatus(`Deleting ${state.selectedBill.name}...`);
+  UI.displayStatusMessage(`Deleting ${state.selectedBill.name}...`);
   try {
-    await api.deleteBillById(state.selectedBill.id);
-    closeDeleteModal();
-    await fetchBills();
+    await API.deleteBillById(state.selectedBill.id);
+    Modal.handleCloseDeleteModal();
+    await BillListing.fetchAndRenderBills();
   } catch (error) {
-    ui.showStatus('Unable to delete bill.');
+    UI.displayStatusMessage('Unable to delete bill.');
     console.error(error);
   }
 }

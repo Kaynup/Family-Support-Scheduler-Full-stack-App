@@ -1,47 +1,50 @@
-import * as ui from './components/ui.js';
-import * as modal from './components/modal.js';
-import * as calendar from './components/calendar.js';
+import * as UI from './components/ui.js';
+import * as Modal from './components/modal.js';
+import * as Calendar from './components/calendar.js';
 import { state } from './core/state.js';
 
-import { fetchBills } from './features/billListing.js';
-import { patchBill } from './features/billStatus.js';
-import { openDeleteConfirmation, handleConfirmDelete } from './features/billDeletion.js';
-import { createBill } from './features/billCreation.js';
-import { handleSearch } from './features/billSearch.js';
+import * as BillListing from './features/billListing.js';
+import * as BillStatus from './features/billStatus.js';
+import * as BillDeletion from './features/billDeletion.js';
+import * as BillCreation from './features/billCreation.js';
+import * as BillSearch from './features/billSearch.js';
 
-function setupEventListeners() {
-  ui.elements.markPaidButton.addEventListener('click', () => {
-    if (!state.selectedBill) return;
+function setupGlobalEventListeners() {
+  UI.elements.markPaidButton.addEventListener('click', () => {
+    if (!state.selectedBill) {
+      UI.displayStatusMessage('Please select a bill from the list first!')
+      return;
+    }
     const nextStatus = state.selectedBill.status === 'PAID' ? 'UNPAID' : 'PAID';
-    patchBill(nextStatus);
+    BillStatus.patchBillStatus(nextStatus);
   });
 
-  ui.elements.deleteButton.addEventListener('click', openDeleteConfirmation);
-  ui.elements.confirmDeleteButton.addEventListener('click', handleConfirmDelete);
-  ui.elements.cancelDeleteButton.addEventListener('click', modal.closeDeleteModal);
+  UI.elements.deleteButton.addEventListener('click', BillDeletion.handleOpenDeleteConfirmation);
+  UI.elements.confirmDeleteButton.addEventListener('click', BillDeletion.handleConfirmDelete);
+  UI.elements.cancelDeleteButton.addEventListener('click', Modal.handleCloseDeleteModal);
 
-  ui.elements.createBillForm.addEventListener('submit', createBill);
-  ui.elements.closeCreateModalButton.addEventListener('click', modal.closeCreateModal);
-  
+  UI.elements.createBillForm.addEventListener('submit', BillCreation.handleCreateBillSubmit);
+  UI.elements.closeCreateModalButton.addEventListener('click', Modal.handleCloseCreateModal);
+
   // Close modals when clicking outside
   window.addEventListener('click', (e) => {
-    if (e.target === ui.elements.createModal) modal.closeCreateModal();
-    if (e.target === ui.elements.deleteModal) modal.closeDeleteModal();
+    if (e.target === UI.elements.createModal) Modal.handleCloseCreateModal();
+    if (e.target === UI.elements.deleteModal) Modal.handleCloseDeleteModal();
   });
 
-  ui.elements.searchButton.addEventListener('click', handleSearch);
-  ui.elements.searchInput.addEventListener('keyup', (e) => {
-    if (e.key === 'Enter') handleSearch();
+  UI.elements.searchButton.addEventListener('click', BillSearch.handleSearchSubmit);
+  UI.elements.searchInput.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') BillSearch.handleSearchSubmit();
   });
 
-  ui.elements.prevMonthBtn.addEventListener('click', () => calendar.changeMonth(-1, fetchBills));
-  ui.elements.nextMonthBtn.addEventListener('click', () => calendar.changeMonth(1, fetchBills));
+  UI.elements.prevMonthBtn.addEventListener('click', () => Calendar.handleMonthChange(-1, BillListing.fetchAndRenderBills));
+  UI.elements.nextMonthBtn.addEventListener('click', () => Calendar.handleMonthChange(1, BillListing.fetchAndRenderBills));
 }
 
-function init() {
-  modal.setDueDateDefaults();
-  setupEventListeners();
-  fetchBills();
+function initializeApp() {
+  Modal.setDueDateDefaults();
+  setupGlobalEventListeners();
+  BillListing.fetchAndRenderBills();
 }
 
-init();
+initializeApp();

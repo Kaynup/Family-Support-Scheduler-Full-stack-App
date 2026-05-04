@@ -1,30 +1,30 @@
-import { elements } from './ui.js';
+import * as UI from './ui.js';
 
-export function openCreateModal() {
-  elements.createModal.classList.remove('hidden');
+export function handleOpenCreateModal() {
+  UI.elements.createModal.classList.remove('hidden');
   setDueDateDefaults();
-  elements.createBillForm.name.focus();
+  UI.elements.createBillForm.name.focus();
 }
 
-export function closeCreateModal() {
-  elements.createModal.classList.add('hidden');
+export function handleCloseCreateModal() {
+  UI.elements.createModal.classList.add('hidden');
 }
 
-export function openDeleteModal() {
-  elements.deleteModal.classList.remove('hidden');
+export function handleOpenDeleteModal() {
+  UI.elements.deleteModal.classList.remove('hidden');
 }
 
-export function closeDeleteModal() {
-  elements.deleteModal.classList.add('hidden');
+export function handleCloseDeleteModal() {
+  UI.elements.deleteModal.classList.add('hidden');
 }
 
 export function setDueDateDefaults() {
-  if (!elements.dueDateInput) return;
+  if (!UI.elements.dueDateInput) return;
 
   const today = new Date();
   const defaultDue = new Date(today);
   defaultDue.setDate(defaultDue.getDate() + 3);
 
-  elements.dueDateInput.min = today.toISOString().slice(0, 10);
-  elements.dueDateInput.value = defaultDue.toISOString().slice(0, 10);
+  UI.elements.dueDateInput.min = today.toISOString().slice(0, 10);
+  UI.elements.dueDateInput.value = defaultDue.toISOString().slice(0, 10);
 }

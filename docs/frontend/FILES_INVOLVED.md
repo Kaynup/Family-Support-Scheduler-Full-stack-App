@@ -102,6 +102,7 @@ This module has no imports and no functions. It is pure shared state.
 
 The HTTP client layer. Exports wrapper functions for the backend API.
 Handles JSON parsing, error extraction, and normalization of responses from `http://127.0.0.1:8000`.
+Key functions: `fetchAndRenderBills()`, `updateBillStatus()`, `deleteBillById()`, `createBill()`, `searchBills()`.
 
 ### frontend/js/core/utils.js
 
@@ -110,29 +111,30 @@ Contains `getProjectedBills()`, the critical function replacing old backend-driv
 
 ### frontend/js/components/ui.js
 
-The DOM interface layer. Exports the `elements` registry mapping HTML IDs to DOM references.
-Also exports visual rendering functions like `showStatus`, `updateSelectedText`, `clearSelection`, and `renderList`, which builds tables dynamically.
+The DOM interface layer. Exports the `elements` registry mapping HTML IDs to DOM references (now using `El` and `Btn` suffixes).
+Also exports visual rendering functions like **`displayStatusMessage`**, **`renderSelectedBillSummary`**, **`clearSelectionHighlights`**, and **`renderBillTable`**, which builds tables dynamically.
 
 ### frontend/js/components/calendar.js
 
 The calendar rendering engine.
-`renderCalendar()` builds the entire grid, calculating month boundaries and mapping bills to specific days to apply CSS glow effects (`glow-paid`, `glow-expired`, etc.).
+**`renderCalendar()`** builds the entire grid, calculating month boundaries and mapping bills to specific days to apply CSS glow effects (`glow-paid`, `glow-expired`, etc.).
+Includes **`handleMonthChange()`** for month navigation.
 
 ### frontend/js/components/modal.js
 
 The modal lifecycle manager.
-Toggles modal visibility (create, delete) and manages form defaults (like setting the minimum due date constraint).
+Manages modal visibility via **`handleOpenCreateModal`**, **`handleCloseCreateModal`**, **`handleOpenDeleteModal`**, and **`handleCloseDeleteModal`**. Also manages form defaults via **`setDueDateDefaults`**.
 
 ### frontend/js/features/*
 
 This directory holds the isolated business logic, mirroring the backend architecture:
-- **billListing.js**: Orchestrates fetching data, calling the projection engine, and instructing the UI and Calendar components to update.
-- **billStatus.js**: Handles the PATCH logic for marking bills as PAID/UNPAID.
-- **billDeletion.js**: Manages the delete confirmation workflow.
-- **billCreation.js**: Extracts form values and handles POST requests for new bills.
-- **billSearch.js**: Handles the search bar input and rendering results.
+- **billListing.js**: Orchestrates fetching data, calling the projection engine, and instructing the UI and Calendar components to update. Main function: **`fetchAndRenderBills()`**.
+- **billStatus.js**: Handles the status update logic. Main function: **`patchBillStatus()`**.
+- **billDeletion.js**: Manages the delete confirmation workflow. Main function: **`handleConfirmDelete()`**.
+- **billCreation.js**: Extracts form values and handles creation. Main function: **`handleCreateBillSubmit()`**.
+- **billSearch.js**: Handles the search bar input and rendering. Main function: **`handleSearchSubmit()`**.
 
 ### frontend/js/dashboard.js
 
-The application entry point.
-This file is minimal. It simply imports the features from `js/features/` and wires them to the DOM elements mapped in `js/components/ui.js`. It is the only script loaded directly by `dashboard.html`.
+The application entry point (The Switchboard).
+This file is minimal. It imports the features as namespaces (e.g., `BillListing`, `BillSearch`) and wires them to the DOM elements mapped in `js/components/ui.js`. It calls **`initializeApp()`** to start the application.

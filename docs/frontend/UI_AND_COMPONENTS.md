@@ -77,10 +77,10 @@ rather than stretching to match the tallest sibling.
 
 ## Component Reference
 
-### Status Bar (#status)
+#### Status Bar (#status)
 
 A single-line text element below the page title.
-Updated dynamically by `ui.showStatus()` to display loading messages,
+Updated dynamically by **`UI.displayStatusMessage()`** to display loading messages,
 success confirmations, error descriptions, and contextual hints.
 
 Located at: dashboard.html line 17.
@@ -90,8 +90,8 @@ Located at: dashboard.html line 17.
 Contains three sub-components:
 
 1. Calendar Header: Month/year label with previous and next buttons.
-   The month label is updated by calendar.js on every render.
-   Buttons trigger `calendar.changeMonth()` which modifies
+   The month label is updated by **`Calendar.renderCalendar()`** on every render.
+   Buttons trigger **`Calendar.handleMonthChange()`** which modifies
    state.currentMonth and state.currentYear, then re-renders.
 
 2. Calendar Grid (#calendar-grid): A 7-column CSS Grid.
@@ -113,7 +113,7 @@ Contains three sub-components:
 
 ### Bill Tables
 
-Two identical table structures rendered by `ui.renderList()`:
+Two identical table structures rendered by **`UI.renderBillTable()`**:
 
 - Due Bills (#bills): Shows UNPAID bills for the selected date.
   Includes a "+" add button row at the bottom that opens the create modal.
@@ -130,11 +130,11 @@ Table columns:
 | Amount | bill.total_amount | "Rs." prefix |
 | Due (Calendar) | bill.due_date | ISO date string |
 
-Rows are clickable. Clicking a row calls `selectBill()` which updates
+Rows are clickable. Clicking a row calls **`handleSelectBill()`** which updates
 the action panel and highlights the row with the `.selected` class.
 
 When no bills exist for a date, a single row spanning all 4 columns
-displays the empty text message.
+displays the empty message.
 
 ### Action Panel
 
@@ -142,11 +142,11 @@ Contains two sub-sections:
 
 1. Search Panel: Text input (#search-input) and Search button (#search-btn).
    Results appear in #search-results-list using the same table format
-   as the bill tables. Supports Enter key submission.
+   as the bill tables. Supports Enter key submission via **`handleSearchSubmit()`**.
 
 2. Bill Actions: A text paragraph (#selected-text) showing the selected
-   bill's details, and two action buttons:
-   - Mark PAID (#mark-paid): Toggles between PAID and UNPAID.
+   bill's details via **`renderSelectedBillSummary()`**, and two action buttons:
+   - Mark PAID (#mark-paid): Toggles between PAID and UNPAID via **`patchBillStatus()`**.
      Label changes dynamically based on current bill status.
    - Delete (#delete-bill): Opens the delete confirmation modal.
    Both buttons start disabled and are enabled when a real (non-projected)
@@ -169,7 +169,7 @@ The modal is shown by removing the `.hidden` class and hidden by adding it.
 Clicking outside the modal content (on the backdrop) also closes it.
 The close button (x) in the top-right corner is a separate click target.
 
-When the modal opens, `setDueDateDefaults()` sets the due date input's
+When the modal opens, **`setDueDateDefaults()`** sets the due date input's
 minimum to today and its default value to 3 days from today. The name
 input receives focus automatically.
 
@@ -181,7 +181,7 @@ A smaller centered overlay with:
 - Two buttons: Cancel (gray) and Delete (red)
 
 The Cancel button and backdrop click close the modal without action.
-The Delete button calls `handleConfirmDelete()` which executes the
+The Delete button calls **`handleConfirmDelete()`** which executes the
 API deletion and refreshes the bill list.
 
 ---
@@ -245,10 +245,10 @@ The complete registry:
 
 | ID | Element | Module Consumer |
 | -- | ------- | --------------- |
-| bills | div | components/ui.js (bill list container) |
-| paid-bills | div | components/ui.js (paid list container) |
-| status | div | components/ui.js (status bar) |
-| selected-text | p | components/ui.js (action panel text) |
+| bills | div | components/ui.js (billsContainerEl) |
+| paid-bills | div | components/ui.js (paidBillsContainerEl) |
+| status | div | components/ui.js (statusDisplayEl) |
+| selected-text | p | components/ui.js (selectedBillSummaryEl) |
 | mark-paid | button | components/ui.js, dashboard.js |
 | delete-bill | button | components/ui.js, dashboard.js |
 | create-bill-form | form | components/ui.js, dashboard.js |
@@ -265,4 +265,4 @@ The complete registry:
 | delete-modal | div | components/ui.js, components/modal.js, dashboard.js |
 | confirm-delete | button | components/ui.js, dashboard.js |
 | cancel-delete | button | components/ui.js, dashboard.js |
-| delete-confirm-text | p | features/billDeletion.js (direct getElementById) |
+| delete-confirm-text | p | features/billDeletion.js (confirmTextEl) |

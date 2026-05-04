@@ -1,18 +1,36 @@
-import * as api from '../core/api.js';
-import * as ui from '../components/ui.js';
+import * as API from '../core/api.js';
+import * as UI from '../components/ui.js';
 import { state } from '../core/state.js';
-import { fetchBills } from './billListing.js';
+import * as BillListing from './billListing.js';
 
-export async function patchBill(status) {
+export async function patchBillStatus(newStatus) {
   if (!state.selectedBill) return;
-  ui.showStatus(`Updating ${state.selectedBill.name}...`);
+  
+  const isProjected = !!state.selectedBill.isProjected;
+  const actionText = isProjected ? 'Creating record for' : 'Updating';
+  
+  UI.displayStatusMessage(`${actionText} ${state.selectedBill.name}...`);
+  
   try {
-    await api.updateBillStatus(state.selectedBill.id, status);
-    state.selectedBill.status = status;
-    ui.showStatus(`Bill updated to ${status}.`);
-    await fetchBills();
+    if (isProjected) {
+      // "Promote" virtual bill to a real database record
+      await API.createBill({
+        name: state.selectedBill.name,
+        due_date: state.selectedBill.due_date,
+        total_amount: state.selectedBill.total_amount,
+        category: state.selectedBill.category,
+        recurring_interval: state.selectedBill.recurring_interval,
+        status: newStatus
+      });
+    } else {
+      // Normal update for existing record
+      await API.updateBillStatus(state.selectedBill.id, newStatus);
+    }
+    
+    UI.displayStatusMessage(`Bill marked as ${newStatus}.`);
+    await BillListing.fetchAndRenderBills();
   } catch (error) {
-    ui.showStatus('Unable to update bill.');
+    UI.displayStatusMessage(`Error: ${error.message}`);
     console.error(error);
   }
 }

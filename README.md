@@ -17,7 +17,7 @@ recurring family bills
 ---
 
 ## Functional Requirements
-- Users log upcoming bills with strict due dates and Paid/Unpaid states.
+- Users can log upcoming bills with strict due dates and Paid/Unpaid states.
 - Bash script triggers backend API to alert for unpaid bills due in < 3 days.
 
 ---
@@ -60,3 +60,27 @@ flowchart TD
 ```
 
 ---
+
+## Start Backend
+
+```bash
+make start-backend
+```
+
+## Start Frontend
+
+```bash
+make start-frontend
+```
+
+## Database Interface MySQL
+
+```bash
+make start-database
+```
+
+## For CronJOB in WSL
+
+```bash
+sudo service cron start
+```

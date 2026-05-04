@@ -57,9 +57,12 @@ point in time (e.g., after the dashboard has loaded and fetched data).
 
 ```mermaid
 objectDiagram
-    object window_state {
+    object state {
         selectedDate = "2026-04-30"
-        bills = [bill_1, bill_2, bill_3]
+        selectedBill = bill_1
+        currentMonth = 4
+        currentYear = 2026
+        projectionCount = 12
     }
 
     object bill_1 {
@@ -87,9 +90,9 @@ objectDiagram
         recurring_interval = "MONTHLY"
     }
 
-    window_state *-- bill_1
-    window_state *-- bill_2
-    window_state *-- projected_bill_3 : contains
+    state *-- bill_1
+    state *-- bill_2
+    state *-- projected_bill_3 : contains
     projected_bill_3 ..> bill_1 : generated from
 ```
 

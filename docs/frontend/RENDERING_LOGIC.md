@@ -9,36 +9,36 @@ algorithm, and event handling architecture.
 ## 1. Application Initialization
 
 When dashboard.html loads, the browser executes js/dashboard.js as
-an ES6 module. The module's init() function runs immediately:
+an ES6 module. The module's **`initializeApp()`** function runs immediately:
 
-    1. modal.setDueDateDefaults() -- sets the create form's date constraints.
-    2. setupEventListeners() -- wires all click/keyup handlers.
-    3. fetchBills() -- triggers the first data load.
+    1. Modal.setDueDateDefaults() -- sets the create form's date constraints.
+    2. setupGlobalEventListeners() -- wires all click/keyup handlers.
+    3. BillListing.fetchAndRenderBills() -- triggers the first data load.
 
-The init() call is at module scope (not inside DOMContentLoaded) because
+The `initializeApp()` call is at module scope (not inside DOMContentLoaded) because
 the script tag has `type="module"`, which defers execution until after
 the DOM is fully parsed. This is a deliberate choice -- module scripts
 are deferred by default in all modern browsers.
 
 ---
 
-## 2. The fetchBills() Cycle
+## 2. The fetchAndRenderBills() Cycle
 
 This is the central data flow function. Every user action that changes
 data (creating, updating, deleting, changing month, selecting a date)
-ultimately calls fetchBills() to refresh the UI.
+ultimately calls **`fetchAndRenderBills()`** to refresh the UI.
 
 The cycle proceeds as follows:
 
     Step 1: Reset UI
-        - Show "Loading bills..." in the status bar.
+        - Call UI.displayStatusMessage('Loading bills...').
         - Clear both bill list containers (due and paid).
-        - Reset the selected bill text to the default prompt.
+        - Reset the selected bill summary text to the default prompt.
         - Set state.selectedBill to null.
         - Disable both action buttons (Mark PAID, Delete).
 
     Step 2: Fetch Data
-        - Call api.fetchAllBills() which sends GET /bills/all to the backend.
+        - Call API.fetchAllBills() which sends GET /bills/all to the backend.
         - The backend returns all non-deleted bills from the database.
         - The API client extracts the .data array from the response.
 
@@ -51,7 +51,7 @@ The cycle proceeds as follows:
         - The result is a combined array of real and projected bills.
 
     Step 4: Render Calendar
-        - Pass the combined array to calendar.renderCalendar().
+        - Pass the combined array to Calendar.renderCalendar().
         - The calendar builds a date-indexed map of bill statuses.
         - Each day cell receives the appropriate glow class.
         - A click handler is attached to each day cell.
@@ -60,13 +60,13 @@ The cycle proceeds as follows:
         - If state.selectedDate is set (user clicked a day):
             - Filter bills by due_date matching the selected date.
             - Split into UNPAID (due) and PAID arrays.
-            - Render both lists using ui.renderList().
+            - Render both lists using UI.renderBillTable().
         - If no date is selected:
             - Show "Please select a date" placeholder in both panels.
 
     Step 6: Error Handling
         - If the fetch fails (backend down, network error), display
-          the error message in the status bar.
+          the error message in the status bar using displayStatusMessage().
         - Log the full error to the console for debugging.
 
 ---
@@ -144,7 +144,7 @@ Projected bills are identified by two markers:
     2. The isProjected field is set to true.
        Real bills do not have this field.
 
-The selectBill() function checks for the "proj-" prefix
+The **`handleSelectBill()`** function checks for the "proj-" prefix
 and disables the Mark PAID and Delete buttons when a projected bill
 is selected. This prevents the user from trying to operate on a
 record that does not exist in the database.
@@ -181,7 +181,7 @@ enabling direct string comparison for bill matching.
 
 Before rendering day cells, the algorithm builds a lookup map:
 
-    dateInfo = {
+    dateInfoMap = {
         "2026-05-03": { statuses: Set(["UNPAID"]), hasExpired: false },
         "2026-05-04": { statuses: Set(["PAID"]), hasExpired: false },
         "2026-04-29": { statuses: Set(["UNPAID"]), hasExpired: true },
@@ -221,7 +221,7 @@ later in the CSS cascade.
 ### Selection Highlighting
 
 When the user clicks a day cell, state.selectedDate is set to that
-date string. On the next fetchBills() cycle, the calendar re-renders
+date string. On the next **`fetchAndRenderBills()`** cycle, the calendar re-renders
 and applies inline styles to the selected day:
 
     background: #dbeafe
@@ -233,14 +233,14 @@ bill status.
 
 ### Month Navigation
 
-The changeMonth() function modifies state.currentMonth and
+The **`handleMonthChange()`** function modifies state.currentMonth and
 state.currentYear, handling year rollovers:
 
     - Month goes above 11: reset to 0, increment year.
     - Month goes below 0: reset to 11, decrement year.
 
 After updating state, it calls the onUpdate callback (which is
-fetchBills()) to re-render the entire UI with the new month context.
+**`fetchAndRenderBills()`**) to re-render the entire UI with the new month context.
 
 ---
 
@@ -248,7 +248,7 @@ fetchBills()) to re-render the entire UI with the new month context.
 
 ### Table Generation
 
-The renderList() function builds an HTML table programmatically:
+The **`renderBillTable()`** function builds an HTML table programmatically:
 
     table.bill-table
         thead
@@ -264,7 +264,7 @@ and the category shows "-" if null.
 
 ### Click Handling
 
-Each bill row has a click event listener that calls the selectBill
+Each bill row has a click event listener that calls the **`handleSelectBill`**
 callback. The callback receives the full bill object and the DOM row
 element. This two-argument pattern allows the orchestrator to both
 update state (from the bill object) and update the DOM (by adding
@@ -286,7 +286,7 @@ a blue outline, creating a floating action button aesthetic.
 ### Empty State
 
 When the bills array is empty, a single row spanning all four columns
-displays the provided emptyText message. This ensures the table
+displays the provided emptyMessage. This ensures the table
 structure is maintained even when there is no data, preventing layout
 shifts when bills are loaded.
 
@@ -308,13 +308,13 @@ The `.modal.hidden` class overrides with `display: none`.
 
 Opening sequence:
 1. Remove 'hidden' class from the modal container.
-2. Call setDueDateDefaults() to constrain the date input.
+2. Call **`setDueDateDefaults()`** to constrain the date input.
 3. Focus the name input for immediate typing.
 
 Closing triggers:
 - Click the X button (close-create-modal).
 - Click outside the modal content (on the backdrop).
-- Successful form submission (from dashboard.js).
+- Successful form submission (handled in BillCreation).
 
 ### Delete Modal
 
@@ -325,11 +325,11 @@ Opening sequence:
 Closing triggers:
 - Click the Cancel button.
 - Click outside the modal content (on the backdrop).
-- Successful deletion (from dashboard.js).
+- Successful deletion (handled in BillDeletion).
 
 ### Date Defaults
 
-The setDueDateDefaults() function runs on init and on every modal open:
+The **`setDueDateDefaults()`** function runs on init and on every modal open:
 - Sets the date input's `min` attribute to today's date (ISO string).
   This prevents the user from selecting a past date.
 - Sets the date input's `value` to 3 days from today.
@@ -389,12 +389,11 @@ The business logic is modularized into feature files. `dashboard.js` wires these
 
 ### Bill Selection Logic (in billListing.js)
 
-When a bill row is clicked, selectBill() executes:
+When a bill row is clicked, **`handleSelectBill()`** executes:
 
     1. Store the bill object in state.selectedBill.
-    2. Clear all existing .selected classes from other rows.
-    3. Update the action panel text with bill details:
-       "{name} . Rs.{amount} . due {date} . {status} . {interval}"
+    2. Clear all existing .selected classes from other rows using clearSelectionHighlights().
+    3. Update the action panel text with bill details using renderSelectedBillSummary().
     4. Set the Mark PAID button label based on current status.
     5. Check if the bill is projected (id starts with "proj-").
        - If projected: disable both action buttons, show status message.
@@ -407,14 +406,14 @@ When Mark PAID is clicked:
 
     1. Read state.selectedBill.status.
     2. Compute the opposite status (PAID -> UNPAID, UNPAID -> PAID).
-    3. Call api.updateBillStatus(id, newStatus).
+    3. Call API.updateBillStatus(id, newStatus).
     4. On success: update the in-memory bill object's status,
-       show success message, and call fetchBills() to refresh.
+       show success message, and call fetchAndRenderBills() to refresh.
     5. On failure: show error message in status bar.
 
 The system relies on the **Bill Projection Engine** (Step 3) to visually 
 forecast future bills. When a user marks a bill as PAID, the 
-`fetchBills()` cycle is re-triggered. The engine then uses the 
+**`fetchAndRenderBills()`** cycle is re-triggered. The engine then uses the 
 newly-paid bill as the "anchor" to project the next upcoming 
 instance, which will appear in the calendar as a virtual UNPAID bill.
 The backend does not generate any rows automatically.
@@ -423,11 +422,11 @@ The backend does not generate any rows automatically.
 
 When Delete is clicked:
 
-    1. Open the delete confirmation modal.
+    1. Open the delete confirmation modal via handleOpenDeleteConfirmation().
     2. Update the confirmation text with the bill's name.
     3. Wait for user to click Confirm or Cancel.
-    4. On Confirm: call api.deleteBillById(id).
-    5. On success: close the modal, call fetchBills() to refresh.
+    4. On Confirm: call API.deleteBillById(id).
+    5. On success: close the modal, call fetchAndRenderBills() to refresh.
     6. On failure: show error message in status bar.
 
 ### Creation Flow (in billCreation.js)
@@ -435,11 +434,11 @@ When Delete is clicked:
 When the create form is submitted:
 
     1. Prevent default form submission.
-    2. Read all form values.
+    2. Read all form values from createBillForm.
     3. Validate: name non-empty, amount non-negative and valid, date set.
-    4. Call api.createBill() with the form data.
+    4. Call API.createBill() with the form data.
     5. On success: reset the form, close the modal, restore date defaults,
-       and call fetchBills() to refresh.
+       and call fetchAndRenderBills() to refresh.
     6. On failure: show the backend's validation error in the status bar.
 
 ### Search Flow (in billSearch.js)
@@ -448,8 +447,8 @@ When the search button is clicked or Enter is pressed in the input:
 
     1. Read and trim the search input value.
     2. If empty, clear the search results container and return.
-    3. Call api.searchBills(query).
-    4. Render the results using ui.renderList() in the search container.
+    3. Call API.searchBills(query).
+    4. Render the results using UI.renderBillTable() in the search container.
     5. Show the result count in the status bar.
     6. On failure: show error message in status bar.
 

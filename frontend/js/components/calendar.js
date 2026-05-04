@@ -1,4 +1,4 @@
-import * as ui from './ui.js';
+import * as UI from './ui.js';
 import { state } from '../core/state.js';
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June",
@@ -7,92 +7,94 @@ const MONTH_NAMES = ["January", "February", "March", "April", "May", "June",
 const DAY_HEADERS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 export function renderCalendar(allBills, onDateClick) {
-  const gridEl = ui.elements.calendarGrid;
+  const gridEl = UI.elements.calendarGridEl;
   gridEl.textContent = '';
-  ui.elements.calendarMonthYear.textContent = `${MONTH_NAMES[state.currentMonth]} ${state.currentYear}`;
+  UI.elements.calendarMonthYearEl.textContent = `${MONTH_NAMES[state.currentMonth]} ${state.currentYear}`;
 
   const todayStr = new Date().toLocaleDateString('en-CA');
-  const dateInfo = buildDateInfoMap(allBills, todayStr);
+  const dateInfoMap = buildDateInfoMap(allBills, todayStr);
 
-  renderHeaders(gridEl);
+  renderCalendarHeaders(gridEl);
 
-  const firstDay = new Date(state.currentYear, state.currentMonth, 1).getDay();
-  renderPadding(gridEl, firstDay);
+  const firstDayIndex = new Date(state.currentYear, state.currentMonth, 1).getDay();
+  renderCalendarPadding(gridEl, firstDayIndex);
 
   const daysInMonth = new Date(state.currentYear, state.currentMonth + 1, 0).getDate();
   for (let i = 1; i <= daysInMonth; i++) {
-    renderDay(gridEl, i, todayStr, dateInfo, onDateClick);
+    renderCalendarDay(gridEl, i, todayStr, dateInfoMap, onDateClick);
   }
 }
 
 function buildDateInfoMap(allBills, todayStr) {
-  const dateInfo = {};
-  allBills.forEach(b => {
-    if (!dateInfo[b.due_date]) dateInfo[b.due_date] = { statuses: new Set(), hasExpired: false };
-    dateInfo[b.due_date].statuses.add(b.status);
+  const dateInfoMap = {};
+  allBills.forEach(bill => {
+    if (!dateInfoMap[bill.due_date]) {
+      dateInfoMap[bill.due_date] = { statuses: new Set(), hasExpired: false };
+    }
+    dateInfoMap[bill.due_date].statuses.add(bill.status);
 
-    if (b.is_expired === 'Y' || (b.status === 'UNPAID' && b.due_date < todayStr)) {
-      dateInfo[b.due_date].hasExpired = true;
+    if (bill.is_expired === 'Y' || (bill.status === 'UNPAID' && bill.due_date < todayStr)) {
+      dateInfoMap[bill.due_date].hasExpired = true;
     }
   });
-  return dateInfo;
+  return dateInfoMap;
 }
 
-function renderHeaders(gridEl) {
-  DAY_HEADERS.forEach(d => {
-    const el = document.createElement('div');
-    el.textContent = d;
-    el.style.textAlign = 'center';
-    el.style.fontWeight = 'bold';
-    el.style.fontSize = '0.7rem';
-    gridEl.appendChild(el);
+function renderCalendarHeaders(gridEl) {
+  DAY_HEADERS.forEach(headerText => {
+    const headerEl = document.createElement('div');
+    headerEl.textContent = headerText;
+    headerEl.style.textAlign = 'center';
+    headerEl.style.fontWeight = 'bold';
+    headerEl.style.fontSize = '0.7rem';
+    gridEl.appendChild(headerEl);
   });
 }
 
-function renderPadding(gridEl, count) {
-  for (let i = 0; i < count; i++) {
+function renderCalendarPadding(gridEl, paddingCount) {
+  for (let i = 0; i < paddingCount; i++) {
     gridEl.appendChild(document.createElement('div'));
   }
 }
 
-function renderDay(gridEl, dayNum, todayStr, dateInfo, onDateClick) {
-  const el = document.createElement('div');
-  el.className = 'calendar-day';
-  el.textContent = dayNum;
-  el.style.cursor = 'pointer';
+function renderCalendarDay(gridEl, dayNum, todayStr, dateInfoMap, onDateClick) {
+  const dayEl = document.createElement('div');
+  dayEl.className = 'calendar-day';
+  dayEl.textContent = dayNum;
+  dayEl.style.cursor = 'pointer';
 
   const dateStr = `${state.currentYear}-${String(state.currentMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
 
   if (dateStr === todayStr) {
-    el.classList.add('today');
+    dayEl.classList.add('today');
   }
 
   if (dateStr === state.selectedDate) {
-    el.style.background = '#dbeafe';
-    el.style.borderColor = '#2563eb';
+    dayEl.style.background = '#dbeafe';
+    dayEl.style.borderColor = '#2563eb';
   }
 
-  applyGlowEffect(el, dateInfo[dateStr]);
+  applyDayGlowEffect(dayEl, dateInfoMap[dateStr]);
 
-  el.addEventListener('click', () => onDateClick(dateStr));
-  gridEl.appendChild(el);
+  dayEl.addEventListener('click', () => onDateClick(dateStr));
+  gridEl.appendChild(dayEl);
 }
 
-function applyGlowEffect(el, info) {
+function applyDayGlowEffect(dayEl, info) {
   if (!info) return;
   
   if (info.hasExpired) {
-    el.classList.add('glow-expired');
+    dayEl.classList.add('glow-expired');
   } else if (info.statuses.has('UNPAID') && info.statuses.has('PAID')) {
-    el.classList.add('glow-mixed');
+    dayEl.classList.add('glow-mixed');
   } else if (info.statuses.has('UNPAID')) {
-    el.classList.add('glow');
+    dayEl.classList.add('glow');
   } else if (info.statuses.has('PAID')) {
-    el.classList.add('glow-paid');
+    dayEl.classList.add('glow-paid');
   }
 }
 
-export function changeMonth(delta, onUpdate) {
+export function handleMonthChange(delta, onUpdate) {
   state.currentMonth += delta;
   if (state.currentMonth > 11) {
     state.currentMonth = 0;

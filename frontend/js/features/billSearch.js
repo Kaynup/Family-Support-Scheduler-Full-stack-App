@@ -1,20 +1,20 @@
-import * as api from '../core/api.js';
-import * as ui from '../components/ui.js';
-import { selectBill } from './billListing.js';
+import * as API from '../core/api.js';
+import * as UI from '../components/ui.js';
+import * as BillListing from './billListing.js';
 
-export async function handleSearch() {
-  const query = ui.elements.searchInput.value.trim();
+export async function handleSearchSubmit() {
+  const query = UI.elements.searchInput.value.trim();
   if (!query) {
-    ui.elements.searchResultsEl.textContent = '';
+    UI.elements.searchResultsContainerEl.textContent = '';
     return;
   }
-  ui.showStatus(`Searching for "${query}"...`);
+  UI.displayStatusMessage(`Searching for "${query}"...`);
   try {
-    const results = await api.searchBills(query);
-    ui.renderList(ui.elements.searchResultsEl, results, 'No matching bills found.', selectBill);
-    ui.showStatus(`Found ${results.length} bills matching "${query}".`);
+    const results = await API.searchBills(query);
+    UI.renderBillTable(UI.elements.searchResultsContainerEl, results, 'No matching bills found.', BillListing.handleSelectBill);
+    UI.displayStatusMessage(`Found ${results.length} bills matching "${query}".`);
   } catch (error) {
-    ui.showStatus(`Search failed: ${error.message}`);
+    UI.displayStatusMessage(`Search failed: ${error.message}`);
     console.error(error);
   }
 }

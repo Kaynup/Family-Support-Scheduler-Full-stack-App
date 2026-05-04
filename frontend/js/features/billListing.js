@@ -1,62 +1,62 @@
-import * as api from '../core/api.js';
-import * as ui from '../components/ui.js';
-import * as calendar from '../components/calendar.js';
+import * as API from '../core/api.js';
+import * as UI from '../components/ui.js';
+import * as Calendar from '../components/calendar.js';
 import { state } from '../core/state.js';
 import { getProjectedBills } from '../core/utils.js';
-import { openCreateModal } from '../components/modal.js';
+import * as Modal from '../components/modal.js';
 
-export function selectBill(bill, row) {
+export function handleSelectBill(bill, rowEl) {
   state.selectedBill = bill;
-  ui.clearSelection();
-  ui.updateSelectedText(bill);
+  UI.clearSelectionHighlights();
+  UI.renderSelectedBillSummary(bill);
 
-  ui.elements.markPaidButton.textContent = bill.status === 'PAID' ? 'Mark UNPAID' : 'Mark PAID';
-  
-  const isProjected = bill.isProjected === true || (typeof bill.id === 'string' && bill.id.startsWith('proj-'));
-  
-  ui.elements.markPaidButton.disabled = isProjected;
-  ui.elements.deleteButton.disabled = isProjected;
-  
+  UI.elements.markPaidButton.textContent = bill.status === 'PAID' ? 'Mark UNPAID' : 'Mark PAID';
+
+  const isProjected = !!bill.isProjected;
+
+  UI.elements.markPaidButton.disabled = false; // Allow status updates for all
+  UI.elements.deleteButton.disabled = isProjected; // Keep delete disabled for virtuals
+
   if (isProjected) {
-    ui.showStatus('Projected bill: Actions are disabled until the current instance is paid.');
+    UI.displayStatusMessage('Projected bill: Marking as PAID will create a new record in the database.');
   } else {
-    ui.showStatus(`Selected: ${bill.name}. You can now Mark Paid or Delete.`);
+    UI.displayStatusMessage(`Selected: ${bill.name}. You can now Mark Paid or Delete.`);
   }
 
-  row.classList.add('selected');
+  rowEl.classList.add('selected');
 }
 
-export async function fetchBills() {
+export async function fetchAndRenderBills() {
   prepareUIForLoading();
 
   try {
-    const rawBills = await api.fetchAllBills();
+    const rawBills = await API.fetchAllBills();
     const allBills = getProjectedBills(rawBills, state.currentYear, state.currentMonth, state.projectionCount);
-    
-    calendar.renderCalendar(allBills, (dateStr) => {
+
+    Calendar.renderCalendar(allBills, (dateStr) => {
       state.selectedDate = dateStr;
-      fetchBills();
+      fetchAndRenderBills();
     });
 
     updateDashboardLists(allBills);
   } catch (error) {
-    ui.showStatus(`Unable to load bills: ${error.message}`);
+    UI.displayStatusMessage(`Unable to load bills: ${error.message}`);
     console.error(error);
   }
 }
 
 function prepareUIForLoading() {
-  ui.showStatus('Loading bills...');
-  ui.elements.billsEl.textContent = '';
-  ui.elements.paidBillsEl.textContent = '';
-  ui.updateSelectedText({name: 'Select a bill to see actions.', total_amount: '-', due_date: '-', status: '-', recurring_interval: '-'});
+  UI.displayStatusMessage('Loading bills...');
+  UI.elements.billsContainerEl.textContent = '';
+  UI.elements.paidBillsContainerEl.textContent = '';
+  UI.renderSelectedBillSummary({ name: 'Select a bill to see actions.', total_amount: '-', due_date: '-', status: '-', recurring_interval: '-' });
   state.selectedBill = null;
-  ui.clearSelection();
+  UI.clearSelectionHighlights();
 }
 
 function updateDashboardLists(allBills) {
   if (!state.selectedDate) {
-    showEmptyDateState();
+    renderEmptyDateState();
     return;
   }
 
@@ -64,13 +64,13 @@ function updateDashboardLists(allBills) {
   const dueForDate = billsForDate.filter(b => b.status === 'UNPAID');
   const paidForDate = billsForDate.filter(b => b.status === 'PAID');
 
-  ui.renderList(ui.elements.billsEl, dueForDate, `No due bills for ${state.selectedDate}.`, selectBill, openCreateModal);
-  ui.renderList(ui.elements.paidBillsEl, paidForDate, `No paid bills for ${state.selectedDate}.`, selectBill);
-  ui.showStatus(`Showing bills for ${state.selectedDate}.`);
+  UI.renderBillTable(UI.elements.billsContainerEl, dueForDate, `No due bills for ${state.selectedDate}.`, handleSelectBill, Modal.handleOpenCreateModal);
+  UI.renderBillTable(UI.elements.paidBillsContainerEl, paidForDate, `No paid bills for ${state.selectedDate}.`, handleSelectBill);
+  UI.displayStatusMessage(`Showing bills for ${state.selectedDate}.`);
 }
 
-function showEmptyDateState() {
-  ui.elements.billsEl.innerHTML = '<p class="bill-empty-note">Please select a date on the calendar to view bills.</p>';
-  ui.elements.paidBillsEl.innerHTML = '<p class="bill-empty-note">Please select a date on the calendar to view bills.</p>';
-  ui.showStatus('Select a date on the calendar.');
+function renderEmptyDateState() {
+  UI.elements.billsContainerEl.innerHTML = '<p class="bill-empty-note">Please select a date on the calendar to view bills.</p>';
+  UI.elements.paidBillsContainerEl.innerHTML = '<p class="bill-empty-note">Please select a date on the calendar to view bills.</p>';
+  UI.displayStatusMessage('Select a date on the calendar.');
 }

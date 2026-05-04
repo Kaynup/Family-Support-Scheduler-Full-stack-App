@@ -7,22 +7,24 @@ approach used by the Family Support Scheduler.
 
 ```mermaid
 flowchart TB
-    subgraph Frontend ["Frontend Architecture (Vanilla JS)"]
-        UI[HTML/CSS DOM]
-        State[State Manager\nstate.js]
-        API_Wrapper[API Fetch Wrapper\nrequestJson]
-        Projection[Projection Engine\nutils.js]
+    subgraph Frontend ["Frontend Architecture (Modular Vanilla JS)"]
+        UI[DOM Registry\ncomponents/ui.js]
+        State[Shared State\ncore/state.js]
+        API_Wrapper[API Client\ncore/api.js]
+        Projection[Projection Engine\ncore/utils.js]
+        Features[Feature Orchestrators\nfeatures/*.js]
         
-        UI <--> State
+        Features <--> UI
+        Features <--> State
         State --> Projection
-        State <--> API_Wrapper
+        Features <--> API_Wrapper
     end
 
     subgraph Backend ["Backend Architecture (FastAPI)"]
-        Router[API Endpoints\napi_endpoints.py]
-        Services[Business Logic\nbill_*.py]
-        DAO[Data Access Object\nqueries.py]
-        Pool[Connection Pool\nconnection.py]
+        Router[API Endpoints\nroutes/api_endpoints.py]
+        Services[Business Logic Layer\nservices/bill_*.py]
+        DAO[Data Access Layer\ndb/queries.py]
+        Pool[Connection Pool\ndb/connection.py]
         
         Router <--> Services
         Services <--> DAO
