@@ -19,6 +19,7 @@ recurring family bills
 ## Functional Requirements
 - Users can log upcoming bills with strict due dates and Paid/Unpaid states.
 - Bash script triggers backend API to alert for unpaid bills due in < 3 days.
+- JS frontend offering a UI for bill management.
 
 ---
 
@@ -61,19 +62,26 @@ flowchart TD
 
 ---
 
-## Start Backend
+## Documentation `docs/`
+- [Frontend Flow](docs/schematics/FRONTEND_FLOW.md)
+- [Full Stack Architecture](docs/schematics/FULL_STACK_ARCHITECTURE.md)
+- [Class & Object Models](docs/schematics/CLASS_AND_OBJECT.md)
+
+---
+
+## Start Backend `Makefile`
 
 ```bash
 make start-backend
 ```
 
-## Start Frontend
+## Start Frontend `Makefile`
 
 ```bash
 make start-frontend
 ```
 
-## Database Interface MySQL
+## Database Interface MySQL `Makefile`
 
 ```bash
 make start-database
