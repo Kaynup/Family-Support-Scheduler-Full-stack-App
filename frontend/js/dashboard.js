@@ -8,6 +8,7 @@ import * as BillStatus from './features/billStatus.js';
 import * as BillDeletion from './features/billDeletion.js';
 import * as BillCreation from './features/billCreation.js';
 import * as BillSearch from './features/billSearch.js';
+import { fetchUpcomingBills } from './core/api.js';
 
 function setupGlobalEventListeners() {
   UI.elements.markPaidButton.addEventListener('click', () => {
@@ -30,7 +31,10 @@ function setupGlobalEventListeners() {
   window.addEventListener('click', (e) => {
     if (e.target === UI.elements.createModal) Modal.handleCloseCreateModal();
     if (e.target === UI.elements.deleteModal) Modal.handleCloseDeleteModal();
+    // if (e.target === UI.elements.upcomingModal) UI.elements.upcomingModal.classList.add('hidden');
   });
+
+  UI.elements.upcomingOkButton.addEventListener('click', () => UI.elements.upcomingModal.classList.add('hidden'));
 
   UI.elements.searchButton.addEventListener('click', BillSearch.handleSearchSubmit);
   UI.elements.searchInput.addEventListener('keyup', (e) => {
@@ -41,10 +45,34 @@ function setupGlobalEventListeners() {
   UI.elements.nextMonthBtn.addEventListener('click', () => Calendar.handleMonthChange(1, BillListing.fetchAndRenderBills));
 }
 
+async function dueBillsPopUpWindow() {
+  if (sessionStorage.getItem('upcomingModalShown')) return;
+
+  try {
+    const upcomingBills = await fetchUpcomingBills(3);
+    if (upcomingBills.length > 0) {
+      UI.elements.upcomingList.innerHTML = '';
+      upcomingBills.forEach(bill => {
+        const item = document.createElement('tr');
+        item.className = 'upcoming-item';
+        item.innerHTML = `<td>${bill.name}</td><td>${bill.due_date}</td><td>Rs.${bill.total_amount}</td>`;
+        UI.elements.upcomingList.appendChild(item);
+      });
+      UI.elements.upcomingModal.classList.remove('hidden');
+
+      sessionStorage.setItem('upcomingModalShown', 'true');
+    }
+
+  } catch (error) {
+    console.error('Failed to fetch upcoming bills:', error);
+  }
+}
+
 function initializeApp() {
   Modal.setDueDateDefaults();
   setupGlobalEventListeners();
   BillListing.fetchAndRenderBills();
+  dueBillsPopUpWindow();
 }
 
 initializeApp();

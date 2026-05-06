@@ -19,6 +19,9 @@ export const elements = {
   deleteModal: document.getElementById('delete-modal'),
   confirmDeleteButton: document.getElementById('confirm-delete'),
   cancelDeleteButton: document.getElementById('cancel-delete'),
+  upcomingModal: document.getElementById('upcoming-modal'),
+  upcomingList: document.getElementById('upcoming-bills-list'),
+  upcomingOkButton: document.getElementById('upcoming-button'),
 };
 
 export function displayStatusMessage(message) {
@@ -66,7 +69,7 @@ export function renderBillTable(containerEl, billsList, emptyMessage, onSelectBi
 function getTableHeaderHTML() {
   const theadEl = document.createElement('thead');
   const headerRowEl = document.createElement('tr');
-  headerRowEl.innerHTML = '<th>Name</th><th>Category</th><th>Amount</th><th>Due (Calendar)</th>';
+  headerRowEl.innerHTML = '<th>Name</th><th>Category</th><th>Amount</th><th>Due Date</th>';
   theadEl.appendChild(headerRowEl);
   return theadEl;
 }

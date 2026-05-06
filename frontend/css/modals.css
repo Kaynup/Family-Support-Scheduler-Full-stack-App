@@ -108,3 +108,22 @@
   background: #902828;
   color: white;
 }
+
+/* Upcoming Bills Modal (#upcoming-modal) */
+.upcoming-table-container {
+  margin-top: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.upcoming-table {
+  margin-top: 0;
+  border: none;
+}
+
+.upcoming-table th,
+.upcoming-table td {
+  padding: 0.75rem;
+}
