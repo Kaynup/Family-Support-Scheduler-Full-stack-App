@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Sender Panel</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <main class="dashboard-page">
+    <h1>Sender Dashboard</h1>
+    <div class="controls" style="display:flex; gap:10px; align-items:center;">
+      <a href="dashboard.html" style="font-weight:bold;">Dashboard</a>
+      <a href="bills.html">All Bills</a>
+      <a href="history.html">History</a>
+      <a href="login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('role');">Logout</a>
+    </div>
+    <div id="status"></div>
+    <div class="dashboard-grid">
+      <aside class="left-panel">
+        <section class="section-card calendar-panel">
+          <div class="calendar-header">
+            <h2>Calendar</h2>
+            <div class="calendar-controls">
+              <button id="prev-month">&lt;</button>
+              <span id="calendar-month-year"></span>
+              <button id="next-month">&gt;</button>
+            </div>
+          </div>
+          <div id="calendar-grid" class="calendar-grid"></div>
+        </section>
+      </aside>
+
+      <aside class="action-panel">
+        <p id="selected-text">Select a bill to see actions.</p>
+        <div class="actions">
+          <button id="pay-bill" disabled style="background-color: #10b981; color: white;">Pay via Remittance</button>
+        </div>
+      </aside>
+
+      <section class="section-card">
+        <h2>All Beneficiary Bills</h2>
+        <div id="bills"></div>
+      </section>
+    </div>
+
+    <!-- Pay Modal -->
+    <div id="pay-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Confirm Payment</h2>
+        <p id="pay-confirm-text">Are you sure you want to pay this bill?</p>
+        <div class="modal-actions">
+          <button id="cancel-pay">Cancel</button>
+          <button id="confirm-pay" class="primary-btn">Pay Now</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="../js/dashboard.js"></script>
+</body>
+</html>

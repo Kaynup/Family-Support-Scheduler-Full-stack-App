@@ -1,0 +1,156 @@
+.
+├── DESIGN_ALL.md
+├── HIERARCHICAL_REFACTORED_STRUCTURE.md
+├── Makefile
+├── PROMPT.md
+├── README.md
+├── TASKS_ALL.md
+├── backend
+│   └── app
+│       ├── __init__.py
+│       ├── constants.py
+│       ├── core
+│       │   ├── __init__.py
+│       │   ├── config.py
+│       │   └── exceptions.py
+│       ├── db
+│       │   ├── __init__.py
+│       │   ├── connection.py
+│       │   └── queries
+│       │       ├── __init__.py
+│       │       ├── bill_delete.py
+│       │       ├── bill_insert.py
+│       │       ├── bill_select.py
+│       │       ├── bill_update.py
+│       │       ├── remittance_insert.py
+│       │       ├── remittance_select.py
+│       │       ├── user_insert.py
+│       │       └── user_select.py
+│       ├── dependencies.py
+│       ├── main.py
+│       ├── routes
+│       │   ├── __init__.py
+│       │   ├── auth_routes.py
+│       │   ├── bill_routes.py
+│       │   └── remittance_routes.py
+│       ├── schemas
+│       │   ├── __init__.py
+│       │   ├── auth_schemas.py
+│       │   ├── bill_schemas.py
+│       │   └── remittance_schemas.py
+│       └── services
+│           ├── __init__.py
+│           ├── auth_service.py
+│           ├── bill_service.py
+│           └── remittance_service.py
+├── database
+│   ├── README.md
+│   ├── sample-data.sql
+│   └── schema.sql
+├── docs
+│   ├── backend
+│   │   ├── API_AND_SCHEMAS.md
+│   │   ├── BACKEND.md
+│   │   ├── FILES_INVOLVED.md
+│   │   └── SERVICE_LOGIC.md
+│   └── frontend
+│       ├── FILES_INVOLVED.md
+│       ├── FRONTEND.md
+│       ├── RENDERING_LOGIC.md
+│       └── UI_AND_COMPONENTS.md
+├── frontend
+│   ├── receiver_panel
+│   │   ├── css
+│   │   │   ├── base.css
+│   │   │   ├── calendar.css
+│   │   │   ├── components.css
+│   │   │   ├── layout.css
+│   │   │   └── modals.css
+│   │   ├── js
+│   │   │   ├── auth.js
+│   │   │   ├── bills.js
+│   │   │   ├── components
+│   │   │   │   ├── calendar.js
+│   │   │   │   ├── modal.js
+│   │   │   │   └── ui.js
+│   │   │   ├── config.js
+│   │   │   ├── core
+│   │   │   │   ├── api.js
+│   │   │   │   ├── auth_guard.js
+│   │   │   │   ├── state.js
+│   │   │   │   └── utils.js
+│   │   │   ├── create.js
+│   │   │   ├── dashboard.js
+│   │   │   ├── features
+│   │   │   │   ├── billCreation.js
+│   │   │   │   ├── billDeletion.js
+│   │   │   │   ├── billListing.js
+│   │   │   │   ├── billSearch.js
+│   │   │   │   └── billStatus.js
+│   │   │   └── history.js
+│   │   └── pages
+│   │       ├── bills.html
+│   │       ├── create.html
+│   │       ├── dashboard.html
+│   │       ├── history.html
+│   │       ├── login.html
+│   │       └── register.html
+│   └── sender_panel
+│       ├── css
+│       │   ├── base.css
+│       │   ├── calendar.css
+│       │   ├── components.css
+│       │   ├── layout.css
+│       │   └── modals.css
+│       ├── js
+│       │   ├── auth.js
+│       │   ├── bills.js
+│       │   ├── components
+│       │   │   ├── calendar.js
+│       │   │   ├── modal.js
+│       │   │   └── ui.js
+│       │   ├── config.js
+│       │   ├── core
+│       │   │   ├── api.js
+│       │   │   ├── auth_guard.js
+│       │   │   ├── state.js
+│       │   │   └── utils.js
+│       │   ├── dashboard.js
+│       │   ├── features
+│       │   └── history.js
+│       └── pages
+│           ├── bills.html
+│           ├── dashboard.html
+│           ├── history.html
+│           ├── login.html
+│           └── register.html
+├── requirements.txt
+├── scripts
+│   ├── commands
+│   │   ├── add_bill.sh
+│   │   ├── change_status.sh
+│   │   ├── delete_bill.sh
+│   │   ├── health.sh
+│   │   ├── list_all.sh
+│   │   └── upcoming.sh
+│   ├── cron_.log
+│   ├── cron_simulator.sh
+│   └── main.sh
+├── structure.txt
+└── tests
+    ├── __init__.py
+    ├── test_api
+    │   ├── __init__.py
+    │   ├── test_auth_routes.py
+    │   ├── test_bill_routes.py
+    │   └── test_remittance_routes.py
+    ├── test_db
+    │   ├── __init__.py
+    │   └── test_connection.py
+    └── test_services
+        ├── __init__.py
+        ├── test_auth_service.py
+        ├── test_bill_service.py
+        └── test_remittance_service.py
+
+34 directories, 120 files

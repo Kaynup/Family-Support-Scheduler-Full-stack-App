@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Bills - Sender Panel</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <main class="dashboard-page">
+    <h1>All Beneficiary Bills</h1>
+    <div class="controls" style="display:flex; gap:10px; align-items:center;">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="bills.html" style="font-weight:bold;">All Bills</a>
+      <a href="history.html">History</a>
+      <a href="login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('role');">Logout</a>
+    </div>
+    <div id="status"></div>
+    
+    <div style="margin-bottom: 20px;">
+        <div class="search-panel" style="max-width: 400px; margin-bottom: 20px;">
+          <div class="search-controls">
+            <input type="text" id="search-input" placeholder="Search by Name..." />
+            <button id="search-btn">Search</button>
+          </div>
+          <div id="search-results-list"></div>
+        </div>
+        
+        <p id="selected-text">Select a bill to see actions.</p>
+        <div class="actions">
+          <button id="pay-bill" disabled style="background-color: #10b981; color: white;">Pay via Remittance</button>
+        </div>
+    </div>
+
+    <section class="section-card">
+      <h2>Bills List</h2>
+      <div id="bills"></div>
+    </section>
+
+    <!-- Pay Modal -->
+    <div id="pay-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Confirm Payment</h2>
+        <p id="pay-confirm-text">Are you sure you want to pay this bill?</p>
+        <div class="modal-actions">
+          <button id="cancel-pay">Cancel</button>
+          <button id="confirm-pay" class="primary-btn">Pay Now</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="../js/bills.js"></script>
+</body>
+</html>

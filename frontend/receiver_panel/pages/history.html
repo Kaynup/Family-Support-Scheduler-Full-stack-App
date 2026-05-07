@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment History - Family Support Scheduler</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <main class="dashboard-page">
+    <h1>Payment History</h1>
+    <div class="controls" style="display:flex; gap:10px; align-items:center;">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="bills.html">All Bills</a>
+      <a href="history.html" style="font-weight:bold;">History</a>
+      <a href="create.html">Create Bill</a>
+      <a href="login.html" onclick="localStorage.removeItem('token')">Logout</a>
+    </div>
+    
+    <div class="section-card" style="margin-top: 20px;">
+        <table class="bill-table">
+          <thead>
+            <tr>
+              <th>Transaction ID</th>
+              <th>Bill ID</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="history-list">
+            <tr><td colspan="5" class="bill-empty-note">Loading history...</td></tr>
+          </tbody>
+        </table>
+    </div>
+  </main>
+  <script type="module" src="../js/history.js"></script>
+</body>
+</html>

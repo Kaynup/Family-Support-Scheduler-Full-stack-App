@@ -1,94 +1,63 @@
-# Family Support Scheduler 
-Remittance isn't just about sending money; it's about fulfilling obligations. Migrant
-workers frequently need to ensure specific bills back home (like rent, school tuition, or medical
-bills) are paid on strict deadlines. Missing a date can have severe consequences.
+# Family Support Scheduler / Remittance Platform
 
----
+Remittance isn't just about sending money; it's about fulfilling obligations. Migrant workers frequently need to ensure specific bills back home (like rent, school tuition, or medical bills) are paid on strict deadlines. Missing a date can have severe consequences.
 
 ## Objective
-- Build a calendar-based scheduling tool specifically designed for
-recurring family bills
-- It allows users to: -
-    - log upcoming expenses
-    - categorize them
-    - set strict due dates
-    - manage their status (Paid vs. Unpaid)
 
----
+Build a calendar-based scheduling and remittance platform designed for recurring family bills.
+It allows beneficiaries to log, track, and manage their expenses, while allowing senders to view these obligations and fulfill them directly via stablecoin remittance.
 
-## Functional Requirements
-- Users can log upcoming bills with strict due dates and Paid/Unpaid states.
-- Bash script triggers backend API to alert for unpaid bills due in < 3 days.
-- JS frontend offering a UI for bill management.
+## Dual-Panel Architecture
 
----
+The application is split into three main components:
 
-## Tech stack
-- Frontend: Vanilla JS (v20.20.2)
-- Backend: Python 3.10.20 (FastAPI v0.135.3).
-- Database: MySQL (8.0.45)
-- Automation: WSL (Ubuntu-24.04) Bash shell scripting (CRON-job)
+1. **Backend API (FastAPI)**: Serves both panels, providing RESTful endpoints for authentication, bill management, and remittance processing.
+2. **Receiver Panel (Frontend - Port 3000)**: Used by beneficiaries. They can log upcoming expenses, categorize them, and track what has been paid.
+3. **Sender Panel (Frontend - Port 3001)**: Used by senders (e.g., migrant workers). They can view the bills their family members have posted and pay them directly through the platform.
 
----
+### Role Descriptions
+- **Beneficiary (`receiver_panel`)**: Can create, update, delete, and view their bills. Cannot process remittances.
+- **Sender (`sender_panel`)**: Can view beneficiary bills and execute payments. Cannot create or delete bills.
 
-## Data Flow Architecture
+## Tech Stack
+- **Frontend**: Vanilla JS (ES6 modules), HTML5, CSS3.
+- **Backend**: Python 3.10.20, FastAPI.
+- **Database**: MySQL (8.0).
+- **Authentication**: JWT, bcrypt hashing.
 
-```mermaid
-flowchart TD
-    A["Bash Script (Cron Job)"]
-    B["Python API (Queries Dates)"]
-    C{"Date < 3 Days?"}
-    D["MySQL DB (Bills Table)"]
-    E["Terminal Alert Generated"]
+## Startup Instructions
 
-    A -->|Triggers| B
-    B --> C
-    C -->|Check| D
-    D -->|Alerts| E
+Use the `Makefile` to manage the services.
 
-    %% Styling
-    classDef primary fill:#6C5CE7,stroke:#3B3B98,color:#ffffff,stroke-width:2px;
-    classDef secondary fill:#00CEC9,stroke:#008B8B,color:#ffffff,stroke-width:2px;
-    classDef decision fill:#FDCB6E,stroke:#E17055,color:#2d3436,stroke-width:2px;
-    classDef database fill:#55EFC4,stroke:#00B894,color:#2d3436,stroke-width:2px;
-    classDef alert fill:#FF7675,stroke:#D63031,color:#ffffff,stroke-width:2px;
+### 1. Start the Database
+Ensure your MySQL server is running and configured according to `.env`.
 
-    class A primary;
-    class B secondary;
-    class C decision;
-    class D database;
-    class E alert;
-```
-
----
-
-## Documentation `docs/`
-- [Frontend Flow](docs/schematics/FRONTEND_FLOW.md)
-- [Full Stack Architecture](docs/schematics/FULL_STACK_ARCHITECTURE.md)
-- [Class & Object Models](docs/schematics/CLASS_AND_OBJECT.md)
-
----
-
-## Start Backend `Makefile`
-
+### 2. Start the Backend API
 ```bash
 make start-backend
 ```
+The backend will run on `http://127.0.0.1:8000`.
 
-## Start Frontend `Makefile`
-
+### 3. Start the Receiver Panel
 ```bash
-make start-frontend
+make start-receiver
 ```
+The receiver panel will be available at `http://127.0.0.1:3000/pages/login.html`.
 
-## Database Interface MySQL `Makefile`
-
+### 4. Start the Sender Panel
 ```bash
-make start-database
+make start-sender
 ```
+The sender panel will be available at `http://127.0.0.1:3001/pages/login.html`.
 
-## For CronJOB in WSL
+## Testing
 
+To run the full suite of unit and integration tests:
 ```bash
-sudo service cron start
+make run-tests
 ```
+Tests will execute via `pytest` and automatically apply the correct environment variable context.
+
+## Documentation
+- **Backend**: See `docs/backend/` for details on APIs, schemas, and service logic.
+- **Frontend**: See `docs/frontend/` for details on the MPA architecture and rendering logic.

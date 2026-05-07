@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Bill - Family Support Scheduler</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <main class="dashboard-page">
+    <h1>Create Bill</h1>
+    <div class="controls" style="display:flex; gap:10px; align-items:center;">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="bills.html">All Bills</a>
+      <a href="create.html" style="font-weight:bold;">Create Bill</a>
+      <a href="login.html" onclick="localStorage.removeItem('token')">Logout</a>
+    </div>
+    <div id="status"></div>
+    
+    <div class="section-card" style="max-width: 500px; margin-top: 20px;">
+        <form id="create-bill-form">
+          <div style="margin-bottom: 10px;">
+            <label for="bill-name" style="display:block; margin-bottom:5px;">Name</label>
+            <input id="bill-name" name="name" type="text" required placeholder="Electricity Bill" style="width: 100%; padding: 5px;"/>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="bill-amount" style="display:block; margin-bottom:5px;">Amount (Rs.)</label>
+            <input id="bill-amount" name="total_amount" type="number" min="0" step="0.01" required placeholder="Rs." style="width: 100%; padding: 5px;"/>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="bill-due" style="display:block; margin-bottom:5px;">Due Date</label>
+            <input id="bill-due" name="due_date" type="date" required style="width: 100%; padding: 5px;"/>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <label for="bill-category" style="display:block; margin-bottom:5px;">Category</label>
+            <input id="bill-category" name="category" type="text" placeholder="optional" style="width: 100%; padding: 5px;"/>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label for="bill-recurring" style="display:block; margin-bottom:5px;">Recurring</label>
+            <select id="bill-recurring" name="recurring_interval" style="width: 100%; padding: 5px;">
+              <option value="NONE">None</option>
+              <option value="WEEKLY">Weekly</option>
+              <option value="MONTHLY">Monthly</option>
+            </select>
+          </div>
+          <div class="actions" style="display:flex; justify-content: space-between;">
+            <a href="bills.html" class="cancel-delete" style="text-decoration:none; display:inline-block; padding:0.5rem 1rem; border:1px solid #ccc; background:#f9fafb; color:#374151; border-radius:4px;">Cancel</a>
+            <button type="submit" class="primary-btn">Create Bill</button>
+          </div>
+        </form>
+    </div>
+  </main>
+  <script type="module" src="../js/create.js"></script>
+</body>
+</html>
