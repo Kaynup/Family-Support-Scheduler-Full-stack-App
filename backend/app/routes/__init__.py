@@ -1,11 +1,6 @@
-from .api_endpoints import create_bill, search_bill, list_bills, list_upcoming_bills, list_expired_bills, update_status, delete_bill
+"""
+routes/ package — all FastAPI router modules.
 
-__all__ = [
-    "create_bill",
-    "search_bill",
-    "list_bills",
-    "list_upcoming_bills",
-    "list_expired_bills",
-    "update_status",
-    "delete_bill",
-    ]
+main.py imports each router module directly by name.
+This __init__.py is a package marker only; no logic lives here.
+"""
