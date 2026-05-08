@@ -13,6 +13,7 @@
       <a href="dashboard.html">Dashboard</a>
       <a href="bills.html">All Bills</a>
       <a href="create.html" style="font-weight:bold;">Create Bill</a>
+      <a href="history.html">History</a>
       <a href="/login/login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('role');">Logout</a>
     </div>
     <div id="status"></div>
@@ -50,6 +51,18 @@
         </form>
     </div>
   </main>
+
+  <!-- Success Modal -->
+  <div id="success-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Bill Created Successfully!</h2>
+      <p id="success-message">Your bill has been created and added to your bills list.</p>
+      <div class="modal-actions">
+        <button id="success-ok-btn" class="primary-btn">OK</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="../js/create.js"></script>
 </body>
 </html>

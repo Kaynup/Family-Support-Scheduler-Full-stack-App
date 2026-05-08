@@ -94,7 +94,7 @@ def login_user(username, password):
         raise AuthenticationError("Invalid username or password.")
 
     token = create_access_token(user_id=user_id, username=db_username, role=role)
-    return {"access_token": token, "token_type": "bearer", "role": role}
+    return {"access_token": token, "token_type": "bearer", "role": role, "username": db_username}
 
 
 def get_current_user(token):

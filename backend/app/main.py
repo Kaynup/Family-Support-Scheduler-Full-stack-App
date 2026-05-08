@@ -7,17 +7,14 @@ All configuration is read from .core.config.settings — no raw os.getenv calls 
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import bill_routes, auth_routes, remittance_routes
+from .routes import bill_routes, auth_routes, remittance_routes, user_routes
 from .core.config import settings
 
 app = FastAPI(title="Family Support Scheduler API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        settings.frontend_url,
-        settings.frontend_local_url,
-    ],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,6 +23,7 @@ app.add_middleware(
 app.include_router(bill_routes.router)
 app.include_router(auth_routes.router)
 app.include_router(remittance_routes.router)
+app.include_router(user_routes.router)
 
 
 @app.get("/health", tags=["health"])

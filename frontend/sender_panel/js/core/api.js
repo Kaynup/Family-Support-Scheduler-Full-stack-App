@@ -30,6 +30,16 @@ export async function fetchAllBills() {
   return Array.isArray(result) ? result : result.data || [];
 }
 
+export async function fetchAllBillsForBeneficiary(beneficiaryId) {
+  const result = await requestJson(`/bills/all?beneficiary_id=${encodeURIComponent(beneficiaryId)}`);
+  return Array.isArray(result) ? result : result.data || [];
+}
+
+export async function fetchUsers(role) {
+  const result = await requestJson(`/users?role=${encodeURIComponent(role)}`);
+  return Array.isArray(result) ? result : result.data || [];
+}
+
 export async function searchBills(name) {
   const result = await requestJson(`/bills/search?name=${encodeURIComponent(name)}`);
   return Array.isArray(result) ? result : result.data || [];

@@ -24,7 +24,7 @@ from .auth_service import (
 from .remittance_service import (
     pay_bill_via_remittance,
     get_remittance_history_for_sender,
-    get_remittance_history_for_bill,
+    get_remittance_history_for_beneficiary,
 )
 
 __all__ = [
@@ -42,5 +42,5 @@ __all__ = [
     "decode_access_token",
     "pay_bill_via_remittance",
     "get_remittance_history_for_sender",
-    "get_remittance_history_for_bill",
+    "get_remittance_history_for_beneficiary",
 ]

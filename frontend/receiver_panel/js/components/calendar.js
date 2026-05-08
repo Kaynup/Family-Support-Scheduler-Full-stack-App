@@ -73,11 +73,18 @@ function renderCalendarDay(gridEl, dayNum, todayStr, dateInfoMap, onDateClick) {
   }
 
   if (dateStr === state.selectedDate) {
+    dayEl.classList.add('selected');
     dayEl.style.background = '#dbeafe';
     dayEl.style.borderColor = '#2563eb';
   }
 
-  applyDayGlowEffect(dayEl, dateInfoMap[dateStr]);
+  // Apply status classes (keep color) and subtle dot indicator
+  applyDayIndicator(dayEl, dateInfoMap[dateStr]);
+
+  // When selected, add the glow-selected class to emphasize
+  if (dateStr === state.selectedDate) {
+    applyDayGlowEffect(dayEl, dateInfoMap[dateStr]);
+  }
 
   if(onDateClick) {
     dayEl.addEventListener('click', () => onDateClick(dateStr));
@@ -87,16 +94,24 @@ function renderCalendarDay(gridEl, dayNum, todayStr, dateInfoMap, onDateClick) {
 
 function applyDayGlowEffect(dayEl, info) {
   if (!info) return;
-  
-  if (info.hasExpired) {
-    dayEl.classList.add('glow-expired');
-  } else if (info.statuses.has('UNPAID') && info.statuses.has('PAID')) {
-    dayEl.classList.add('glow-mixed');
-  } else if (info.statuses.has('UNPAID')) {
-    dayEl.classList.add('glow');
-  } else if (info.statuses.has('PAID')) {
-    dayEl.classList.add('glow-paid');
-  }
+  dayEl.classList.add('glow-selected');
+}
+
+function applyDayIndicator(dayEl, info) {
+  if (!info) return;
+  // Apply base status class so background and border colors are visible
+  if (info.hasExpired) dayEl.classList.add('status-expired');
+  else if (info.statuses.has('UNPAID') && info.statuses.has('PAID')) dayEl.classList.add('status-mixed');
+  else if (info.statuses.has('UNPAID')) dayEl.classList.add('status-due');
+  else if (info.statuses.has('PAID')) dayEl.classList.add('status-paid');
+
+  const dot = document.createElement('span');
+  dot.className = 'calendar-dot';
+  if (info.hasExpired) dot.classList.add('dot-expired');
+  else if (info.statuses.has('UNPAID') && info.statuses.has('PAID')) dot.classList.add('dot-both');
+  else if (info.statuses.has('UNPAID')) dot.classList.add('dot-due');
+  else if (info.statuses.has('PAID')) dot.classList.add('dot-paid');
+  dayEl.appendChild(dot);
 }
 
 export function handleMonthChange(delta, onUpdate) {

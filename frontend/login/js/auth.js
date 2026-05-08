@@ -27,6 +27,7 @@ export async function handleLoginSubmit(event) {
 
     localStorage.setItem('token', data.access_token);
     localStorage.setItem('role', data.role);
+    localStorage.setItem('username', data.username || username);
 
     if (data.role === 'beneficiary') {
       window.location.href = '/receiver_panel/pages/dashboard.html';

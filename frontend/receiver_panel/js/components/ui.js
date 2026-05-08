@@ -3,7 +3,6 @@ export const elements = {
   paidBillsContainerEl: document.getElementById('paid-bills'),
   statusDisplayEl: document.getElementById('status'),
   selectedBillSummaryEl: document.getElementById('selected-text'),
-  markPaidButton: document.getElementById('mark-paid'),
   deleteButton: document.getElementById('delete-bill'),
   searchInput: document.getElementById('search-input'),
   searchButton: document.getElementById('search-btn'),
@@ -12,6 +11,7 @@ export const elements = {
   calendarMonthYearEl: document.getElementById('calendar-month-year'),
   prevMonthBtn: document.getElementById('prev-month'),
   nextMonthBtn: document.getElementById('next-month'),
+  userInfoEl: document.getElementById('user-info'),
   deleteModal: document.getElementById('delete-modal'),
   confirmDeleteButton: document.getElementById('confirm-delete'),
   cancelDeleteButton: document.getElementById('cancel-delete'),
@@ -31,13 +31,15 @@ export function renderSelectedBillSummary(bill) {
   if (bill.name === 'Select a bill to see actions.') {
     elements.selectedBillSummaryEl.textContent = bill.name;
   } else {
-    elements.selectedBillSummaryEl.textContent = `${bill.name} · Rs.${bill.total_amount} · due ${bill.due_date} · ${bill.status} · ${bill.recurring_interval || 'NONE'}`;
+    const dueDate = new Date(bill.due_date);
+    const today = new Date();
+    const isExpired = (bill.is_expired === 'Y') || (bill.status !== 'PAID' && dueDate < today);
+    elements.selectedBillSummaryEl.textContent = `${bill.name} · Rs.${bill.total_amount} · due ${bill.due_date} · ${bill.status} · ${bill.recurring_interval || 'NONE'}${isExpired ? ' · EXPIRED' : ''}`;
   }
 }
 
 export function clearSelectionHighlights() {
   document.querySelectorAll('.selected').forEach((rowEl) => rowEl.classList.remove('selected'));
-  if(elements.markPaidButton) elements.markPaidButton.disabled = true;
   if(elements.deleteButton) elements.deleteButton.disabled = true;
 }
 
@@ -65,7 +67,7 @@ export function renderBillTable(containerEl, billsList, emptyMessage, onSelectBi
 function getTableHeaderHTML() {
   const theadEl = document.createElement('thead');
   const headerRowEl = document.createElement('tr');
-  headerRowEl.innerHTML = '<th>Name</th><th>Category</th><th>Amount</th><th>Due Date</th>';
+  headerRowEl.innerHTML = '<th>Name</th><th>Category</th><th>Amount</th><th>Due Date</th><th>Expires</th><th>Recurring</th>';
   theadEl.appendChild(headerRowEl);
   return theadEl;
 }
@@ -73,7 +75,7 @@ function getTableHeaderHTML() {
 function renderEmptyStateHTML(tbodyEl, emptyText) {
   const noteRowEl = document.createElement('tr');
   const noteCellEl = document.createElement('td');
-  noteCellEl.colSpan = 4;
+  noteCellEl.colSpan = 6;
   noteCellEl.className = 'bill-empty-note';
   noteCellEl.textContent = emptyText;
   noteRowEl.appendChild(noteCellEl);
@@ -84,11 +86,14 @@ function renderBillRowsHTML(tbodyEl, billsList, onSelectBill) {
   billsList.forEach((bill) => {
     const rowEl = document.createElement('tr');
     rowEl.className = 'bill-row';
+    rowEl.setAttribute('data-bill-id', bill.id);
     rowEl.innerHTML = `
       <td>${bill.name}</td>
       <td>${bill.category || '-'}</td>
       <td>Rs.${bill.total_amount}</td>
       <td>${bill.due_date}</td>
+      <td>${bill.is_expired === 'Y' ? 'Yes' : 'No'}</td>
+      <td>${bill.recurring_interval || 'NONE'}</td>
     `;
     if(onSelectBill) {
       rowEl.addEventListener('click', () => onSelectBill(bill, rowEl));

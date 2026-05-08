@@ -13,21 +13,17 @@ import * as BillSearch from './features/billSearch.js';
 import { fetchUpcomingBills } from './core/api.js';
 
 function setupGlobalEventListeners() {
-  if (UI.elements.markPaidButton) {
-    UI.elements.markPaidButton.addEventListener('click', () => {
-      if (!state.selectedBill) {
-        UI.displayStatusMessage('Please select a bill from the list first!')
-        return;
-      }
-      const nextStatus = state.selectedBill.status === 'PAID' ? 'UNPAID' : 'PAID';
-      BillStatus.patchBillStatus(nextStatus);
-    });
-  }
+  // Mark Paid button removed; marking paid is handled when sender pays.
 
   if (UI.elements.deleteButton) {
     UI.elements.deleteButton.addEventListener('click', BillDeletion.handleOpenDeleteConfirmation);
     UI.elements.confirmDeleteButton.addEventListener('click', BillDeletion.handleConfirmDelete);
     UI.elements.cancelDeleteButton.addEventListener('click', Modal.handleCloseDeleteModal);
+  }
+
+  const refreshBtn = document.getElementById('refresh-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', BillListing.fetchAndRenderBills);
   }
 
   // Close modals when clicking outside
@@ -83,6 +79,11 @@ async function dueBillsPopUpWindow() {
 
 function initializeApp() {
   setupGlobalEventListeners();
+  if (UI.elements.userInfoEl) {
+    const uname = localStorage.getItem('username') || 'Unknown';
+    const role = localStorage.getItem('role') || '';
+    UI.elements.userInfoEl.textContent = `Logged in as ${uname} (${role})`;
+  }
   BillListing.fetchAndRenderBills();
   dueBillsPopUpWindow();
 }

@@ -1,20 +1,20 @@
 """
 Remittance route handlers — /remittance prefix.
 
-POST /remittance/pay      — sender pays a beneficiary bill via remittance.
-GET  /remittance/history  — sender views their outgoing transaction history.
-
-Both routes require a valid JWT with the sender role.
+POST /remittance/pay                    — sender pays a beneficiary bill via remittance.
+GET  /remittance/history                — sender views their outgoing transaction history.
+GET  /remittance/history/beneficiary    — beneficiary views incoming payments for their bills.
 """
 
 from fastapi import APIRouter, HTTPException, Depends
 from ..services.remittance_service import (
     pay_bill_via_remittance,
     get_remittance_history_for_sender,
+    get_remittance_history_for_beneficiary,
 )
 from ..schemas.remittance_schemas import RemittanceCreateRequest
 from ..core.exceptions import BillNotFoundError, RemittanceValidationError
-from ..dependencies import require_sender_role
+from ..dependencies import require_sender_role, require_beneficiary_role
 
 router = APIRouter(prefix="/remittance", tags=["remittance"])
 
@@ -51,5 +51,18 @@ def remittance_history_route(current_user: dict = Depends(require_sender_role)):
     sender_user_id = int(current_user["sub"])
     try:
         return get_remittance_history_for_sender(sender_user_id)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@router.get("/history/beneficiary")
+def remittance_history_beneficiary_route(current_user: dict = Depends(require_beneficiary_role)):
+    """
+    Returns all incoming remittance transactions for the authenticated beneficiary.
+    Beneficiary role required.
+    """
+    beneficiary_user_id = int(current_user["sub"])
+    try:
+        return get_remittance_history_for_beneficiary(beneficiary_user_id)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))

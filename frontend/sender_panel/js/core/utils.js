@@ -6,6 +6,37 @@ export function getDaysUntilDue(bill) {
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 }
 
+export function filterBillsForDisplay(bills) {
+  // 1. Remove all PAID bills (they appear in history)
+  const unpaidAndProjected = bills.filter(b => b.status !== 'PAID');
+  
+  // 2. Group by bill name to handle recurring duplicates
+  const grouped = {};
+  unpaidAndProjected.forEach(bill => {
+    if (!grouped[bill.name]) {
+      grouped[bill.name] = [];
+    }
+    grouped[bill.name].push(bill);
+  });
+  
+  // 3. For recurring bills, keep only the most recent UNPAID instance
+  const result = [];
+  Object.values(grouped).forEach(group => {
+    const isRecurring = group.some(b => b.recurring_interval === 'MONTHLY' || b.recurring_interval === 'WEEKLY');
+    
+    if (isRecurring) {
+      // Keep only the most recent UNPAID instance (first one, already sorted by due_date)
+      const mostRecent = group[0];
+      result.push(mostRecent);
+    } else {
+      // Non-recurring: keep all
+      result.push(...group);
+    }
+  });
+  
+  return result;
+}
+
 export function getProjectedBills(bills, projectionCount = 12) {
   const allBills = [...bills];
   const latestInstances = findLatestInstances(bills);

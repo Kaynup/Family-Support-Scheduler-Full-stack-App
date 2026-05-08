@@ -17,6 +17,23 @@
   justify-content: flex-end;
 }
 
+.controls a {
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  background: transparent;
+  color: #0f172a;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.controls a:hover {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+.controls a[style*="font-weight:bold"] {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
 /* Card-like containers used for various panels */
 .section-card,
 .action-panel,
@@ -147,4 +164,20 @@
   min-width: 120px;
   min-height: 40px;
   padding: 0.65rem 0.9rem;
+}
+
+/* Small tab-like buttons used for beneficiary toggles */
+.tab-btn {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  padding: 0.4rem 0.6rem;
+  margin-right: 0.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #000;
+  font-weight: 500;
+}
+.tab-btn.active {
+  background: #eef2ff;
+  border-color: #c7d2fe;
 }

@@ -12,9 +12,11 @@
     <div class="controls" style="display:flex; gap:10px; align-items:center;">
       <a href="dashboard.html">Dashboard</a>
       <a href="bills.html">All Bills</a>
-      <a href="history.html" style="font-weight:bold;">History</a>
       <a href="create.html">Create Bill</a>
-      <a href="/login/login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('role');">Logout</a>
+      <a href="history.html" style="font-weight:bold;">History</a>
+      <button id="refresh-btn" style="background-color: #3b82f6; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem;">Refresh</button>
+      <button id="logout-btn" onclick="localStorage.removeItem('token'); localStorage.removeItem('role'); localStorage.removeItem('username'); window.location.href='/login/login.html';" style="background-color: #ef4444; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem;">Logout</button>
+      <span id="user-info" style="margin-left:auto; font-weight:normal;"></span>
     </div>
     
     <div class="section-card" style="margin-top: 20px;">
@@ -22,7 +24,7 @@
           <thead>
             <tr>
               <th>Transaction ID</th>
-              <th>Bill ID</th>
+              <th>From - Bill</th>
               <th>Amount</th>
               <th>Status</th>
               <th>Date</th>

@@ -51,11 +51,20 @@ def select_upcoming_bills(num_days=3):
         return cursor.fetchall()
 
 
+def select_bills_by_beneficiary(beneficiary_id):
+    """Returns all non-deleted bills belonging to a specific beneficiary ordered by due date."""
+    query = f"SELECT * FROM {_TABLE} WHERE user_id = %s AND is_deleted = %s ORDER BY due_date ASC"
+
+    with get_db_connection() as (conn, cursor):
+        cursor.execute(query, (beneficiary_id, SOFT_DELETE_NO))
+        return cursor.fetchall()
+
+
 def select_expired_bills():
     """Returns unpaid non-deleted bills that are marked expired or are past their due date."""
     query = f"""
     SELECT * FROM {_TABLE}
-    WHERE status = %s
+    WHERE bill_status = %s
       AND is_deleted = %s
       AND (is_expired = %s OR due_date < CURDATE())
     ORDER BY due_date ASC

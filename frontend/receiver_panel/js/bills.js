@@ -5,6 +5,7 @@ import * as UI from './components/ui.js';
 import * as Modal from './components/modal.js';
 import { state } from './core/state.js';
 import { fetchAllBills } from './core/api.js';
+import { getProjectedBills, filterBillsForDisplay } from './core/utils.js';
 
 import * as BillStatus from './features/billStatus.js';
 import * as BillDeletion from './features/billDeletion.js';
@@ -13,7 +14,23 @@ import * as BillSearch from './features/billSearch.js';
 async function fetchAndRenderAllBills() {
   try {
     const data = await fetchAllBills();
-    UI.renderBillTable(UI.elements.billsContainerEl, data, 'No bills found.', handleBillSelect);
+    const allBills = getProjectedBills(data);
+    const todayStr = new Date().toISOString().slice(0,10);
+    const visible = allBills.filter(b => !(b.status === 'UNPAID' && b.due_date < todayStr));
+    const filtered = filterBillsForDisplay(visible);
+    UI.renderBillTable(UI.elements.billsContainerEl, filtered, 'No bills found.', handleBillSelect);
+    
+    // If a new bill was created, select it after rendering
+    if (state.newCreatedBill) {
+      // Use setTimeout to ensure DOM is updated before querying
+      setTimeout(() => {
+        const newBillRow = document.querySelector(`tr[data-bill-id="${state.newCreatedBill.id}"]`);
+        if (newBillRow) {
+          handleBillSelect(state.newCreatedBill, newBillRow);
+        }
+        state.newCreatedBill = null; // Clear the temporary state
+      }, 100);
+    }
   } catch (error) {
     UI.displayStatusMessage('Error fetching bills: ' + error.message);
   }
@@ -25,23 +42,12 @@ function handleBillSelect(bill, rowElement) {
   state.selectedBill = bill;
 
   UI.renderSelectedBillSummary(bill);
-
-  UI.elements.markPaidButton.disabled = false;
-  UI.elements.markPaidButton.textContent = bill.status === 'PAID' ? 'Mark UNPAID' : 'Mark PAID';
+  UI.displayStatusMessage(`Selected: ${bill.name}.`);
   UI.elements.deleteButton.disabled = false;
 }
 
 function setupEventListeners() {
-  if (UI.elements.markPaidButton) {
-    UI.elements.markPaidButton.addEventListener('click', () => {
-      if (!state.selectedBill) {
-        UI.displayStatusMessage('Please select a bill from the list first!')
-        return;
-      }
-      const nextStatus = state.selectedBill.status === 'PAID' ? 'UNPAID' : 'PAID';
-      BillStatus.patchBillStatus(nextStatus).then(fetchAndRenderAllBills);
-    });
-  }
+  // Mark Paid control removed; status will be updated when pay occurs.
 
   if (UI.elements.deleteButton) {
     UI.elements.deleteButton.addEventListener('click', BillDeletion.handleOpenDeleteConfirmation);
@@ -49,6 +55,11 @@ function setupEventListeners() {
         BillDeletion.handleConfirmDelete().then(fetchAndRenderAllBills);
     });
     UI.elements.cancelDeleteButton.addEventListener('click', Modal.handleCloseDeleteModal);
+  }
+
+  const refreshBtn = document.getElementById('refresh-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', fetchAndRenderAllBills);
   }
 
   window.addEventListener('click', (e) => {
@@ -67,6 +78,11 @@ function setupEventListeners() {
 
 function init() {
   setupEventListeners();
+  if (UI.elements.userInfoEl) {
+    const uname = localStorage.getItem('username') || 'Unknown';
+    const role = localStorage.getItem('role') || '';
+    UI.elements.userInfoEl.textContent = `Logged in as ${uname} (${role})`;
+  }
   fetchAndRenderAllBills();
 }
 

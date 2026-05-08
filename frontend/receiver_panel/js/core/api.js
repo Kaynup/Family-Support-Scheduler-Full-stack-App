@@ -56,3 +56,8 @@ export async function searchBills(name) {
   const result = await requestJson(`/bills/search?name=${encodeURIComponent(name)}`);
   return Array.isArray(result) ? result : result.data || [];
 }
+
+export async function fetchRemittanceHistory() {
+  const result = await requestJson('/remittance/history/beneficiary');
+  return Array.isArray(result) ? result : result.data || [];
+}

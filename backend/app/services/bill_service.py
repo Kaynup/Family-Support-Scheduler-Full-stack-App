@@ -67,7 +67,7 @@ def create_bill(name, due_date, total_amount, creation_date=None, category=None,
     }
 
 
-def list_bills(upcoming_only=False, expired_only=False, days=3):
+def list_bills(upcoming_only=False, expired_only=False, days=3, beneficiary_id=None):
     """
     Returns all bills, or a filtered subset.
 
@@ -75,7 +75,9 @@ def list_bills(upcoming_only=False, expired_only=False, days=3):
     expired_only  — bills that are past due and still UNPAID.
     Default       — all non-deleted bills.
     """
-    if expired_only:
+    if beneficiary_id is not None:
+        rows = dbq.select_bills_by_beneficiary(beneficiary_id)
+    elif expired_only:
         rows = dbq.select_expired_bills()
     elif upcoming_only:
         rows = dbq.select_upcoming_bills(days)

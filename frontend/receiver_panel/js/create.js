@@ -2,6 +2,7 @@ import { guardRoute } from './core/auth_guard.js';
 guardRoute();
 
 import { createBill } from './core/api.js';
+import { state } from './core/state.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const today = new Date();
@@ -12,6 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if(dueInput) {
         dueInput.min = today.toISOString().slice(0, 10);
         dueInput.value = defaultDue.toISOString().slice(0, 10);
+    }
+
+    // Handle success modal OK button
+    const successOkBtn = document.getElementById('success-ok-btn');
+    if (successOkBtn) {
+        successOkBtn.addEventListener('click', () => {
+            window.location.href = 'bills.html';
+        });
     }
 });
 
@@ -43,8 +52,21 @@ document.getElementById('create-bill-form').addEventListener('submit', async (e)
     }
     
     try {
-        await createBill(payload);
-        window.location.href = 'bills.html';
+        const response = await createBill(payload);
+        
+        // Store the created bill in state
+        if (response && response.data) {
+            state.newCreatedBill = response.data;
+        }
+        
+        // Show success modal
+        const successModal = document.getElementById('success-modal');
+        if (successModal) {
+            console.log('Showing modal');
+            successModal.classList.remove('hidden');
+        } else {
+            console.error('Modal element not found');
+        }
     } catch(err) {
         statusEl.textContent = 'Failed to create bill: ' + err.message;
     }

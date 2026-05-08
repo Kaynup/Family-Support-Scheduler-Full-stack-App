@@ -25,9 +25,6 @@ class Settings:
         self.db_table: str = os.getenv("DB_TABLE")
         self.db_conn_pooling: int = int(os.getenv("DB_CONN_POOLING", "5"))
 
-        self.frontend_url: str = os.getenv("FRONTEND_URL")
-        self.frontend_local_url: str = os.getenv("FRONTEND_LOCAL_URL")
-
         self.jwt_secret_key: str = os.getenv("JWT_SECRET_KEY")
         self.jwt_algorithm: str = os.getenv("JWT_ALGORITHM")
         self.jwt_expire_minutes: int = int(os.getenv("JWT_EXPIRE_MINUTES", "480"))

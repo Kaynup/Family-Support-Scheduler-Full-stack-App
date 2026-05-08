@@ -2,27 +2,16 @@ import * as API from '../core/api.js';
 import * as UI from '../components/ui.js';
 import * as Calendar from '../components/calendar.js';
 import { state } from '../core/state.js';
-import { getProjectedBills } from '../core/utils.js';
+import { getProjectedBills, filterBillsForDisplay } from '../core/utils.js';
 import * as Modal from '../components/modal.js';
 
 export function handleSelectBill(bill, rowEl) {
   state.selectedBill = bill;
   UI.clearSelectionHighlights();
   UI.renderSelectedBillSummary(bill);
-
-  UI.elements.markPaidButton.textContent = bill.status === 'PAID' ? 'Mark UNPAID' : 'Mark PAID';
-
   const isProjected = !!bill.isProjected;
-
-  UI.elements.markPaidButton.disabled = false; // Allow status updates for all
   UI.elements.deleteButton.disabled = isProjected; // Keep delete disabled for virtuals
-
-  if (isProjected) {
-    UI.displayStatusMessage('Projected bill: Marking as PAID will create a new record in the database.');
-  } else {
-    UI.displayStatusMessage(`Selected: ${bill.name}. You can now Mark Paid or Delete.`);
-  }
-
+  UI.displayStatusMessage(isProjected ? 'Projected bill selected.' : `Selected: ${bill.name}.`);
   rowEl.classList.add('selected');
 }
 
@@ -31,14 +20,19 @@ export async function fetchAndRenderBills() {
 
   try {
     const rawBills = await API.fetchAllBills();
-    const allBills = getProjectedBills(rawBills, state.currentYear, state.currentMonth, state.projectionCount);
+    const allBills = getProjectedBills(rawBills);
+    const todayStr = new Date().toISOString().slice(0,10);
+    const visibleBills = allBills.filter(b => !(b.status === 'UNPAID' && b.due_date < todayStr));
+    const filteredBills = filterBillsForDisplay(visibleBills);
+    
+    state.currentBills = filteredBills;
 
-    Calendar.renderCalendar(allBills, (dateStr) => {
+    Calendar.renderCalendar(filteredBills, (dateStr) => {
       state.selectedDate = dateStr;
       fetchAndRenderBills();
     });
 
-    updateDashboardLists(allBills);
+    updateDashboardLists(filteredBills);
   } catch (error) {
     UI.displayStatusMessage(`Unable to load bills: ${error.message}`);
     console.error(error);

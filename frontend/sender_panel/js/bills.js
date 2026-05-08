@@ -5,11 +5,16 @@ import * as UI from './components/ui.js';
 import * as Modal from './components/modal.js';
 import { state } from './core/state.js';
 import { fetchAllBills, payBill, searchBills } from './core/api.js';
+import { getProjectedBills, filterBillsForDisplay } from './core/utils.js';
 
 async function fetchAndRenderAllBills() {
   try {
-    const data = await fetchAllBills();
-    UI.renderBillTable(UI.elements.billsContainerEl, data, 'No bills found.', handleBillSelect);
+        const data = await fetchAllBills();
+        const allBills = getProjectedBills(data);
+        const todayStr = new Date().toISOString().slice(0,10);
+        const visible = allBills.filter(b => !(b.status === 'UNPAID' && b.due_date < todayStr));
+        const filtered = filterBillsForDisplay(visible);
+        UI.renderBillTable(UI.elements.billsContainerEl, filtered, 'No bills found.', handleBillSelect);
   } catch (error) {
     UI.displayStatusMessage('Error fetching bills: ' + error.message);
   }
@@ -39,6 +44,11 @@ function setupEventListeners() {
         });
     }
     
+    const refreshBtn = document.getElementById('refresh-btn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', fetchAndRenderAllBills);
+    }
+    
     if (UI.elements.cancelPayButton) {
         UI.elements.cancelPayButton.addEventListener('click', Modal.handleClosePayModal);
     }
@@ -59,7 +69,7 @@ function setupEventListeners() {
                 state.selectedBill = null;
                 UI.renderSelectedBillSummary({name: 'Select a bill to see actions.'});
             } catch(err) {
-                alert('Payment failed: ' + err.message);
+                UI.displayStatusMessage('Payment failed: ' + err.message);
             } finally {
                 UI.elements.confirmPayButton.disabled = false;
                 UI.elements.confirmPayButton.textContent = 'Pay Now';
@@ -77,7 +87,8 @@ function setupEventListeners() {
             if (!query) return fetchAndRenderAllBills();
             try {
                 const data = await searchBills(query);
-                UI.renderBillTable(UI.elements.billsContainerEl, data, 'No matches found.', handleBillSelect);
+                const filtered = filterBillsForDisplay(data);
+                UI.renderBillTable(UI.elements.billsContainerEl, filtered, 'No matches found.', handleBillSelect);
             } catch(err) {
                 UI.displayStatusMessage('Search failed: ' + err.message);
             }
@@ -87,7 +98,12 @@ function setupEventListeners() {
 
 function init() {
   setupEventListeners();
-  fetchAndRenderAllBills();
+    if (UI.elements.userInfoEl) {
+        const uname = localStorage.getItem('username') || 'Unknown';
+        const role = localStorage.getItem('role') || '';
+        UI.elements.userInfoEl.textContent = `Logged in as ${uname} (${role})`;
+    }
+    fetchAndRenderAllBills();
 }
 
 init();

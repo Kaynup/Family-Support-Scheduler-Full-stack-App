@@ -11,17 +11,19 @@ from .bill_select import (
     select_all_bills,
     select_bill_by_id,
     select_bills_by_name,
+    select_bills_by_beneficiary,
     select_upcoming_bills,
     select_expired_bills,
 )
 from .bill_update import update_bill_status
 from .bill_delete import soft_delete_bill_by_id
 from .user_insert import insert_user
-from .user_select import select_user_by_username, select_user_by_id
+from .user_select import select_user_by_username, select_user_by_id, select_users_by_role
 from .remittance_insert import insert_remittance_transaction
 from .remittance_select import (
     select_remittance_by_bill_id,
     select_remittance_by_sender_id,
+    select_remittance_by_beneficiary_id,
 )
 
 __all__ = [
@@ -29,6 +31,7 @@ __all__ = [
     "select_all_bills",
     "select_bill_by_id",
     "select_bills_by_name",
+    "select_bills_by_beneficiary",
     "select_upcoming_bills",
     "select_expired_bills",
     "update_bill_status",
@@ -36,7 +39,9 @@ __all__ = [
     "insert_user",
     "select_user_by_username",
     "select_user_by_id",
+    "select_users_by_role",
     "insert_remittance_transaction",
     "select_remittance_by_bill_id",
     "select_remittance_by_sender_id",
+    "select_remittance_by_beneficiary_id",
 ]

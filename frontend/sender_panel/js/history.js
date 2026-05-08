@@ -4,6 +4,12 @@ guardRoute();
 import { fetchRemittanceHistory } from './core/api.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+    if (document.getElementById('user-info')) {
+        const uname = localStorage.getItem('username') || 'Unknown';
+        const role = localStorage.getItem('role') || '';
+        document.getElementById('user-info').textContent = `Logged in as ${uname} (${role})`;
+    }
+    
     const listEl = document.getElementById('history-list');
     
     try {
@@ -17,9 +23,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         data.forEach(tx => {
             const row = document.createElement('tr');
+            const beneficiaryName = tx.other_username || 'Unknown';
+            const billName = tx.bill_name || 'Unknown';
             row.innerHTML = `
                 <td>#${tx.transaction_id}</td>
-                <td>Bill ${tx.bill_id}</td>
+                <td>${beneficiaryName} - ${billName}</td>
                 <td>${tx.currency} ${tx.amount}</td>
                 <td><span class="status-badge status-${tx.transaction_status.toLowerCase()}" style="background-color: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">${tx.transaction_status}</span></td>
                 <td>${new Date(tx.created_at).toLocaleString()}</td>

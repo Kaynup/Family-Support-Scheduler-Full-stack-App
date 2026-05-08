@@ -19,12 +19,12 @@ if [ -n "$EXPIRED_BILLS" ] || [ -n "$UPCOMING_BILLS" ]; then
     echo -e "[FAMILY SUPPORT SCHEDULER] ALERT: BILLS NEED ATTENTION!"
     
     if [ -n "$EXPIRED_BILLS" ]; then
-        echo -e "\n[!!! EXPIRED BILLS !!!]"
+        echo -e "\n[ --- EXPIRED BILLS --- ]"
         echo -e "$EXPIRED_BILLS"
     fi
     
     if [ -n "$UPCOMING_BILLS" ]; then
-        echo -e "\n[Upcoming Due Bills]"
+        echo -e "\n[ +++ Upcoming Due Bills +++ ]"
         echo -e "$UPCOMING_BILLS"
     fi
     

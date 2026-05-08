@@ -9,19 +9,21 @@
 </head>
 
 <body>
-  <main class="dashboard-page">
+  <main class="dashboard-page sender-dashboard-page">
     <h1>Sender Dashboard</h1>
     <div class="controls" style="display:flex; gap:10px; align-items:center;">
       <a href="dashboard.html" style="font-weight:bold;">Dashboard</a>
       <a href="bills.html">All Bills</a>
       <a href="history.html">History</a>
-      <a href="/login/login.html"
-        onclick="localStorage.removeItem('token'); localStorage.removeItem('role');">Logout</a>
+      <button id="refresh-btn" style="background-color: #3b82f6; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem;">Refresh</button>
+      <button id="logout-btn" onclick="localStorage.removeItem('token'); localStorage.removeItem('role'); localStorage.removeItem('username'); window.location.href='/login/login.html';" style="background-color: #ef4444; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem;">Logout</button>
+      <span id="user-info" style="margin-left:auto; font-weight:normal;"></span>
     </div>
     <div id="status"></div>
     <div class="dashboard-grid">
-      <aside class="left-panel">
-        <section class="section-card calendar-panel">
+      <div class="left-column">
+        <aside class="left-panel">
+          <section class="section-card calendar-panel">
           <div class="calendar-header">
             <h2>Calendar</h2>
             <div class="calendar-controls">
@@ -31,18 +33,23 @@
             </div>
           </div>
           <div id="calendar-grid" class="calendar-grid"></div>
+          <div class="calendar-legend">
+            <div class="legend-item"><span class="legend-dot dot-due"></span><span>Due</span></div>
+          </div>
         </section>
-      </aside>
+        </aside>
 
-      <aside class="action-panel">
+        <aside class="action-panel">
         <p id="selected-text">Select a bill to see actions.</p>
         <div class="actions">
           <button id="pay-bill" disabled style="background-color: #10b981; color: white;">Pay via Remittance</button>
         </div>
-      </aside>
+        </aside>
+      </div>
 
-      <section class="section-card">
+      <section class="section-card right-panel-bills">
         <h2>All Beneficiary Bills</h2>
+        <div id="beneficiary-filter" style="margin-bottom:10px;"></div>
         <div id="bills"></div>
       </section>
     </div>

@@ -21,3 +21,11 @@ def select_user_by_id(user_id):
     with get_db_connection() as (conn, cursor):
         cursor.execute(query, (user_id,))
         return cursor.fetchone()
+
+
+def select_users_by_role(role):
+    """Returns all users with the given role."""
+    query = "SELECT user_id, user_name, user_role FROM users WHERE user_role = %s ORDER BY user_name ASC"
+    with get_db_connection() as (conn, cursor):
+        cursor.execute(query, (role,))
+        return cursor.fetchall()

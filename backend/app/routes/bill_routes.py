@@ -56,9 +56,10 @@ def list_bills_route(
     upcoming_only: bool = False,
     expired_only: bool = False,
     days: int = Query(3, ge=1),
+    beneficiary_id: int | None = None,
 ):
     """Returns all bills or a filtered subset based on query parameters."""
-    return list_bills(upcoming_only=upcoming_only, expired_only=expired_only, days=days)
+    return list_bills(upcoming_only=upcoming_only, expired_only=expired_only, days=days, beneficiary_id=beneficiary_id)
 
 
 @router.get("/upcoming")

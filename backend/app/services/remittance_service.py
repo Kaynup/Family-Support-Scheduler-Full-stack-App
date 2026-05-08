@@ -18,6 +18,22 @@ from ..constants import (
 )
 
 
+def _extract_bill_payment_fields(bill_row):
+    """Extracts status, total, and beneficiary id from either supported bill tuple layout."""
+    # Current DB layout from `bills` table:
+    # (id, name, status, user_id, creation_date, due_date, total_amount, ...)
+    if len(bill_row) > 6 and bill_row[2] in (STATUS_UNPAID, STATUS_PAID):
+        return bill_row[2], float(bill_row[6]), bill_row[3] if len(bill_row) > 3 else None
+
+    # Legacy layout used in older tests/mocks:
+    # (id, name, creation_date, due_date, total_amount, status, ..., beneficiary_id)
+    if len(bill_row) > 5 and bill_row[5] in (STATUS_UNPAID, STATUS_PAID):
+        beneficiary_user_id = bill_row[10] if len(bill_row) > 10 else None
+        return bill_row[5], float(bill_row[4]), beneficiary_user_id
+
+    raise RemittanceValidationError("Unsupported bill row format for remittance processing.")
+
+
 def _format_transaction_row(row):
     """Converts a raw remittance_transactions tuple into a response dict."""
     return {
@@ -30,6 +46,8 @@ def _format_transaction_row(row):
         "transaction_status":  row[6],
         "payment_method":      row[7],
         "created_at":          str(row[8]),
+        "bill_name":           row[9] if len(row) > 9 else None,
+        "other_username":      row[10] if len(row) > 10 else None,
     }
 
 
@@ -48,9 +66,7 @@ def pay_bill_via_remittance(bill_id, sender_user_id, amount, currency=CURRENCY_U
     if not bill_row:
         raise BillNotFoundError(f"No bill found with id {bill_id}")
 
-    bill_status = bill_row[5]
-    bill_total = float(bill_row[4])
-    beneficiary_user_id = bill_row[10] if len(bill_row) > 10 else None
+    bill_status, bill_total, beneficiary_user_id = _extract_bill_payment_fields(bill_row)
 
     if bill_status != STATUS_UNPAID:
         raise RemittanceValidationError(f"Bill {bill_id} is already {bill_status} and cannot be paid again.")
@@ -97,9 +113,9 @@ def get_remittance_history_for_sender(sender_user_id):
     }
 
 
-def get_remittance_history_for_bill(bill_id):
-    """Returns all transactions associated with a specific bill."""
-    rows = dbq.select_remittance_by_bill_id(bill_id)
+def get_remittance_history_for_beneficiary(beneficiary_user_id):
+    """Returns all incoming transactions for the given beneficiary, newest first."""
+    rows = dbq.select_remittance_by_beneficiary_id(beneficiary_user_id)
     return {
         "OK":          True,
         "total_count": len(rows),
