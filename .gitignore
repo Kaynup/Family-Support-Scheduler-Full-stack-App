@@ -7,3 +7,7 @@ __pycache__/
 
 *.pdf
 dev-docs/
+
+.analysis_venv/
+frontend_complexity.json
+refactor_docs/
