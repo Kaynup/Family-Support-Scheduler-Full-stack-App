@@ -15,7 +15,7 @@ def insert_bill(name, due_date, total_amount, creation_date, status, category, r
     """
     query = f"""
     INSERT INTO {_TABLE}
-        (name, creation_date, due_date, total_amount, status, category, recurring_interval)
+        (bill_name, creation_date, due_date, total_amount, bill_status, category, recurring_interval)
     VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
     values = (name, creation_date, due_date, total_amount, status, category, recurring_interval)

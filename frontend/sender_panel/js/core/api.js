@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../config.js';
+import { API_BASE_URL } from '../../../../shared/js/config.js';
 
 export async function requestJson(path, options = {}) {
   const token = localStorage.getItem('token');
@@ -12,7 +12,7 @@ export async function requestJson(path, options = {}) {
     if (response.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('role');
-      window.location.href = 'login.html';
+      window.location.href = '/login/login.html';
     }
     throw new Error(payload.detail || payload.message || response.statusText || `HTTP ${response.status}`);
   }

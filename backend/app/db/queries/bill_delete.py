@@ -19,7 +19,7 @@ def soft_delete_bill_by_id(bill_id):
     Returns the bill_id on success.
     Raises mysql.connector.Error if no row was matched.
     """
-    query = f"UPDATE {_TABLE} SET Is_deleted = %s WHERE id = %s"
+    query = f"UPDATE {_TABLE} SET is_deleted = %s WHERE bill_id = %s"
 
     with get_db_connection() as (conn, cursor):
         cursor.execute(query, (SOFT_DELETE_YES, bill_id))

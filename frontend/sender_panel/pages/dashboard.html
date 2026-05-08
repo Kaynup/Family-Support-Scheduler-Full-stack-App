@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard - Sender Panel</title>
-  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../../shared/css/styles.css" />
 </head>
+
 <body>
   <main class="dashboard-page">
     <h1>Sender Dashboard</h1>
@@ -13,7 +15,8 @@
       <a href="dashboard.html" style="font-weight:bold;">Dashboard</a>
       <a href="bills.html">All Bills</a>
       <a href="history.html">History</a>
-      <a href="login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('role');">Logout</a>
+      <a href="/login/login.html"
+        onclick="localStorage.removeItem('token'); localStorage.removeItem('role');">Logout</a>
     </div>
     <div id="status"></div>
     <div class="dashboard-grid">
@@ -59,4 +62,5 @@
 
   <script type="module" src="../js/dashboard.js"></script>
 </body>
+
 </html>

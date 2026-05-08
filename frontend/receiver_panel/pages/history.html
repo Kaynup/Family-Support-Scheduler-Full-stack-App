@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Payment History - Family Support Scheduler</title>
-  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../../shared/css/styles.css" />
 </head>
 <body>
   <main class="dashboard-page">
@@ -14,7 +14,7 @@
       <a href="bills.html">All Bills</a>
       <a href="history.html" style="font-weight:bold;">History</a>
       <a href="create.html">Create Bill</a>
-      <a href="login.html" onclick="localStorage.removeItem('token')">Logout</a>
+      <a href="/login/login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('role');">Logout</a>
     </div>
     
     <div class="section-card" style="margin-top: 20px;">

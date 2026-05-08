@@ -10,17 +10,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routes import bill_routes, auth_routes, remittance_routes
 from .core.config import settings
 
-app = FastAPI(title="Family Support Scheduler API", version="2.0.0")
+app = FastAPI(title="Family Support Scheduler API")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        settings.fe_url,
-        settings.fe_local_url,
-        settings.receiver_panel_url,
-        settings.receiver_panel_local_url,
-        settings.sender_panel_url,
-        settings.sender_panel_local_url,
+        settings.frontend_url,
+        settings.frontend_local_url,
     ],
     allow_credentials=True,
     allow_methods=["*"],

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Family Support Scheduler</title>
+  <meta name="description" content="Sign in to the Family Support Scheduler to manage and fulfill your family's bills." />
+  <link rel="stylesheet" href="../shared/css/styles.css" />
+</head>
+<body>
+  <main class="dashboard-page">
+    <h1>Family Support Scheduler</h1>
+    <div class="section-card" style="max-width: 420px; width: 100%; margin: 0 auto;">
+      <h2 style="margin-top: 0;">Sign In</h2>
+      <div id="error-message" style="display:none; color:#dc2626; margin-bottom:1rem; font-size:0.9rem;"></div>
+      <form id="login-form">
+        <div style="margin-bottom: 12px;">
+          <label for="username" style="display:block; margin-bottom:5px;">Username</label>
+          <input id="username" name="username" type="text" required placeholder="Enter your username" style="width: 100%; box-sizing: border-box;" />
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label for="password" style="display:block; margin-bottom:5px;">Password</label>
+          <input id="password" name="password" type="password" required placeholder="Enter your password" style="width: 100%; box-sizing: border-box;" />
+        </div>
+        <div class="actions" style="display:flex; flex-direction:column; gap:10px;">
+          <button type="submit" class="primary-btn" style="width:100%;">Sign In</button>
+          <p style="text-align:center; margin:0; font-size:0.9rem;">
+            Don't have an account? <a href="register.html">Register here</a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script type="module">
+    import { handleLoginSubmit } from './js/auth.js';
+    document.getElementById('login-form').addEventListener('submit', handleLoginSubmit);
+  </script>
+</body>
+</html>

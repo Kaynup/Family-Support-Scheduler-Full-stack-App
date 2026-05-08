@@ -7,13 +7,16 @@ Remittance isn't just about sending money; it's about fulfilling obligations. Mi
 Build a calendar-based scheduling and remittance platform designed for recurring family bills.
 It allows beneficiaries to log, track, and manage their expenses, while allowing senders to view these obligations and fulfill them directly via stablecoin remittance.
 
-## Dual-Panel Architecture
+## Architecture
 
 The application is split into three main components:
 
 1. **Backend API (FastAPI)**: Serves both panels, providing RESTful endpoints for authentication, bill management, and remittance processing.
-2. **Receiver Panel (Frontend - Port 3000)**: Used by beneficiaries. They can log upcoming expenses, categorize them, and track what has been paid.
-3. **Sender Panel (Frontend - Port 3001)**: Used by senders (e.g., migrant workers). They can view the bills their family members have posted and pay them directly through the platform.
+2. **Unified Login (`frontend/login/`)**: A single authentication entry point. On login, the server returns the user's `role`; the client then redirects to the appropriate panel.
+3. **Receiver Panel (`frontend/receiver_panel/`)**: Used by beneficiaries to log, track, and manage bills.
+4. **Sender Panel (`frontend/sender_panel/`)**: Used by senders to view beneficiary bills and execute payments.
+
+All panels are served by a **single HTTP server on port 3000** from the `frontend/` root. Panel access is enforced by `auth_guard.js` inside each panel, which verifies the user's `role` from `localStorage`.
 
 ### Role Descriptions
 - **Beneficiary (`receiver_panel`)**: Can create, update, delete, and view their bills. Cannot process remittances.
@@ -38,17 +41,13 @@ make start-backend
 ```
 The backend will run on `http://127.0.0.1:8000`.
 
-### 3. Start the Receiver Panel
+### 3. Start the Frontend
 ```bash
-make start-receiver
+make start-frontend
 ```
-The receiver panel will be available at `http://127.0.0.1:3000/pages/login.html`.
+Navigate to `http://127.0.0.1:3000/login/login.html` to begin.
 
-### 4. Start the Sender Panel
-```bash
-make start-sender
-```
-The sender panel will be available at `http://127.0.0.1:3001/pages/login.html`.
+Both panels are accessible from this single server — login routes you automatically based on your role.
 
 ## Testing
 

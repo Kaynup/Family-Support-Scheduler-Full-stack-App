@@ -40,8 +40,13 @@ def login_route(payload: LoginRequest):
     Returns 401 if credentials are invalid.
     """
     try:
-        return login_user(username=payload.username, password=payload.password)
+        return login_user(
+            username=payload.username,
+            password=payload.password
+            )
     except AuthenticationError as exc:
         raise HTTPException(status_code=401, detail=str(exc))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))

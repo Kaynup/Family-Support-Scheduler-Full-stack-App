@@ -15,6 +15,7 @@ from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 import mysql.connector
+import hashlib
 
 from ..db import queries as dbq
 from ..core.config import settings
@@ -24,15 +25,13 @@ from ..constants import ROLE_SENDER, ROLE_BENEFICIARY
 _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def hash_password(plain_password):
-    """Returns a bcrypt hash of the given plain-text password."""
-    return _pwd_context.hash(plain_password)
-
+def hash_password(password):
+    """Returns the raw SHA-256 hex digest of the password."""
+    return hashlib.sha256(password.encode()).hexdigest()
 
 def verify_password(plain_password, hashed_password):
-    """Returns True if plain_password matches the stored hash, False otherwise."""
-    return _pwd_context.verify(plain_password, hashed_password)
-
+    """Returns True if the plain_password hashes to the stored hashed_password."""
+    return hash_password(plain_password) == hashed_password
 
 def create_access_token(user_id, username, role):
     """
@@ -73,7 +72,7 @@ def register_user(username, password, role):
 
     hashed = hash_password(password)
     try:
-        new_id = dbq.insert_user(username=username, password_hash=hashed, role=role)
+        new_id = dbq.insert_user(username=username, password=hashed, role=role)
     except mysql.connector.IntegrityError:
         raise ValueError(f"Username '{username}' is already taken.")
 

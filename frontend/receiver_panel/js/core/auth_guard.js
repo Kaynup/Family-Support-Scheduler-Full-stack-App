@@ -1,6 +1,9 @@
 export function guardRoute() {
   const token = localStorage.getItem('token');
-  if (!token) {
-    window.location.href = 'login.html';
+  const role = localStorage.getItem('role');
+  if (!token || role !== 'beneficiary') {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    window.location.href = '/login/login.html';
   }
 }

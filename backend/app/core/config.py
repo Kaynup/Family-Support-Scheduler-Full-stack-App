@@ -18,23 +18,18 @@ class Settings:
     """
 
     def __init__(self):
-        self.db_host: str = os.getenv("DB_HOST", "localhost")
-        self.db_user: str = os.getenv("DB_USER", "root")
-        self.db_password: str = os.getenv("DB_PASSWORD", "")
-        self.db_name: str = os.getenv("DB_NAME", "family_supp_sche")
-        self.db_table: str = os.getenv("DB_TABLE", "bills")
+        self.db_host: str = os.getenv("DB_HOST")
+        self.db_user: str = os.getenv("DB_USER")
+        self.db_password: str = os.getenv("DB_PASSWORD")
+        self.db_name: str = os.getenv("DB_NAME")
+        self.db_table: str = os.getenv("DB_TABLE")
         self.db_conn_pooling: int = int(os.getenv("DB_CONN_POOLING", "5"))
 
-        self.fe_url: str = os.getenv("FE_URL", "http://127.0.0.1:8080")
-        self.fe_local_url: str = os.getenv("FE_LOCAL_URL", "http://localhost:8080")
+        self.frontend_url: str = os.getenv("FRONTEND_URL")
+        self.frontend_local_url: str = os.getenv("FRONTEND_LOCAL_URL")
 
-        self.receiver_panel_url: str = os.getenv("RECEIVER_PANEL_URL", "http://127.0.0.1:3000")
-        self.sender_panel_url: str = os.getenv("SENDER_PANEL_URL", "http://127.0.0.1:3001")
-        self.receiver_panel_local_url: str = os.getenv("RECEIVER_PANEL_LOCAL_URL", "http://localhost:3000")
-        self.sender_panel_local_url: str = os.getenv("SENDER_PANEL_LOCAL_URL", "http://localhost:3001")
-
-        self.jwt_secret_key: str = os.getenv("JWT_SECRET_KEY", "changeme_in_production")
-        self.jwt_algorithm: str = os.getenv("JWT_ALGORITHM", "HS256")
+        self.jwt_secret_key: str = os.getenv("JWT_SECRET_KEY")
+        self.jwt_algorithm: str = os.getenv("JWT_ALGORITHM")
         self.jwt_expire_minutes: int = int(os.getenv("JWT_EXPIRE_MINUTES", "480"))
 
 

@@ -16,7 +16,7 @@ def update_bill_status(bill_id, status):
     Returns the bill_id on success.
     Raises mysql.connector.Error if no row was matched.
     """
-    query = f"UPDATE {_TABLE} SET status = %s WHERE id = %s AND Is_deleted = %s"
+    query = f"UPDATE {_TABLE} SET bill_status = %s WHERE bill_id = %s AND is_deleted = %s"
 
     with get_db_connection() as (conn, cursor):
         cursor.execute(query, (status, bill_id, SOFT_DELETE_NO))

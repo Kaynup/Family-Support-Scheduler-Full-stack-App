@@ -4,6 +4,6 @@ export function guardRoute() {
   if (!token || role !== 'sender') {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
-    window.location.href = 'login.html';
+    window.location.href = '/login/login.html';
   }
 }

@@ -13,7 +13,7 @@ from ..constants import ROLE_BENEFICIARY, ROLE_SENDER
 
 class RegisterRequest(BaseModel):
     username: str = Field(..., min_length=3, max_length=100)
-    password: str = Field(..., min_length=6)
+    password: str = Field(..., min_length=8)
     role: str = Field(default=ROLE_BENEFICIARY)
 
     def role_is_valid(self):

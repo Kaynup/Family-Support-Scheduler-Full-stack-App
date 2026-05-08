@@ -18,13 +18,13 @@ def _format_bill_row(row):
     return {
         "id":                 row[0],
         "name":               row[1],
-        "creation_date":      str(row[2]),
-        "due_date":           str(row[3]),
-        "total_amount":       float(row[4]),
-        "status":             row[5],
-        "category":           row[6],
-        "recurring_interval": row[7] if len(row) > 7 else "NONE",
-        "is_expired":         row[8] if len(row) > 8 else "N",
+        "status":             row[2],
+        "creation_date":      str(row[4]),
+        "due_date":           str(row[5]),
+        "total_amount":       float(row[6]),
+        "category":           row[7],
+        "recurring_interval": row[8] if len(row) > 7 else "NONE",
+        "is_expired":         row[10] if len(row) > 8 else "N",
     }
 
 
