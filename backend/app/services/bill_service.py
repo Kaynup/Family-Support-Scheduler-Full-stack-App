@@ -19,6 +19,7 @@ def _format_bill_row(row):
         "id":                 row[0],
         "name":               row[1],
         "status":             row[2],
+        "user_id":            row[3],
         "creation_date":      str(row[4]),
         "due_date":           str(row[5]),
         "total_amount":       float(row[6]),

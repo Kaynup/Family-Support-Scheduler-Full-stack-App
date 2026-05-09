@@ -14,7 +14,8 @@
       <a href="bills.html">All Bills</a>
       <a href="create.html" style="font-weight:bold;">Create Bill</a>
       <a href="history.html">History</a>
-      <a href="/login/login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('role');">Logout</a>
+      <button id="logout-btn" onclick="localStorage.removeItem('token'); localStorage.removeItem('role'); localStorage.removeItem('username'); window.location.href='/login/login.html';" style="background-color: #ef4444; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem;">Logout</button>
+      <span id="user-info" style="margin-left:auto; font-weight:normal;"></span>
     </div>
     <div id="status"></div>
     

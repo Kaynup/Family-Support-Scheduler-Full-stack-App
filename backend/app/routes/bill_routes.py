@@ -46,9 +46,15 @@ def create_bill_route(payload: BillCreateRequest, current_user: dict = Depends(r
 
 
 @router.get("/search")
-def search_bills_route(name: str):
-    """Searches bills by name substring. No authentication required."""
-    return search_bills_by_name(name=name)
+def search_bills_route(name: str, current_user: dict = Depends(get_current_user_dependency)):
+    """Searches bills by name substring. Scoped to the user's own bills if beneficiary."""
+    beneficiary_id = int(current_user["sub"]) if current_user["role"] == "beneficiary" else None
+    results = search_bills_by_name(name=name)
+    if beneficiary_id is not None:
+        # Filter results to only include the beneficiary's own bills
+        filtered = [b for b in results.get("data", []) if b.get("user_id") == beneficiary_id]
+        return {"OK": True, "total_count": len(filtered), "data": filtered}
+    return results
 
 
 @router.get("/all")

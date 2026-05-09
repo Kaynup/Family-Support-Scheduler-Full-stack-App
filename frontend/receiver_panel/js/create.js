@@ -5,6 +5,13 @@ import { createBill } from './core/api.js';
 import { state } from './core/state.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const userInfoEl = document.getElementById('user-info');
+    if (userInfoEl) {
+        const uname = localStorage.getItem('username') || 'Unknown';
+        const role = localStorage.getItem('role') || '';
+        userInfoEl.textContent = `Logged in as ${uname} (${role})`;
+    }
+
     const today = new Date();
     const defaultDue = new Date(today);
     defaultDue.setDate(defaultDue.getDate() + 3);

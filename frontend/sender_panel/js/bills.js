@@ -51,7 +51,7 @@ function setupEventListeners() {
 
     const refreshBtn = document.getElementById('refresh-btn');
     if (refreshBtn) {
-        refreshBtn.addEventListener('click', fetchAndRenderAllBills);
+        refreshBtn.addEventListener('click', fetchAndRenderBills);
     }
 
     if (UI.elements.cancelPayButton) {
@@ -69,7 +69,7 @@ function setupEventListeners() {
 
                 UI.displayStatusMessage('Payment processed successfully!');
                 Modal.handleClosePayModal();
-                fetchAndRenderAllBills();
+                fetchAndRenderBills();
                 UI.clearSelectionHighlights();
                 state.selectedBill = null;
                 UI.renderSelectedBillSummary({ name: 'Select a bill to see actions.' });
@@ -89,12 +89,11 @@ function setupEventListeners() {
     if (UI.elements.searchButton) {
         UI.elements.searchButton.addEventListener('click', async () => {
             const query = UI.elements.searchInput.value.trim();
-            if (!query) return fetchAndRenderAllBills();
+            if (!query) return fetchAndRenderBills();
             try {
                 const data = await searchBills(query);
-                const filtered = filterBillsForDisplay(data);
-                const nonProjectedFiltered = filtered.filter(b => !b.isProjected);
-                UI.renderBillTable(UI.elements.billsContainerEl, nonProjectedFiltered, 'No matches found.', handleBillSelect);
+                const realUnpaid = data.filter(b => b.status === 'UNPAID' && !b.isProjected);
+                UI.renderBillTable(UI.elements.billsContainerEl, realUnpaid, 'No matches found.', handleBillSelect);
             } catch (err) {
                 UI.displayStatusMessage('Search failed: ' + err.message);
             }
@@ -109,7 +108,7 @@ function init() {
         const role = localStorage.getItem('role') || '';
         UI.elements.userInfoEl.textContent = `Logged in as ${uname} (${role})`;
     }
-    fetchAndRenderAllBills();
+    fetchAndRenderBills();
 }
 
 init();
