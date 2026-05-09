@@ -29,7 +29,7 @@ def _format_bill_row(row):
     }
 
 
-def create_bill(name, due_date, total_amount, creation_date=None, category=None, recurring_interval="NONE", status=STATUS_UNPAID):
+def create_bill(name, due_date, total_amount, user_id=None, creation_date=None, category=None, recurring_interval="NONE", status=STATUS_UNPAID):
     """
     Inserts a new bill record into the database.
     Returns a response envelope containing the created bill's id and fields.
@@ -48,6 +48,7 @@ def create_bill(name, due_date, total_amount, creation_date=None, category=None,
             status=status,
             category=category,
             recurring_interval=recurring_interval,
+            user_id=user_id
         )
     except mysql.connector.Error as exc:
         raise ValueError(str(exc))
@@ -58,6 +59,7 @@ def create_bill(name, due_date, total_amount, creation_date=None, category=None,
         "data": {
             "id":                 new_id,
             "name":               name,
+            "user_id":            user_id,
             "due_date":           str(due_date_obj),
             "total_amount":       total_amount,
             "creation_date":      str(creation_date),

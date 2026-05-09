@@ -29,52 +29,61 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'bills.html';
         });
     }
-});
 
-document.getElementById('create-bill-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    
-    const statusEl = document.getElementById('status');
-    statusEl.textContent = 'Creating...';
-    
-    const payload = {
-        name: form.name.value.trim(),
-        due_date: form.due_date.value,
-        total_amount: parseFloat(form.total_amount.value),
-        category: form.category.value.trim() || null,
-        recurring_interval: form.recurring_interval.value,
-        status: 'UNPAID',
-        creation_date: new Date().toISOString().slice(0, 10)
-    };
-    
-    if (!payload.name) {
-        statusEl.textContent = 'Bill name cannot be empty.';
-        return;
-    }
-    
-    if (payload.total_amount <= 0) {
-        statusEl.textContent = 'Amount must be greater than zero.';
-        return;
-    }
-    
-    try {
-        const response = await createBill(payload);
-        
-        // Store the created bill in state
-        if (response && response.data) {
-            state.newCreatedBill = response.data;
-        }
-        
-        // Show success modal
-        const successModal = document.getElementById('success-modal');
-        if (successModal) {
-            console.log('Showing modal');
-            successModal.classList.remove('hidden');
-        } else {
-            console.error('Modal element not found');
-        }
-    } catch(err) {
-        statusEl.textContent = 'Failed to create bill: ' + err.message;
+    const form = document.getElementById('create-bill-form');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('Bill creation started...');
+            
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = 'Creating...';
+            
+            const payload = {
+                name: form.name.value.trim(),
+                due_date: form.due_date.value,
+                total_amount: parseFloat(form.total_amount.value),
+                category: form.category.value.trim() || null,
+                recurring_interval: form.recurring_interval.value,
+                status: 'UNPAID',
+                creation_date: new Date().toISOString().slice(0, 10)
+            };
+            
+            console.log('Payload:', payload);
+            
+            if (!payload.name) {
+                statusEl.textContent = 'Bill name cannot be empty.';
+                return;
+            }
+            
+            if (isNaN(payload.total_amount) || payload.total_amount <= 0) {
+                statusEl.textContent = 'Amount must be a valid number greater than zero.';
+                return;
+            }
+            
+            try {
+                const response = await createBill(payload);
+                console.log('Backend response:', response);
+                
+                // Store the created bill in state (Note: this is lost on redirect, but kept for logic consistency)
+                if (response && response.data) {
+                    state.newCreatedBill = response.data;
+                }
+                
+                // Show success modal
+                const successModal = document.getElementById('success-modal');
+                if (successModal) {
+                    successModal.classList.remove('hidden');
+                } else {
+                    alert('Bill created successfully!');
+                    window.location.href = 'bills.html';
+                }
+            } catch(err) {
+                console.error('Creation error:', err);
+                statusEl.textContent = 'Failed to create bill: ' + err.message;
+            }
+        });
+    } else {
+        console.error('Form "create-bill-form" not found!');
     }
 });

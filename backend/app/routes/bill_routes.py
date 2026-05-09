@@ -32,6 +32,7 @@ def create_bill_route(payload: BillCreateRequest, current_user: dict = Depends(r
             name=payload.name,
             due_date=payload.due_date.isoformat(),
             total_amount=payload.total_amount,
+            user_id=int(current_user["sub"]),
             creation_date=payload.creation_date,
             category=payload.category,
             recurring_interval=payload.recurring_interval,
