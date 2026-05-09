@@ -25,6 +25,11 @@ export async function fetchUpcomingBills(days) {
   return Array.isArray(result) ? result : result.data || [];
 }
 
+export async function fetchExpiredBills() {
+  const result = await requestJson(`/bills/expired`);
+  return Array.isArray(result) ? result : result.data || [];
+}
+
 export async function fetchAllBills() {
   const result = await requestJson('/bills/all');
   return Array.isArray(result) ? result : result.data || [];
@@ -49,7 +54,7 @@ export async function payBill(billId, amount) {
   return requestJson('/remittance/pay', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ bill_id: billId, amount }),
+    body: JSON.stringify({ bill_id: billId, amount: amount }),
   });
 }
 

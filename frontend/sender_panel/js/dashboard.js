@@ -15,20 +15,18 @@ async function fetchAndRenderBills() {
     try {
         const bills = await fetchAllBills();
         const allBills = getProjectedBills(bills);
-        const todayStr = new Date().toISOString().slice(0,10);
-        const visible = allBills.filter(b => !(b.status === 'UNPAID' && b.due_date < todayStr));
-        const filtered = filterBillsForDisplay(visible);
-
-        UI.renderBillTable(UI.elements.billsContainerEl, filtered, 'No bills to pay.', handleBillSelect);
+        const realUnpaidBills = bills.filter(b => b.status === 'UNPAID');
+        
+        UI.renderBillTable(UI.elements.billsContainerEl, realUnpaidBills, 'No bills to pay.', handleBillSelect);
 
         const handleCalendarClick = (dateStr) => {
             state.selectedDate = dateStr;
-            const dateFiltered = filtered.filter(b => b.due_date === dateStr);
+            const dateFiltered = realUnpaidBills.filter(b => b.due_date === dateStr);
             UI.renderBillTable(UI.elements.billsContainerEl, dateFiltered, `No bills on ${dateStr}`, handleBillSelect);
-            Calendar.renderCalendar(filtered, handleCalendarClick); // refresh selection highlight with handler
+            Calendar.renderCalendar(allBills, handleCalendarClick); // refresh selection highlight with handler
         };
 
-        Calendar.renderCalendar(filtered, handleCalendarClick);
+        Calendar.renderCalendar(allBills, handleCalendarClick);
     } catch(err) {
         UI.displayStatusMessage('Error fetching bills: ' + err.message);
     }
@@ -38,17 +36,17 @@ async function fetchAndRenderBillsForBeneficiary(beneficiaryId) {
     try {
         const bills = await fetchAllBillsForBeneficiary(beneficiaryId);
         const allBills = getProjectedBills(bills);
-        const todayStr = new Date().toISOString().slice(0,10);
-        const visible = allBills.filter(b => !(b.is_expired === 'Y' || (b.status === 'UNPAID' && b.due_date < todayStr)));
-        const filtered = filterBillsForDisplay(visible);
-        UI.renderBillTable(UI.elements.billsContainerEl, filtered, 'No bills to pay.', handleBillSelect);
+        const realUnpaidBills = bills.filter(b => b.status === 'UNPAID');
+        
+        UI.renderBillTable(UI.elements.billsContainerEl, realUnpaidBills, 'No bills to pay.', handleBillSelect);
+        
         const handleCalendarClick = (dateStr) => {
             state.selectedDate = dateStr;
-            const dateFiltered = filtered.filter(b => b.due_date === dateStr);
+            const dateFiltered = realUnpaidBills.filter(b => b.due_date === dateStr);
             UI.renderBillTable(UI.elements.billsContainerEl, dateFiltered, `No bills on ${dateStr}`, handleBillSelect);
-            Calendar.renderCalendar(filtered, handleCalendarClick);
+            Calendar.renderCalendar(allBills, handleCalendarClick);
         };
-        Calendar.renderCalendar(filtered, handleCalendarClick);
+        Calendar.renderCalendar(allBills, handleCalendarClick);
     } catch(err) {
         UI.displayStatusMessage('Error fetching bills: ' + err.message);
     }
@@ -103,7 +101,8 @@ function handleBillSelect(bill, rowElement) {
     state.selectedBill = bill;
     UI.renderSelectedBillSummary(bill);
     
-    if (bill.status === 'UNPAID') {
+    const isProjected = !!bill.isProjected;
+    if (bill.status === 'UNPAID' && !isProjected) {
         UI.elements.payButton.disabled = false;
     } else {
         UI.elements.payButton.disabled = true;
@@ -161,19 +160,32 @@ function setupGlobalEventListeners() {
     window.addEventListener('click', (e) => {
         if (e.target === UI.elements.payModal) Modal.handleClosePayModal();
     });
+
+    if (UI.elements.upcomingOkButton) {
+        UI.elements.upcomingOkButton.addEventListener('click', () => {
+            if (UI.elements.upcomingModal) UI.elements.upcomingModal.classList.add('hidden');
+        });
+    }
 }
 
 async function dueBillsPopUpWindow() {
     if (sessionStorage.getItem('upcomingModalShown')) return;
     try {
         const upcomingBills = await fetchUpcomingBills(3);
-        if (upcomingBills.length > 0) {
+        const { fetchExpiredBills } = await import('./core/api.js');
+        const expiredBills = await fetchExpiredBills();
+
+        const allAlertBills = [...expiredBills, ...upcomingBills].sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+
+        if (allAlertBills.length > 0) {
             if(UI.elements.upcomingList) {
                 UI.elements.upcomingList.innerHTML = '';
-                upcomingBills.forEach(bill => {
+                allAlertBills.forEach(bill => {
                     const item = document.createElement('tr');
                     item.className = 'upcoming-item';
-                    item.innerHTML = `<td>${bill.name}</td><td>${bill.due_date}</td><td>Rs.${bill.total_amount}</td>`;
+                    const isExp = bill.is_expired === 'Y' || new Date(bill.due_date) < new Date(new Date().toDateString());
+                    const statusTxt = isExp ? '<span style="color:red;font-weight:bold;">EXPIRED</span>' : '<span style="font-weight:bold;">DUE</span>';
+                    item.innerHTML = `<td>${bill.name}</td><td>${bill.due_date}</td><td>Rs.${bill.total_amount}</td><td>${statusTxt}</td>`;
                     UI.elements.upcomingList.appendChild(item);
                 });
             }
@@ -183,7 +195,7 @@ async function dueBillsPopUpWindow() {
             sessionStorage.setItem('upcomingModalShown', 'true');
         }
     } catch (error) {
-        console.error('Failed to fetch upcoming bills:', error);
+        console.error('Failed to fetch alert bills:', error);
     }
 }
 

@@ -75,7 +75,13 @@ def list_bills(upcoming_only=False, expired_only=False, days=3, beneficiary_id=N
     expired_only  — bills that are past due and still UNPAID.
     Default       — all non-deleted bills.
     """
-    if beneficiary_id is not None:
+    if expired_only and beneficiary_id is not None:
+        rows = dbq.select_expired_bills()
+        rows = [r for r in rows if r[3] == beneficiary_id]
+    elif upcoming_only and beneficiary_id is not None:
+        rows = dbq.select_upcoming_bills(days)
+        rows = [r for r in rows if r[3] == beneficiary_id]
+    elif beneficiary_id is not None:
         rows = dbq.select_bills_by_beneficiary(beneficiary_id)
     elif expired_only:
         rows = dbq.select_expired_bills()

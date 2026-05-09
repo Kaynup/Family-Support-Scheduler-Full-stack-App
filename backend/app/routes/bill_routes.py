@@ -57,21 +57,26 @@ def list_bills_route(
     expired_only: bool = False,
     days: int = Query(3, ge=1),
     beneficiary_id: int | None = None,
+    current_user: dict = Depends(get_current_user_dependency),
 ):
     """Returns all bills or a filtered subset based on query parameters."""
+    if current_user["role"] == "beneficiary":
+        beneficiary_id = int(current_user["sub"])
     return list_bills(upcoming_only=upcoming_only, expired_only=expired_only, days=days, beneficiary_id=beneficiary_id)
 
 
 @router.get("/upcoming")
-def list_upcoming_bills_route(days: int = Query(3, ge=1)):
+def list_upcoming_bills_route(days: int = Query(3, ge=1), current_user: dict = Depends(get_current_user_dependency)):
     """Returns unpaid bills due within the given number of days."""
-    return list_bills(upcoming_only=True, days=days)
+    beneficiary_id = int(current_user["sub"]) if current_user["role"] == "beneficiary" else None
+    return list_bills(upcoming_only=True, days=days, beneficiary_id=beneficiary_id)
 
 
 @router.get("/expired")
-def list_expired_bills_route():
+def list_expired_bills_route(current_user: dict = Depends(get_current_user_dependency)):
     """Returns unpaid bills that are past their due date."""
-    return list_bills(expired_only=True)
+    beneficiary_id = int(current_user["sub"]) if current_user["role"] == "beneficiary" else None
+    return list_bills(expired_only=True, beneficiary_id=beneficiary_id)
 
 
 @router.put("/{bill_id}")

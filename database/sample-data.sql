@@ -9,9 +9,9 @@ DELETE FROM users;
 
 -- Users
 INSERT INTO users (user_name, user_pass, user_role) VALUES
-('User-A', SHA2('sender123', 256), 'sender'),
-('User-B', SHA2('family123', 256), 'beneficiary'),
-('User-C', SHA2('family123', 256), 'beneficiary');
+('Ramesh', SHA2('sender123', 256), 'sender'),
+('Karan', SHA2('family123', 256), 'beneficiary'),
+('Raghav', SHA2('family123', 256), 'beneficiary');
 
 
 -- Sample bills
@@ -22,7 +22,6 @@ INSERT INTO bills (bill_name, creation_date, due_date, total_amount, bill_status
 ('Credit Card - Mar',     '2026-03-15', '2026-04-05', 12000.00, 'UNPAID', 'Finance',        'NONE',    'Y', 2),
 ('Broadband',             '2026-04-01', '2026-04-10',   999.00, 'PAID',   'Utilities',      'MONTHLY', 'N', 2),
 ('Gas Bill',              '2026-04-01', '2026-04-12',  1100.00, 'PAID',   'Utilities',      'MONTHLY', 'N', 3),
-('Spotify Family',        '2026-04-15', '2026-04-15',   179.00, 'PAID',   'Entertainment',  'MONTHLY', 'N', 2),
 ('Rent',                  '2026-04-28', '2026-05-03', 15000.00, 'UNPAID', 'Housing',        'MONTHLY', 'N', 2),
 ('Mobile Recharge',       '2026-04-28', '2026-05-04',   299.00, 'PAID',   'Telecom',        'NONE',    'N', 3),
 ('DTH Recharge',          '2026-04-28', '2026-05-05',   450.00, 'UNPAID', 'Entertainment',  'NONE',    'N', 3),

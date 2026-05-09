@@ -21,18 +21,17 @@ export async function fetchAndRenderBills() {
   try {
     const rawBills = await API.fetchAllBills();
     const allBills = getProjectedBills(rawBills);
-    const todayStr = new Date().toISOString().slice(0,10);
-    const visibleBills = allBills.filter(b => !(b.status === 'UNPAID' && b.due_date < todayStr));
-    const filteredBills = filterBillsForDisplay(visibleBills);
     
-    state.currentBills = filteredBills;
+    // We keep real bills for the lists and dashboard
+    const realBills = rawBills;
+    state.currentBills = realBills;
 
-    Calendar.renderCalendar(filteredBills, (dateStr) => {
+    Calendar.renderCalendar(allBills, (dateStr) => {
       state.selectedDate = dateStr;
       fetchAndRenderBills();
     });
 
-    updateDashboardLists(filteredBills);
+    updateDashboardLists(realBills);
   } catch (error) {
     UI.displayStatusMessage(`Unable to load bills: ${error.message}`);
     console.error(error);
@@ -54,7 +53,7 @@ function updateDashboardLists(allBills) {
     return;
   }
 
-  const billsForDate = allBills.filter(b => b.due_date === state.selectedDate);
+  const billsForDate = allBills.filter(b => b.due_date === state.selectedDate && !b.isProjected);
   const dueForDate = billsForDate.filter(b => b.status === 'UNPAID');
   const paidForDate = billsForDate.filter(b => b.status === 'PAID');
 

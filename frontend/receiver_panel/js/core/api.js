@@ -25,6 +25,11 @@ export async function fetchUpcomingBills(days) {
   return Array.isArray(result) ? result : result.data || [];
 }
 
+export async function fetchExpiredBills() {
+  const result = await requestJson(`/bills/expired`);
+  return Array.isArray(result) ? result : result.data || [];
+}
+
 export async function fetchAllBills() {
   const result = await requestJson('/bills/all');
   return Array.isArray(result) ? result : result.data || [];

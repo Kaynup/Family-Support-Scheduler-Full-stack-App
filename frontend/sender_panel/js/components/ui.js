@@ -67,7 +67,7 @@ export function renderBillTable(containerEl, billsList, emptyMessage, onSelectBi
 function getTableHeaderHTML() {
   const theadEl = document.createElement('thead');
   const headerRowEl = document.createElement('tr');
-  headerRowEl.innerHTML = '<th>Name</th><th>Category</th><th>Amount</th><th>Due Date</th><th>Expires</th><th>Recurring</th>';
+  headerRowEl.innerHTML = '<th>Name</th><th>Category</th><th>Amount</th><th>Due Date</th><th>Recurring</th>';
   theadEl.appendChild(headerRowEl);
   return theadEl;
 }
@@ -75,7 +75,7 @@ function getTableHeaderHTML() {
 function renderEmptyStateHTML(tbodyEl, emptyText) {
   const noteRowEl = document.createElement('tr');
   const noteCellEl = document.createElement('td');
-  noteCellEl.colSpan = 6;
+  noteCellEl.colSpan = 5;
   noteCellEl.className = 'bill-empty-note';
   noteCellEl.textContent = emptyText;
   noteRowEl.appendChild(noteCellEl);
@@ -92,7 +92,6 @@ function renderBillRowsHTML(tbodyEl, billsList, onSelectBill) {
       <td>${bill.category || '-'}</td>
       <td>Rs.${bill.total_amount}</td>
       <td>${bill.due_date}</td>
-      <td>${bill.is_expired === 'Y' ? 'Yes' : 'No'}</td>
       <td>${bill.recurring_interval || 'NONE'}</td>
     `;
     if (onSelectBill) {

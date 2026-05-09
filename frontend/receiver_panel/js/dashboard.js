@@ -57,13 +57,21 @@ async function dueBillsPopUpWindow() {
 
   try {
     const upcomingBills = await fetchUpcomingBills(3);
-    if (upcomingBills.length > 0) {
+    const { fetchExpiredBills } = await import('./core/api.js');
+    const expiredBills = await fetchExpiredBills();
+    
+    // Combine and sort by due_date
+    const allAlertBills = [...expiredBills, ...upcomingBills].sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+
+    if (allAlertBills.length > 0) {
       if(UI.elements.upcomingList) {
         UI.elements.upcomingList.innerHTML = '';
-        upcomingBills.forEach(bill => {
+        allAlertBills.forEach(bill => {
           const item = document.createElement('tr');
           item.className = 'upcoming-item';
-          item.innerHTML = `<td>${bill.name}</td><td>${bill.due_date}</td><td>Rs.${bill.total_amount}</td>`;
+          const isExp = bill.is_expired === 'Y' || new Date(bill.due_date) < new Date(new Date().toDateString());
+          const statusTxt = isExp ? '<span style="color:red;font-weight:bold;">EXPIRED</span>' : 'DUE';
+          item.innerHTML = `<td>${bill.name}</td><td>${bill.due_date}</td><td>Rs.${bill.total_amount}</td><td>${statusTxt}</td>`;
           UI.elements.upcomingList.appendChild(item);
         });
       }
@@ -73,7 +81,7 @@ async function dueBillsPopUpWindow() {
       sessionStorage.setItem('upcomingModalShown', 'true');
     }
   } catch (error) {
-    console.error('Failed to fetch upcoming bills:', error);
+    console.error('Failed to fetch alert bills:', error);
   }
 }
 

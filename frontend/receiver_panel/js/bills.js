@@ -13,12 +13,10 @@ import * as BillSearch from './features/billSearch.js';
 
 async function fetchAndRenderAllBills() {
   try {
-    const data = await fetchAllBills();
-    const allBills = getProjectedBills(data);
-    const todayStr = new Date().toISOString().slice(0,10);
-    const visible = allBills.filter(b => !(b.status === 'UNPAID' && b.due_date < todayStr));
-    const filtered = filterBillsForDisplay(visible);
-    UI.renderBillTable(UI.elements.billsContainerEl, filtered, 'No bills found.', handleBillSelect);
+    const rawBills = await fetchAllBills();
+    const realUnpaidBills = rawBills.filter(b => b.status === 'UNPAID');
+
+    UI.renderBillTable(UI.elements.billsContainerEl, realUnpaidBills, 'No bills found.', handleBillSelect);
     
     // If a new bill was created, select it after rendering
     if (state.newCreatedBill) {

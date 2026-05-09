@@ -87,6 +87,42 @@ def pay_bill_via_remittance(bill_id, sender_user_id, amount, currency=CURRENCY_U
 
     dbq.update_bill_status(bill_id, STATUS_PAID)
 
+    # Auto-generate next projection if recurring
+    if len(bill_row) > 8:
+        b_interval = bill_row[8]
+        if b_interval in ("WEEKLY", "MONTHLY"):
+            import datetime
+            import calendar
+            
+            b_name = bill_row[1]
+            b_beneficiary_id = bill_row[3] if len(bill_row) > 3 else beneficiary_user_id
+            b_due_date = bill_row[5]
+            b_total = bill_row[6]
+            b_category = bill_row[7]
+            
+            if isinstance(b_due_date, str):
+                b_due_date = datetime.date.fromisoformat(b_due_date)
+            
+            if b_interval == "WEEKLY":
+                next_due_date = b_due_date + datetime.timedelta(days=7)
+            else: # MONTHLY
+                next_month = b_due_date.month + 1 if b_due_date.month < 12 else 1
+                next_year = b_due_date.year if b_due_date.month < 12 else b_due_date.year + 1
+                days_in_next_month = calendar.monthrange(next_year, next_month)[1]
+                next_day = min(b_due_date.day, days_in_next_month)
+                next_due_date = datetime.date(next_year, next_month, next_day)
+                
+            dbq.insert_bill(
+                name=b_name,
+                due_date=next_due_date,
+                total_amount=b_total,
+                creation_date=datetime.date.today(),
+                status=STATUS_UNPAID,
+                category=b_category,
+                recurring_interval=b_interval,
+                user_id=b_beneficiary_id
+            )
+
     return {
         "OK":      True,
         "message": "Payment processed successfully.",
