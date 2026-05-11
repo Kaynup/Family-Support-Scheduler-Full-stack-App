@@ -32,7 +32,6 @@ CREATE TABLE IF NOT EXISTS bills (
     category            VARCHAR(50)   NULL,
     recurring_interval  VARCHAR(10)   NOT NULL DEFAULT 'NONE',
     is_deleted          CHAR(1)       NOT NULL DEFAULT 'N',
-    is_expired          CHAR(1)       NOT NULL DEFAULT 'N',
 
     CONSTRAINT check_bill_status CHECK (bill_status IN ('PAID', 'UNPAID')),
     CONSTRAINT check_valid_category CHECK (recurring_interval IN ('NONE', 'WEEKLY', 'MONTHLY')),

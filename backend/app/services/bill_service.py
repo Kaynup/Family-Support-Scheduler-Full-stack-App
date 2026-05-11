@@ -25,7 +25,6 @@ def _format_bill_row(row):
         "total_amount":       float(row[6]),
         "category":           row[7],
         "recurring_interval": row[8] if len(row) > 7 else "NONE",
-        "is_expired":         row[10] if len(row) > 8 else "N",
     }
 
 

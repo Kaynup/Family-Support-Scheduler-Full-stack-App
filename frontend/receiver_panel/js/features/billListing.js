@@ -2,7 +2,7 @@ import * as API from '../core/api.js';
 import * as UI from '../components/ui.js';
 import * as Calendar from '../components/calendar.js';
 import { state } from '../core/state.js';
-import { getProjectedBills, filterBillsForDisplay } from '../core/utils.js';
+import { filterBillsForDisplay } from '../core/utils.js';
 import * as Modal from '../components/modal.js';
 
 export function handleSelectBill(bill, rowEl) {
@@ -20,7 +20,7 @@ export async function fetchAndRenderBills() {
 
   try {
     const rawBills = await API.fetchAllBills();
-    const allBills = getProjectedBills(rawBills);
+    const allBills = rawBills;
     
     // We keep real bills for the lists and dashboard
     const realBills = rawBills;

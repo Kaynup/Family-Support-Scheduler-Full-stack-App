@@ -6,7 +6,7 @@ import * as Modal from './components/modal.js';
 import * as Calendar from './components/calendar.js';
 import { state } from './core/state.js';
 import { fetchAllBills, payBill, fetchUpcomingBills, fetchUsers, fetchAllBillsForBeneficiary } from './core/api.js';
-import { getProjectedBills, filterBillsForDisplay } from './core/utils.js';
+import { filterBillsForDisplay, isBillExpired } from './core/utils.js';
 
 // Track the currently selected beneficiary for refresh functionality
 let currentBeneficiaryId = null;
@@ -14,7 +14,7 @@ let currentBeneficiaryId = null;
 async function fetchAndRenderBills() {
     try {
         const bills = await fetchAllBills();
-        const allBills = getProjectedBills(bills);
+        const allBills = bills;
         const realUnpaidBills = bills.filter(b => b.status === 'UNPAID');
         
         UI.renderBillTable(UI.elements.billsContainerEl, realUnpaidBills, 'No bills to pay.', handleBillSelect);
@@ -35,7 +35,7 @@ async function fetchAndRenderBills() {
 async function fetchAndRenderBillsForBeneficiary(beneficiaryId) {
     try {
         const bills = await fetchAllBillsForBeneficiary(beneficiaryId);
-        const allBills = getProjectedBills(bills);
+        const allBills = bills;
         const realUnpaidBills = bills.filter(b => b.status === 'UNPAID');
         
         UI.renderBillTable(UI.elements.billsContainerEl, realUnpaidBills, 'No bills to pay.', handleBillSelect);
@@ -101,8 +101,8 @@ function handleBillSelect(bill, rowElement) {
     state.selectedBill = bill;
     UI.renderSelectedBillSummary(bill);
     
-    const isProjected = !!bill.isProjected;
-    if (bill.status === 'UNPAID' && !isProjected) {
+    const isExpired = isBillExpired(bill);
+    if (bill.status === 'UNPAID' && !isExpired) {
         UI.elements.payButton.disabled = false;
     } else {
         UI.elements.payButton.disabled = true;
@@ -117,7 +117,7 @@ function setupGlobalEventListeners() {
     
     const refreshBtn = document.getElementById('refresh-btn');
     if (refreshBtn) {
-        refreshBtn.addEventListener('click', refreshCurrentView);
+        refreshBtn.addEventListener('click', () => location.reload());
     }
     
     if (UI.elements.payButton) {
@@ -175,7 +175,12 @@ async function dueBillsPopUpWindow() {
         const { fetchExpiredBills } = await import('./core/api.js');
         const expiredBills = await fetchExpiredBills();
 
-        const allAlertBills = [...expiredBills, ...upcomingBills].sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+        // Sort upcoming: soonest due at top (ascending)
+        const sortedUpcoming = upcomingBills.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+        // Sort expired: most recent expired at top (descending)
+        const sortedExpired = expiredBills.sort((a, b) => new Date(b.due_date) - new Date(a.due_date));
+
+        const allAlertBills = [...sortedUpcoming, ...sortedExpired];
 
         if (allAlertBills.length > 0) {
             if(UI.elements.upcomingList) {
@@ -183,9 +188,9 @@ async function dueBillsPopUpWindow() {
                 allAlertBills.forEach(bill => {
                     const item = document.createElement('tr');
                     item.className = 'upcoming-item';
-                    const isExp = bill.is_expired === 'Y' || new Date(bill.due_date) < new Date(new Date().toDateString());
+                    const isExp = isBillExpired(bill);
                     const statusTxt = isExp ? '<span style="color:red;font-weight:bold;">EXPIRED</span>' : '<span style="font-weight:bold;">DUE</span>';
-                    item.innerHTML = `<td>${bill.name}</td><td>${bill.due_date}</td><td>Rs.${bill.total_amount}</td><td>${statusTxt}</td>`;
+                    item.innerHTML = `<td>${bill.name}</td><td>${bill.due_date}</td><td>Rs.${bill.total_amount}</td><td>${statusTxt}</td><td>${bill.recurring_interval}</td>`;
                     UI.elements.upcomingList.appendChild(item);
                 });
             }

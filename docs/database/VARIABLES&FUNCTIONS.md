@@ -20,7 +20,7 @@ The database schema uses strict ENUMs and constraints to enforce data integrity.
 - `bill_status` (ENUM: `'UNPAID'`, `'PAID'`) - Default `'UNPAID'`
 - `is_deleted` (ENUM: `'N'`, `'Y'`) - Used for Soft Deletes.
 - `recurring_interval` (ENUM: `'NONE'`, `'WEEKLY'`, `'MONTHLY'`)
-- `is_expired` (ENUM: `'N'`, `'Y'`) - Flipped by the cron job.
+
 
 ### `remittance`
 - `remittance_id` (INT, PRIMARY KEY, AUTO_INCREMENT)

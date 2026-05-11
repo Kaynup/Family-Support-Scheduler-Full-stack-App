@@ -5,7 +5,7 @@ import * as UI from './components/ui.js';
 import * as Modal from './components/modal.js';
 import { state } from './core/state.js';
 import { fetchAllBills } from './core/api.js';
-import { getProjectedBills, filterBillsForDisplay } from './core/utils.js';
+import { filterBillsForDisplay } from './core/utils.js';
 
 import * as BillStatus from './features/billStatus.js';
 import * as BillDeletion from './features/billDeletion.js';
@@ -57,7 +57,7 @@ function setupEventListeners() {
 
   const refreshBtn = document.getElementById('refresh-btn');
   if (refreshBtn) {
-    refreshBtn.addEventListener('click', fetchAndRenderAllBills);
+    refreshBtn.addEventListener('click', () => location.reload());
   }
 
   window.addEventListener('click', (e) => {

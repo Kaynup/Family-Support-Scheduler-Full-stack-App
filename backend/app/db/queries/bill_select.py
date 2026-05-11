@@ -42,6 +42,7 @@ def select_upcoming_bills(num_days=3):
     SELECT * FROM {_TABLE}
     WHERE bill_status = %s
       AND is_deleted = %s
+      AND due_date >= CURDATE()
       AND due_date <= DATE_ADD(CURDATE(), INTERVAL %s DAY)
     ORDER BY due_date ASC
     """
@@ -61,15 +62,15 @@ def select_bills_by_beneficiary(beneficiary_id):
 
 
 def select_expired_bills():
-    """Returns unpaid non-deleted bills that are marked expired or are past their due date."""
+    """Returns unpaid non-deleted bills that are past their due date."""
     query = f"""
     SELECT * FROM {_TABLE}
     WHERE bill_status = %s
       AND is_deleted = %s
-      AND (is_expired = %s OR due_date < CURDATE())
+      AND due_date < CURDATE()
     ORDER BY due_date ASC
     """
 
     with get_db_connection() as (conn, cursor):
-        cursor.execute(query, (STATUS_UNPAID, SOFT_DELETE_NO, EXPIRED_YES))
+        cursor.execute(query, (STATUS_UNPAID, SOFT_DELETE_NO))
         return cursor.fetchall()

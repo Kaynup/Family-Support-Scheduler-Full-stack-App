@@ -23,7 +23,7 @@ function setupGlobalEventListeners() {
 
   const refreshBtn = document.getElementById('refresh-btn');
   if (refreshBtn) {
-    refreshBtn.addEventListener('click', BillListing.fetchAndRenderBills);
+    refreshBtn.addEventListener('click', () => location.reload());
   }
 
   // Close modals when clicking outside
@@ -59,23 +59,27 @@ async function dueBillsPopUpWindow() {
     const upcomingBills = await fetchUpcomingBills(3);
     const { fetchExpiredBills } = await import('./core/api.js');
     const expiredBills = await fetchExpiredBills();
-    
-    // Combine and sort by due_date
-    const allAlertBills = [...expiredBills, ...upcomingBills].sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+
+    // Sort upcoming: soonest due at top (ascending)
+    const sortedUpcoming = upcomingBills.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+    // Sort expired: most recent expired at top (descending)
+    const sortedExpired = expiredBills.sort((a, b) => new Date(b.due_date) - new Date(a.due_date));
+
+    const allAlertBills = [...sortedUpcoming, ...sortedExpired];
 
     if (allAlertBills.length > 0) {
-      if(UI.elements.upcomingList) {
+      if (UI.elements.upcomingList) {
         UI.elements.upcomingList.innerHTML = '';
         allAlertBills.forEach(bill => {
           const item = document.createElement('tr');
           item.className = 'upcoming-item';
-          const isExp = bill.is_expired === 'Y' || new Date(bill.due_date) < new Date(new Date().toDateString());
+          const isExp = new Date(bill.due_date) < new Date(new Date().toDateString());
           const statusTxt = isExp ? '<span style="color:red;font-weight:bold;">EXPIRED</span>' : 'DUE';
-          item.innerHTML = `<td>${bill.name}</td><td>${bill.due_date}</td><td>Rs.${bill.total_amount}</td><td>${statusTxt}</td>`;
+          item.innerHTML = `<td>${bill.name}</td><td>${bill.due_date}</td><td>Rs.${bill.total_amount}</td><td>${statusTxt}</td><td>${bill.recurring_interval}</td>`;
           UI.elements.upcomingList.appendChild(item);
         });
       }
-      if(UI.elements.upcomingModal) {
+      if (UI.elements.upcomingModal) {
         UI.elements.upcomingModal.classList.remove('hidden');
       }
       sessionStorage.setItem('upcomingModalShown', 'true');

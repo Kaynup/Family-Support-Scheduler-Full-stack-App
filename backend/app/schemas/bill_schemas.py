@@ -58,7 +58,6 @@ class BillResponse(BaseModel):
     status: str
     category: Optional[str]
     recurring_interval: str
-    is_expired: str
 
 
 class BillListResponse(BaseModel):

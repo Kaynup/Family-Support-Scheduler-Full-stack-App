@@ -9,8 +9,8 @@ from app.constants import STATUS_UNPAID, STATUS_PAID
 
 @patch('app.services.remittance_service.dbq')
 def test_pay_bill_success(mock_dbq):
-    # Mock bill query: id, name, creation_date, due_date, total_amount, status, category, interval, is_deleted, is_expired, beneficiary_id
-    mock_dbq.select_bill_by_id.return_value = (1, "Rent", "2026-01-01", "2026-01-05", 500.0, STATUS_UNPAID, "Housing", "NONE", "N", "N", 2)
+    # Mock bill query: id, name, creation_date, due_date, total_amount, status, category, interval, is_deleted, beneficiary_id
+    mock_dbq.select_bill_by_id.return_value = (1, "Rent", "2026-01-01", "2026-01-05", 500.0, STATUS_UNPAID, "Housing", "NONE", "N", 2)
     mock_dbq.insert_remittance_transaction.return_value = 101
 
     out = pay_bill_via_remittance(1, sender_user_id=1, amount=500.0)
@@ -22,14 +22,14 @@ def test_pay_bill_success(mock_dbq):
 
 @patch('app.services.remittance_service.dbq')
 def test_pay_bill_already_paid(mock_dbq):
-    mock_dbq.select_bill_by_id.return_value = (1, "Rent", "2026-01-01", "2026-01-05", 500.0, STATUS_PAID, "Housing", "NONE", "N", "N", 2)
+    mock_dbq.select_bill_by_id.return_value = (1, "Rent", "2026-01-01", "2026-01-05", 500.0, STATUS_PAID, "Housing", "NONE", "N", 2)
     
     with pytest.raises(RemittanceValidationError, match="already PAID"):
         pay_bill_via_remittance(1, sender_user_id=1, amount=500.0)
 
 @patch('app.services.remittance_service.dbq')
 def test_pay_bill_insufficient_amount(mock_dbq):
-    mock_dbq.select_bill_by_id.return_value = (1, "Rent", "2026-01-01", "2026-01-05", 500.0, STATUS_UNPAID, "Housing", "NONE", "N", "N", 2)
+    mock_dbq.select_bill_by_id.return_value = (1, "Rent", "2026-01-01", "2026-01-05", 500.0, STATUS_UNPAID, "Housing", "NONE", "N", 2)
     
     with pytest.raises(RemittanceValidationError, match="less than the bill total"):
         pay_bill_via_remittance(1, sender_user_id=1, amount=100.0)

@@ -12,7 +12,7 @@ The system uses a relational **MySQL (8.0)** database without an ORM. All intera
    - **Status tracking**: Tracks `bill_status` (`UNPAID` or `PAID`).
    - **Soft Delete**: Uses `is_deleted` for safe removal without breaking remittance history.
    - **Recurring metadata**: Stores `recurring_interval` (`NONE`, `WEEKLY`, `MONTHLY`). The database strictly holds only **one** active (UNPAID) instance of a recurring bill at any given time.
-   - **Expiration**: Stores `is_expired` to flag missed payments.
+   - **Expiration**: Calculated dynamically in the frontend based on the `due_date`.
 
 3. **`remittance`**:
    - The ledger table. Stores historical transaction data linking a `sender_user_id`, a `beneficiary_user_id`, and a `bill_id`.

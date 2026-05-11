@@ -33,7 +33,7 @@ export function renderSelectedBillSummary(bill) {
   } else {
     const dueDate = new Date(bill.due_date);
     const today = new Date();
-    const isExpired = (bill.is_expired === 'Y') || (bill.status !== 'PAID' && dueDate < today);
+    const isExpired = (bill.status !== 'PAID' && dueDate < today);
     elements.selectedBillSummaryEl.textContent = `${bill.name} · Rs.${bill.total_amount} · due ${bill.due_date} · ${bill.status} · ${bill.recurring_interval || 'NONE'}${isExpired ? ' · EXPIRED' : ''}`;
   }
 }

@@ -5,7 +5,7 @@ import * as UI from './components/ui.js';
 import * as Modal from './components/modal.js';
 import { state } from './core/state.js';
 import { fetchAllBills, payBill, searchBills } from './core/api.js';
-import { getProjectedBills, filterBillsForDisplay } from './core/utils.js';
+import { filterBillsForDisplay, isBillExpired } from './core/utils.js';
 
 export async function fetchAndRenderBills() {
     try {
@@ -31,8 +31,8 @@ function handleBillSelect(bill, rowElement) {
 
     UI.renderSelectedBillSummary(bill);
 
-    const isProjected = !!bill.isProjected;
-    if (bill.status === 'UNPAID' && !isProjected) {
+    const isExpired = isBillExpired(bill);
+    if (bill.status === 'UNPAID' && !isExpired) {
         UI.elements.payButton.disabled = false;
     } else {
         UI.elements.payButton.disabled = true;
@@ -51,7 +51,7 @@ function setupEventListeners() {
 
     const refreshBtn = document.getElementById('refresh-btn');
     if (refreshBtn) {
-        refreshBtn.addEventListener('click', fetchAndRenderBills);
+        refreshBtn.addEventListener('click', () => location.reload());
     }
 
     if (UI.elements.cancelPayButton) {

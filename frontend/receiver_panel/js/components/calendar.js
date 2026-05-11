@@ -36,7 +36,7 @@ function buildDateInfoMap(allBills, todayStr) {
     }
     dateInfoMap[bill.due_date].statuses.add(bill.status);
 
-    if (bill.is_expired === 'Y' || (bill.status === 'UNPAID' && bill.due_date < todayStr)) {
+    if (bill.status === 'UNPAID' && bill.due_date < todayStr) {
       dateInfoMap[bill.due_date].hasExpired = true;
     }
   });
