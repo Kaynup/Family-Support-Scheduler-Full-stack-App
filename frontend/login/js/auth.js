@@ -47,6 +47,12 @@ export async function handleRegisterSubmit(event) {
   const password = document.getElementById('password').value;
   const role = document.getElementById('role').value;
 
+  // Clear previous errors
+  const usernameError = document.getElementById('username-error');
+  const passwordError = document.getElementById('password-error');
+  if (usernameError) { usernameError.style.display = 'none'; usernameError.textContent = ''; }
+  if (passwordError) { passwordError.style.display = 'none'; passwordError.textContent = ''; }
+
   try {
     const res = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
@@ -55,7 +61,19 @@ export async function handleRegisterSubmit(event) {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Registration failed');
+    if (!res.ok) {
+        if (res.status === 422 && data.errors) {
+            for (const [field, msg] of Object.entries(data.errors)) {
+                const errorSpan = document.getElementById(`${field}-error`);
+                if (errorSpan) {
+                    errorSpan.textContent = msg;
+                    errorSpan.style.display = 'block';
+                }
+            }
+            return;
+        }
+        throw new Error(data.detail || 'Registration failed');
+    }
 
     alert('Registration successful! You can now log in.');
     window.location.href = 'login.html';

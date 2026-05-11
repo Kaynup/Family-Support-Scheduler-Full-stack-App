@@ -5,12 +5,34 @@ POST /auth/register  — creates a new user account.
 POST /auth/login     — validates credentials and returns a JWT token.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from ..services.auth_service import register_user, login_user
 from ..schemas.auth_schemas import RegisterRequest, LoginRequest, TokenResponse, UserResponse
 from ..core.exceptions import AuthenticationError
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+async def auth_validation_exception_handler(request: Request, exc: RequestValidationError):
+    """
+    Cleaner, structured error object for authentication routes.
+    Returns a dictionary of { field_name: message } in the 'errors' key.
+    """
+    errors = {}
+    for error in exc.errors():
+        field = error.get("loc", [])[-1]
+        msg = error.get("msg")
+        errors[field] = msg
+    
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": "Validation failed",
+            "errors": errors
+        }
+    )
 
 
 @router.post("/register", response_model=UserResponse, status_code=201)

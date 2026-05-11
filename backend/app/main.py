@@ -7,10 +7,13 @@ All configuration is read from .core.config.settings — no raw os.getenv calls 
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
 from .routes import bill_routes, auth_routes, remittance_routes, user_routes
 from .core.config import settings
 
 app = FastAPI(title="Family Support Scheduler API")
+
+app.exception_handler(RequestValidationError)(auth_routes.auth_validation_exception_handler)
 
 app.add_middleware(
     CORSMiddleware,
