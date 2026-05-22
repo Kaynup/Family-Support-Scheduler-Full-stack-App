@@ -6,47 +6,47 @@
   <title>Create Bill - Family Support Scheduler</title>
   <link rel="stylesheet" href="../../shared/css/styles.css" />
 </head>
-<body>
+<body class="app-body">
   <main class="dashboard-page">
     <h1>Create Bill</h1>
-    <div class="controls" style="display:flex; gap:10px; align-items:center;">
+    <div class="controls">
       <a href="dashboard.html">Dashboard</a>
       <a href="bills.html">All Bills</a>
-      <a href="create.html" style="font-weight:bold;">Create Bill</a>
+      <a href="create.html" class="is-active-nav">Create Bill</a>
       <a href="history.html">History</a>
-      <button id="logout-btn" onclick="localStorage.removeItem('token'); localStorage.removeItem('role'); localStorage.removeItem('username'); window.location.href='/login/login.html';" style="background-color: #ef4444; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem;">Logout</button>
-      <span id="user-info" style="margin-left:auto; font-weight:normal;"></span>
+      <button id="logout-btn" onclick="localStorage.removeItem('token'); localStorage.removeItem('role'); localStorage.removeItem('username'); window.location.href='/login/login.html';" class="btn-logout">Logout</button>
+      <span id="user-info" class="user-info"></span>
     </div>
     <div id="status"></div>
     
-    <div class="section-card" style="max-width: 500px; margin-top: 20px;">
+    <div class="section-card form-card-md">
         <form id="create-bill-form">
-          <div style="margin-bottom: 10px;">
-            <label for="bill-name" style="display:block; margin-bottom:5px;">Name</label>
-            <input id="bill-name" name="name" type="text" required placeholder="Electricity Bill" style="width: 100%; padding: 5px;"/>
+          <div class="form-field">
+            <label for="bill-name" class="form-label">Name</label>
+            <input id="bill-name" name="name" type="text" required placeholder="Electricity Bill" class="form-input"/>
           </div>
-          <div style="margin-bottom: 10px;">
-            <label for="bill-amount" style="display:block; margin-bottom:5px;">Amount (Rs.)</label>
-            <input id="bill-amount" name="total_amount" type="number" min="0" step="0.01" required placeholder="Rs." style="width: 100%; padding: 5px;"/>
+          <div class="form-field">
+            <label for="bill-amount" class="form-label">Amount (Rs.)</label>
+            <input id="bill-amount" name="total_amount" type="number" min="0" step="0.01" required placeholder="Rs." class="form-input"/>
           </div>
-          <div style="margin-bottom: 10px;">
-            <label for="bill-due" style="display:block; margin-bottom:5px;">Due Date</label>
-            <input id="bill-due" name="due_date" type="date" required style="width: 100%; padding: 5px;"/>
+          <div class="form-field">
+            <label for="bill-due" class="form-label">Due Date</label>
+            <input id="bill-due" name="due_date" type="date" required class="form-input"/>
           </div>
-          <div style="margin-bottom: 10px;">
-            <label for="bill-category" style="display:block; margin-bottom:5px;">Category</label>
-            <input id="bill-category" name="category" type="text" placeholder="optional" style="width: 100%; padding: 5px;"/>
+          <div class="form-field">
+            <label for="bill-category" class="form-label">Category</label>
+            <input id="bill-category" name="category" type="text" placeholder="optional" class="form-input"/>
           </div>
-          <div style="margin-bottom: 20px;">
-            <label for="bill-recurring" style="display:block; margin-bottom:5px;">Recurring</label>
-            <select id="bill-recurring" name="recurring_interval" style="width: 100%; padding: 5px;">
+          <div class="form-field-lg">
+            <label for="bill-recurring" class="form-label">Recurring</label>
+            <select id="bill-recurring" name="recurring_interval" class="form-select">
               <option value="NONE">None</option>
               <option value="WEEKLY">Weekly</option>
               <option value="MONTHLY">Monthly</option>
             </select>
           </div>
-          <div class="actions" style="display:flex; justify-content: space-between;">
-            <a href="bills.html" class="cancel-delete" style="text-decoration:none; display:inline-block; padding:0.5rem 1rem; border:1px solid #ccc; background:#f9fafb; color:#374151; border-radius:4px;">Cancel</a>
+          <div class="actions form-actions-row">
+            <a href="bills.html" class="button-link-secondary">Cancel</a>
             <button type="submit" class="primary-btn">Create Bill</button>
           </div>
         </form>

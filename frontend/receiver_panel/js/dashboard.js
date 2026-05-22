@@ -11,6 +11,9 @@ import * as BillStatus from './features/billStatus.js';
 import * as BillDeletion from './features/billDeletion.js';
 import * as BillSearch from './features/billSearch.js';
 import { fetchUpcomingBills } from './core/api.js';
+import { fetchExpiredBills } from './core/api.js';
+import { setLoggedInUserLabel } from '../../shared/js/ui/session_user.js';
+import { showUpcomingAndExpiredBills } from '../../shared/js/ui/upcoming_alerts.js';
 
 function setupGlobalEventListeners() {
   // Mark Paid button removed; marking paid is handled when sender pays.
@@ -53,37 +56,13 @@ function setupGlobalEventListeners() {
 }
 
 async function dueBillsPopUpWindow() {
-  if (sessionStorage.getItem('upcomingModalShown')) return;
-
   try {
-    const upcomingBills = await fetchUpcomingBills(3);
-    const { fetchExpiredBills } = await import('./core/api.js');
-    const expiredBills = await fetchExpiredBills();
-
-    // Sort upcoming: soonest due at top (ascending)
-    const sortedUpcoming = upcomingBills.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
-    // Sort expired: most recent expired at top (descending)
-    const sortedExpired = expiredBills.sort((a, b) => new Date(b.due_date) - new Date(a.due_date));
-
-    const allAlertBills = [...sortedUpcoming, ...sortedExpired];
-
-    if (allAlertBills.length > 0) {
-      if (UI.elements.upcomingList) {
-        UI.elements.upcomingList.innerHTML = '';
-        allAlertBills.forEach(bill => {
-          const item = document.createElement('tr');
-          item.className = 'upcoming-item';
-          const isExp = new Date(bill.due_date) < new Date(new Date().toDateString());
-          const statusTxt = isExp ? '<span style="color:red;font-weight:bold;">EXPIRED</span>' : 'DUE';
-          item.innerHTML = `<td>${bill.name}</td><td>${bill.due_date}</td><td>Rs.${bill.total_amount}</td><td>${statusTxt}</td><td>${bill.recurring_interval}</td>`;
-          UI.elements.upcomingList.appendChild(item);
-        });
-      }
-      if (UI.elements.upcomingModal) {
-        UI.elements.upcomingModal.classList.remove('hidden');
-      }
-      sessionStorage.setItem('upcomingModalShown', 'true');
-    }
+    await showUpcomingAndExpiredBills({
+      fetchUpcoming: fetchUpcomingBills,
+      fetchExpired: fetchExpiredBills,
+      listEl: UI.elements.upcomingList,
+      modalEl: UI.elements.upcomingModal,
+    });
   } catch (error) {
     console.error('Failed to fetch alert bills:', error);
   }
@@ -91,11 +70,7 @@ async function dueBillsPopUpWindow() {
 
 function initializeApp() {
   setupGlobalEventListeners();
-  if (UI.elements.userInfoEl) {
-    const uname = localStorage.getItem('username') || 'Unknown';
-    const role = localStorage.getItem('role') || '';
-    UI.elements.userInfoEl.textContent = `Logged in as ${uname} (${role})`;
-  }
+  setLoggedInUserLabel('user-info');
   BillListing.fetchAndRenderBills();
   dueBillsPopUpWindow();
 }

@@ -9,35 +9,35 @@
   <link rel="stylesheet" href="../shared/css/styles.css" />
 </head>
 
-<body>
-  <main class="dashboard-page">
+<body class="auth-body">
+  <main class="login-page">
     <h1>Family Support Scheduler</h1>
-    <div class="section-card" style="max-width: 420px; width: 100%; margin: 0 auto;">
-      <h2 style="margin-top: 0;">Create Account</h2>
-      <div id="error-message" style="display:none; color:#dc2626; margin-bottom:1rem; font-size:0.9rem;"></div>
+    <div class="section-card form-card-sm">
+      <h2 class="form-title">Create Account</h2>
+      <div id="error-message" class="message-error-md"></div>
       <form id="register-form">
-        <div style="margin-bottom: 12px;">
-          <label for="username" style="display:block; margin-bottom:5px;">Username</label>
-          <span id="username-error" style="display:none; color:#dc2626; font-size:0.8rem; margin-bottom:4px;"></span>
+        <div class="form-field">
+          <label for="username" class="form-label">Username</label>
+          <span id="username-error" class="message-error-sm"></span>
           <input id="username" name="username" type="text" required placeholder="Choose a username"
-            style="width: 100%; box-sizing: border-box;" />
+            class="form-input" />
         </div>
-        <div style="margin-bottom: 12px;">
-          <label for="password" style="display:block; margin-bottom:5px;">Password</label>
-          <span id="password-error" style="display:none; color:#dc2626; font-size:0.8rem; margin-bottom:4px;"></span>
+        <div class="form-field">
+          <label for="password" class="form-label">Password</label>
+          <span id="password-error" class="message-error-sm"></span>
           <input id="password" name="password" type="password" required placeholder="Choose a password"
-            style="width: 100%; box-sizing: border-box;" />
+            class="form-input" />
         </div>
-        <div style="margin-bottom: 20px;">
-          <label for="role" style="display:block; margin-bottom:5px;">Role</label>
-          <select id="role" name="role" style="width: 100%; box-sizing: border-box;">
+        <div class="form-field-lg">
+          <label for="role" class="form-label">Role</label>
+          <select id="role" name="role" class="form-select">
             <option value="beneficiary">Beneficiary (creates bills)</option>
             <option value="sender">Sender (pays bills)</option>
           </select>
         </div>
-        <div class="actions" style="display:flex; flex-direction:column; gap:10px;">
-          <button type="submit" class="primary-btn" style="width:100%;">Create Account</button>
-          <p style="text-align:center; margin:0; font-size:0.9rem;">
+        <div class="actions form-actions-column">
+          <button type="submit" class="primary-btn form-submit-full">Create Account</button>
+          <p class="form-meta">
             Already have an account? <a href="login.html">Sign in here</a>
           </p>
         </div>

@@ -1,9 +1,5 @@
-export const state = {
-  currentUser: null,
-  selectedBill: null,
+import { createAppState } from '../../../shared/js/core/state.js';
+
+export const state = createAppState({
   newCreatedBill: null,
-  currentMonth: new Date().getMonth(),
-  currentYear: new Date().getFullYear(),
-  selectedDate: null,
-  projectionCount: 12,
-};
+});

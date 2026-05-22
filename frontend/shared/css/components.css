@@ -10,44 +10,81 @@
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.625rem;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
   /* Right-align the controls (like the Logout link) */
-  justify-content: flex-end;
+  justify-content: flex-start;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
 }
 
 .controls a {
   padding: 0.35rem 0.6rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: #0f172a;
+  color: var(--color-text-primary);
   text-decoration: none;
   border: 1px solid transparent;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 .controls a:hover {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
+  background: var(--color-bg-muted);
+  border-color: var(--color-border-muted);
 }
-.controls a[style*="font-weight:bold"] {
-  background: #eef2ff;
+.controls a.is-active-nav {
+  background: #eff6ff;
   border-color: #c7d2fe;
+  font-weight: bold;
+}
+
+.user-info {
+  margin-left: auto;
+  font-weight: normal;
+}
+
+.btn-refresh {
+  background: #3b82f6;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.btn-logout {
+  background: var(--color-danger);
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.btn-pay {
+  background: var(--color-success);
+  color: white;
 }
 
 /* Card-like containers used for various panels */
 .section-card,
 .action-panel,
 .left-panel {
-  background: #f8fafc;
-  border: 1px solid #dbe2ea;
-  border-radius: 16px;
-  padding: 1rem;
+  background: var(--color-bg-card);
+  border: 1px solid rgba(219, 226, 234, 0.9);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-soft);
 }
 
 .section-card h2,
 .search-panel h2 {
   margin: 0 0 0.75rem;
   font-size: 1rem;
+  letter-spacing: -0.01em;
+  color: var(--color-text-strong);
 }
 
 /* 
@@ -57,19 +94,22 @@
 .bill-table {
   width: 100%;
   border-collapse: collapse;
-  background: #ffffff;
+  background: var(--color-bg-panel);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
 }
 
 .bill-table th,
 .bill-table td {
   padding: 0.9rem 1rem;
-  border: 1px solid #dbe2ea;
+  border: 1px solid var(--color-border-soft);
   text-align: left;
 }
 
 .bill-table th {
-  background: #f1f5f9;
+  background: var(--color-bg-muted);
   font-weight: 600;
+  color: var(--color-text-strong);
 }
 
 /* Interactive table rows */
@@ -83,8 +123,12 @@
   background: #eef4ff;
 }
 
+.bill-row:hover {
+  transform: none;
+}
+
 .bill-empty-note {
-  color: #64748b;
+  color: var(--color-text-secondary);
   padding: 0.75rem 0.5rem;
 }
 
@@ -125,7 +169,7 @@
 
 .search-panel {
   margin-bottom: 1rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--color-border-muted);
   padding-bottom: 1rem;
 }
 
@@ -166,18 +210,59 @@
   padding: 0.65rem 0.9rem;
 }
 
+.actions button:hover {
+  filter: brightness(1.02);
+}
+
 /* Small tab-like buttons used for beneficiary toggles */
 .tab-btn {
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
+  border: 1px solid var(--color-border-muted);
+  background: var(--color-bg-panel);
   padding: 0.4rem 0.6rem;
   margin-right: 0.4rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   color: #000;
   font-weight: 500;
 }
 .tab-btn.active {
-  background: #eef2ff;
+  background: #eff6ff;
   border-color: #c7d2fe;
+}
+
+.content-block {
+  margin-bottom: 20px;
+}
+
+.search-panel-compact {
+  max-width: 400px;
+  margin-bottom: 20px;
+}
+
+.spacer-top {
+  margin-top: 20px;
+}
+
+.filter-row {
+  margin-bottom: 10px;
+}
+
+.primary-btn,
+.button-link-secondary,
+.tab-btn,
+.bill-add-button,
+.btn-refresh,
+.btn-logout,
+.btn-pay {
+  transition: filter 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.primary-btn:hover,
+.button-link-secondary:hover,
+.tab-btn:hover,
+.bill-add-button:hover,
+.btn-refresh:hover,
+.btn-logout:hover,
+.btn-pay:hover {
+  filter: brightness(1.04);
 }

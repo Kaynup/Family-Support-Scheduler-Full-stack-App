@@ -1,0 +1,84 @@
+/* Shared form patterns for login/register/create pages */
+
+.form-card-sm {
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.form-card-md {
+  max-width: 500px;
+  margin-top: 20px;
+}
+
+.form-title {
+  margin-top: 0;
+}
+
+.form-field {
+  margin-bottom: 12px;
+}
+
+.form-field-lg {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-actions-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-actions-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.form-submit-full {
+  width: 100%;
+}
+
+.message-error {
+  color: #dc2626;
+}
+
+.message-error-sm {
+  display: none;
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.message-error-md {
+  display: none;
+  color: #dc2626;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.form-meta {
+  text-align: center;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.button-link-secondary {
+  text-decoration: none;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  background: #f9fafb;
+  color: #374151;
+  border-radius: 4px;
+}

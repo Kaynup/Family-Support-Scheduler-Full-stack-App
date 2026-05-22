@@ -6,19 +6,19 @@
   <title>Payment History - Sender Panel</title>
   <link rel="stylesheet" href="../../shared/css/styles.css" />
 </head>
-<body>
+<body class="app-body">
   <main class="dashboard-page">
     <h1>Outgoing Remittance History</h1>
-    <div class="controls" style="display:flex; gap:10px; align-items:center;">
+    <div class="controls">
       <a href="dashboard.html">Dashboard</a>
       <a href="bills.html">All Bills</a>
-      <a href="history.html" style="font-weight:bold;">History</a>
-      <button id="refresh-btn" style="background-color: #3b82f6; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem;">Refresh</button>
-      <button id="logout-btn" onclick="localStorage.removeItem('token'); localStorage.removeItem('role'); localStorage.removeItem('username'); window.location.href='/login/login.html';" style="background-color: #ef4444; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem;">Logout</button>
-      <span id="user-info" style="margin-left:auto; font-weight:normal;"></span>
+      <a href="history.html" class="is-active-nav">History</a>
+      <button id="refresh-btn" class="btn-refresh">Refresh</button>
+      <button id="logout-btn" onclick="localStorage.removeItem('token'); localStorage.removeItem('role'); localStorage.removeItem('username'); window.location.href='/login/login.html';" class="btn-logout">Logout</button>
+      <span id="user-info" class="user-info"></span>
     </div>
     
-    <div class="section-card" style="margin-top: 20px;">
+    <div class="section-card spacer-top">
         <table class="bill-table">
           <thead>
             <tr>
