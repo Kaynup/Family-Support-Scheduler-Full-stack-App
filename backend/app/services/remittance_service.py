@@ -17,16 +17,15 @@ from ..constants import (
     TRANSACTION_COMPLETED,
 )
 
+import datetime
+import calendar
+
 
 def _extract_bill_payment_fields(bill_row):
     """Extracts status, total, and beneficiary id from either supported bill tuple layout."""
-    # Current DB layout from `bills` table:
-    # (id, name, status, user_id, creation_date, due_date, total_amount, ...)
     if len(bill_row) > 6 and bill_row[2] in (STATUS_UNPAID, STATUS_PAID):
         return bill_row[2], float(bill_row[6]), bill_row[3] if len(bill_row) > 3 else None
 
-    # Legacy layout used in older tests/mocks:
-    # (id, name, creation_date, due_date, total_amount, status, ..., beneficiary_id)
     if len(bill_row) > 5 and bill_row[5] in (STATUS_UNPAID, STATUS_PAID):
         beneficiary_user_id = bill_row[10] if len(bill_row) > 10 else None
         return bill_row[5], float(bill_row[4]), beneficiary_user_id
@@ -91,8 +90,6 @@ def pay_bill_via_remittance(bill_id, sender_user_id, amount, currency=CURRENCY_U
     if len(bill_row) > 8:
         b_interval = bill_row[8]
         if b_interval in ("WEEKLY", "MONTHLY"):
-            import datetime
-            import calendar
             
             b_name = bill_row[1]
             b_beneficiary_id = bill_row[3] if len(bill_row) > 3 else beneficiary_user_id

@@ -2,7 +2,7 @@
 Application entry point.
 
 Registers all routers and configures CORS middleware.
-All configuration is read from .core.config.settings — no raw os.getenv calls here.
+All configurations are read from .core.config.settings
 """
 
 from fastapi import FastAPI
@@ -11,7 +11,7 @@ from fastapi.exceptions import RequestValidationError
 from .routes import bill_routes, auth_routes, remittance_routes, user_routes
 from .core.config import settings
 
-app = FastAPI(title="Family Support Scheduler API")
+app = FastAPI(title="API")
 
 app.exception_handler(RequestValidationError)(auth_routes.auth_validation_exception_handler)
 
