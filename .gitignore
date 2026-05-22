@@ -2,12 +2,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 .pytest*
-
 **/.env
-
 *.pdf
 dev-docs/
-
 .analysis_venv/
 frontend_complexity.json
-refactor_docs/
