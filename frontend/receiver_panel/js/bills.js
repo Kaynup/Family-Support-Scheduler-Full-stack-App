@@ -10,6 +10,7 @@ import { filterBillsForDisplay } from './core/utils.js';
 import * as BillStatus from './features/billStatus.js';
 import * as BillDeletion from './features/billDeletion.js';
 import * as BillSearch from './features/billSearch.js';
+import { setLoggedInUserLabel } from '../../shared/js/ui/session_user.js';
 
 async function fetchAndRenderAllBills() {
   try {
@@ -76,11 +77,7 @@ function setupEventListeners() {
 
 function init() {
   setupEventListeners();
-  if (UI.elements.userInfoEl) {
-    const uname = localStorage.getItem('username') || 'Unknown';
-    const role = localStorage.getItem('role') || '';
-    UI.elements.userInfoEl.textContent = `Logged in as ${uname} (${role})`;
-  }
+  setLoggedInUserLabel('user-info');
   fetchAndRenderAllBills();
 }
 

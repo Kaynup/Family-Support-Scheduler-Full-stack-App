@@ -6,25 +6,46 @@
 
 main {
   /* Shared properties for the main content container on all pages */
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 1.25rem;
+  background: var(--color-bg-tint);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 24px;
+  padding: clamp(1rem, 1.5vw, 1.5rem);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
 }
 
 /* Dashboard-specific container (dashboard.html) 
    Maintains a large width for the complex grid layout
 */
 .dashboard-page {
-  width: min(1200px, 100%);
+  width: min(1240px, 100%);
+}
+
+.sender-dashboard-page {
+  width: min(1800px, 100%);
 }
 
 /* Login-specific container (index.html) 
    Uses a narrower width for a clean, centered login card
 */
 .login-page {
-  width: min(400px, 100%);
-  height: min(220px, 100%);
+  width: min(460px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: auto;
+  padding: clamp(1.25rem, 2vw, 1.75rem);
+}
+
+.login-page h1 {
+  margin-bottom: 0;
+  font-size: clamp(1.35rem, 1.8vw, 1.75rem);
+  line-height: 1.05;
+  max-width: 14ch;
+}
+
+.login-page .section-card {
+  margin-top: 0;
 }
 
 /* Two-column dashboard setup 
@@ -34,9 +55,13 @@ main {
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1.25rem;
   /* Keep panels aligned to the top */
   align-items: start;
+}
+
+.dashboard-grid > * {
+  min-width: 0;
 }
 
 /* Prevent panels from stretching vertically */
@@ -47,7 +72,7 @@ main {
 }
 
 .sender-dashboard-page .dashboard-grid {
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: minmax(440px, 0.9fr) minmax(0, 1.1fr);
   align-items: stretch;
 }
 
@@ -55,8 +80,63 @@ main {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  min-width: 0;
+}
+
+.sender-dashboard-page .left-panel,
+.sender-dashboard-page .calendar-panel {
+  width: 95%;
 }
 
 .sender-dashboard-page .right-panel-bills {
-  height: 100%;
+  min-width: 0;
+  height: auto;
+  max-height: calc(100vh - 10rem);
+  overflow: auto;
+}
+
+.sender-dashboard-page .right-panel-bills > #bills {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+@media (max-width: 1080px) {
+  .dashboard-grid,
+  .sender-dashboard-page .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sender-dashboard-page .left-column {
+    display: grid;
+  }
+}
+
+@media (max-width: 720px) {
+  main {
+    border-radius: 20px;
+    padding: 0.9rem;
+  }
+
+  .controls {
+    align-items: stretch;
+  }
+
+  .controls a,
+  .controls button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .user-info {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .search-controls {
+    flex-direction: column;
+  }
+
+  .search-controls button {
+    width: 100%;
+  }
 }

@@ -6,6 +6,7 @@ import * as Modal from './components/modal.js';
 import { state } from './core/state.js';
 import { fetchAllBills, payBill, searchBills } from './core/api.js';
 import { filterBillsForDisplay, isBillExpired } from './core/utils.js';
+import { setLoggedInUserLabel } from '../../shared/js/ui/session_user.js';
 
 export async function fetchAndRenderBills() {
     try {
@@ -103,11 +104,7 @@ function setupEventListeners() {
 
 function init() {
     setupEventListeners();
-    if (UI.elements.userInfoEl) {
-        const uname = localStorage.getItem('username') || 'Unknown';
-        const role = localStorage.getItem('role') || '';
-        UI.elements.userInfoEl.textContent = `Logged in as ${uname} (${role})`;
-    }
+    setLoggedInUserLabel('user-info');
     fetchAndRenderBills();
 }
 

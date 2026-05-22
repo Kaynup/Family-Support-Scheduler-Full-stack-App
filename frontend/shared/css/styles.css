@@ -3,12 +3,16 @@
    This file imports all modular CSS files to keep the architecture organized.
 */
 
+@import "./tokens.css";
+/* Design tokens: colors, spacing, radius, shadows, typography */
 @import "./base.css";
 /* Resets, Typography, and shared element defaults */
 @import "./layout.css";
 /* Structural grid and container logic */
 @import "./components.css";
 /* Reusable UI components (Cards, Tables, Buttons) */
+@import "./forms.css";
+/* Shared form classes used by login/register/create pages */
 @import "./calendar.css";
 /* Calendar-specific styling and glow effects */
 @import "./modals.css";

@@ -2,39 +2,20 @@ import { guardRoute } from './core/auth_guard.js';
 guardRoute();
 
 import { fetchRemittanceHistory } from './core/api.js';
+import { setLoggedInUserLabel } from '../../shared/js/ui/session_user.js';
+import { renderRemittanceHistoryRows, renderRemittanceHistoryError } from '../../shared/js/ui/remittance_history.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    if (document.getElementById('user-info')) {
-        const uname = localStorage.getItem('username') || 'Unknown';
-        const role = localStorage.getItem('role') || '';
-        document.getElementById('user-info').textContent = `Logged in as ${uname} (${role})`;
-    }
+    setLoggedInUserLabel('user-info');
     
     const listEl = document.getElementById('history-list');
     
     try {
         const data = await fetchRemittanceHistory();
-        listEl.innerHTML = '';
-        
-        if (data.length === 0) {
-            listEl.innerHTML = '<tr><td colspan="5" class="bill-empty-note">No outgoing payments found.</td></tr>';
-            return;
-        }
-        
-        data.forEach(tx => {
-            const row = document.createElement('tr');
-            const beneficiaryName = tx.other_username || 'Unknown';
-            const billName = tx.bill_name || 'Unknown';
-            row.innerHTML = `
-                <td>#${tx.transaction_id}</td>
-                <td>${beneficiaryName} - ${billName}</td>
-                <td>${tx.currency} ${tx.amount}</td>
-                <td><span class="status-badge status-${tx.transaction_status.toLowerCase()}" style="background-color: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">${tx.transaction_status}</span></td>
-                <td>${new Date(tx.created_at).toLocaleString()}</td>
-            `;
-            listEl.appendChild(row);
+        renderRemittanceHistoryRows(listEl, data, {
+            emptyMessage: 'No outgoing payments found.',
         });
     } catch(err) {
-        listEl.innerHTML = `<tr><td colspan="5" class="bill-empty-note" style="color:red;">Error loading history: ${err.message}</td></tr>`;
+        renderRemittanceHistoryError(listEl, err.message);
     }
 });

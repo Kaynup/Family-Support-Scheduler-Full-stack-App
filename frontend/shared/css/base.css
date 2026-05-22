@@ -7,19 +7,28 @@
 body {
   margin: 0;
   min-height: 100vh;
-  /* Technical monospace font stack for a precise aesthetic */
-  font-family: Consolas, "Courier New", monospace;
-  background: #f7f9fc;
-  color: #0f172a;
-  /* Centering logic: Primarily used for the Login card on index.html */
+  font-family: var(--font-body);
+  background: var(--color-bg-app);
+  color: var(--color-text-primary);
+  overflow-x: hidden;
+}
+
+body.auth-body {
   display: grid;
   place-items: center;
-  padding: 1.5rem;
+  padding: var(--space-6);
+}
+
+body.app-body {
+  display: block;
+  padding: clamp(1rem, 2vw, 2rem);
 }
 
 h1 {
   margin: 0 0 1rem;
-  font-size: 1.6rem;
+  font-size: clamp(1.65rem, 2vw, 2.1rem);
+  letter-spacing: -0.03em;
+  color: var(--color-text-strong);
 }
 
 label {
@@ -41,8 +50,8 @@ input,
 button,
 select {
   padding: 0.8rem 1rem;
-  border-radius: 12px;
-  border: 1px solid #dbe2ea;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-soft);
 }
 
 input {
@@ -51,14 +60,30 @@ input {
 
 /* Primary Button Action Style */
 button {
-  background: #1b3f8d;
+  background: var(--color-primary);
   color: white;
   border: none;
   cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, filter 160ms ease;
+}
+
+button:hover {
+  filter: brightness(1.04);
+}
+
+button:active {
+  filter: brightness(0.98);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 a {
-  color: #2563eb;
+  color: var(--color-primary-strong);
   text-decoration: none;
 }
 
@@ -66,7 +91,8 @@ a {
    Applies to: dashboard.html (Top center area)
 */
 #status {
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
   /* Prevent layout jumps by reserving space even when empty */
   min-height: 1.25rem;
+  color: var(--color-text-secondary);
 }
