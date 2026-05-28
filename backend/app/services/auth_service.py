@@ -19,6 +19,7 @@ import hashlib
 
 from ..db import queries as dbq
 from ..core.config import settings
+from ..core.logging_config import logger
 from ..core.exceptions import AuthenticationError, UnauthorizedRoleError
 from ..constants import ROLE_SENDER, ROLE_BENEFICIARY
 
@@ -70,12 +71,15 @@ def register_user(username, password, role):
     if role not in (ROLE_SENDER, ROLE_BENEFICIARY):
         raise ValueError(f"Invalid role '{role}'. Must be '{ROLE_SENDER}' or '{ROLE_BENEFICIARY}'.")
 
+    logger.info("Registering user username=%s role=%s", username, role)
     hashed = hash_password(password)
     try:
         new_id = dbq.insert_user(username=username, password=hashed, role=role)
     except mysql.connector.IntegrityError:
+        logger.warning("Registration failed: username already exists username=%s", username)
         raise ValueError(f"Username '{username}' is already taken.")
 
+    logger.info("Registered user id=%s username=%s role=%s", new_id, username, role)
     return {"id": new_id, "username": username, "role": role}
 
 
@@ -86,14 +90,17 @@ def login_user(username, password):
     """
     row = dbq.select_user_by_username(username)
     if not row:
+        logger.warning("Login failed: unknown username=%s", username)
         raise AuthenticationError("Invalid username or password.")
 
     user_id, db_username, password_hash, role, created_at = row
 
     if not verify_password(password, password_hash):
+        logger.warning("Login failed: invalid password username=%s", username)
         raise AuthenticationError("Invalid username or password.")
 
     token = create_access_token(user_id=user_id, username=db_username, role=role)
+    logger.info("Login successful user_id=%s username=%s role=%s", user_id, db_username, role)
     return {"access_token": token, "token_type": "bearer", "role": role, "username": db_username}
 
 
