@@ -12,6 +12,7 @@ A calendar-based scheduling and remittance platform designed for recurring famil
 | **Backend REST API** | **Render** | [https://family-scheduler-api.onrender.com](https://family-scheduler-api.onrender.com) | Free Web Service (Auto-sleeps on idle) |
 | **Interactive API Docs** | **Render (Swagger)** | [https://family-scheduler-api.onrender.com/docs](https://family-scheduler-api.onrender.com/docs) | OpenAPI 3.0 Interactive Explorer |
 | **API Health Check** | **Render** | [https://family-scheduler-api.onrender.com/health](https://family-scheduler-api.onrender.com/health) | Liveness Indicator (`{"message": "backend is live"}`) |
+| **Database Pool Health** | **Render / TiDB** | [https://family-scheduler-api.onrender.com/health/db](https://family-scheduler-api.onrender.com/health/db) | Database Pool Indicator (`{"status": "connected", "result": 1}`) |
 | **Cloud Database** | **TiDB Cloud** | `gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000` | Serverless (5 GB Free Forever, MySQL 8.0 over TLS) |
 | **Automated CI/CD** | **GitHub Actions** | `.github/workflows/` | Automated tests, secret scanning & rollbacks |
 
@@ -193,6 +194,7 @@ GitHub Actions workflows are located in `.github/workflows/`:
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/health` | Service liveness indicator | None |
+| `GET` | `/health/db` | Database connection pool probe | None |
 | `POST` | `/auth/register` | Register new user (`sender` or `beneficiary`) | None |
 | `POST` | `/auth/login` | Login and receive JWT bearer token | None |
 | `GET` | `/bills` | List bills (filter upcoming/expired) | Bearer Token |
