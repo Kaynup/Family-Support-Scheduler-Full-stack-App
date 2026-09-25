@@ -1,10 +1,11 @@
 """
-Database Bootstrapper for Cloud MySQL (TiDB Cloud Serverless / Managed MySQL).
+Database Bootstrapper for Cloud MySQL (TiDB Cloud Serverless).
 
-Reads connection details from environment variables or .env file,
-creates the schema tables if they do not exist, and optionally seeds initial users.
+Connects to TiDB Cloud, creates the 'family_supp_sche' database,
+creates all required tables, and seeds initial demo users.
 """
 
+import hashlib
 import os
 import sys
 import mysql.connector
@@ -12,12 +13,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = int(os.getenv("DB_PORT", "4000" if "tidbcloud" in os.getenv("DB_HOST", "") else "3306"))
-DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+DB_HOST = os.getenv("DB_HOST", "gateway01.ap-southeast-1.prod.aws.tidbcloud.com")
+DB_PORT = int(os.getenv("DB_PORT", "4000"))
+DB_USER = os.getenv("DB_USER", "iVAAKAKjk5Q1VM6.root")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "usGtgNF4rMxM1kk0")
 DB_NAME = os.getenv("DB_NAME", "family_supp_sche")
-DB_SSL = os.getenv("DB_SSL", "true" if DB_PORT == 4000 else "false").lower() in ("true", "1", "yes")
+DB_SSL = os.getenv("DB_SSL", "true").lower() in ("true", "1", "yes")
+
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
 
 TABLES_SQL = [
     """
@@ -67,13 +73,12 @@ TABLES_SQL = [
 
 
 def init_database():
-    print(f"Connecting to database at {DB_HOST}:{DB_PORT}/{DB_NAME} (SSL={DB_SSL})...")
+    print(f"Connecting to TiDB Cloud at {DB_HOST}:{DB_PORT} (User={DB_USER})...")
     conn_kwargs = {
         "host": DB_HOST,
         "port": DB_PORT,
         "user": DB_USER,
         "password": DB_PASSWORD,
-        "database": DB_NAME,
     }
     if DB_SSL:
         conn_kwargs["ssl_disabled"] = False
@@ -82,12 +87,32 @@ def init_database():
         conn = mysql.connector.connect(**conn_kwargs)
         cursor = conn.cursor()
 
-        print("Creating tables...")
+        print(f"Ensuring database '{DB_NAME}' exists...")
+        cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{DB_NAME}`")
+        cursor.execute(f"USE `{DB_NAME}`")
+
+        print("Creating tables in TiDB Cloud...")
         for table_sql in TABLES_SQL:
             cursor.execute(table_sql)
-        conn.commit()
 
-        print("✓ All tables initialized successfully!")
+        # Seed initial demo users if not present
+        print("Checking demo users...")
+        cursor.execute(
+            "SELECT COUNT(*) FROM users WHERE user_name IN ('alice_sender', 'bob_beneficiary')"
+        )
+        count = cursor.fetchone()[0]
+        if count == 0:
+            print("Seeding demo users (alice_sender and bob_beneficiary)...")
+            hashed_pwd = hash_password("password123")
+            insert_user = "INSERT INTO users (user_name, user_pass, user_role) VALUES (%s, %s, %s)"
+            cursor.execute(insert_user, ("alice_sender", hashed_pwd, "sender"))
+            cursor.execute(insert_user, ("bob_beneficiary", hashed_pwd, "beneficiary"))
+            print("✓ Demo users created! (Password: password123)")
+        else:
+            print("✓ Demo users already exist.")
+
+        conn.commit()
+        print(f"✓ All tables and data initialized successfully in TiDB Cloud database '{DB_NAME}'!")
         cursor.close()
         conn.close()
     except Exception as exc:

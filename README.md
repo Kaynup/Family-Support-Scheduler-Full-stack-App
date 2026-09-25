@@ -8,11 +8,22 @@ A calendar-based scheduling and remittance platform designed for recurring famil
 
 | Service | Platform | Live URL / Endpoint | Tier / Specs |
 | :--- | :--- | :--- | :--- |
-| **Frontend Web App** | **Vercel** | [https://family-scheduler-web.vercel.app](https://family-scheduler-web.vercel.app) | Hobby (Free Edge CDN, Global SSL) |
+| **Frontend Web App** | **Vercel** | [https://frontend-two-hazel-16.vercel.app](https://frontend-two-hazel-16.vercel.app) | Hobby (Free Edge CDN, Global SSL) |
 | **Backend REST API** | **Render** | [https://family-scheduler-api.onrender.com](https://family-scheduler-api.onrender.com) | Free Web Service (Auto-sleeps on idle) |
+| **Interactive API Docs** | **Render (Swagger)** | [https://family-scheduler-api.onrender.com/docs](https://family-scheduler-api.onrender.com/docs) | OpenAPI 3.0 Interactive Explorer |
 | **API Health Check** | **Render** | [https://family-scheduler-api.onrender.com/health](https://family-scheduler-api.onrender.com/health) | Liveness Indicator (`{"message": "backend is live"}`) |
-| **Cloud Database** | **TiDB Cloud** | `gateway01.us-east-1.prod.aws.tidbcloud.com:4000` | Serverless (5 GB Free Forever, MySQL 8.0) |
+| **Cloud Database** | **TiDB Cloud** | `gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000` | Serverless (5 GB Free Forever, MySQL 8.0 over TLS) |
 | **Automated CI/CD** | **GitHub Actions** | `.github/workflows/` | Automated tests, secret scanning & rollbacks |
+
+### 🔑 Pre-seeded Demo Accounts
+Test the live deployment immediately with pre-configured accounts:
+| Role | Username | Password | Access / Capabilities |
+| :--- | :--- | :--- | :--- |
+| **Beneficiary** | `bob_beneficiary` | `password123` | Log upcoming expenses, manage recurring bills, view status |
+| **Sender** | `alice_sender` | `password123` | View family obligations and remit payments |
+
+> [!NOTE]
+> **Free Tier Cold Starts**: Render's free tier automatically spins down web services after 15 minutes of inactivity. If the service is asleep, the first request may take ~30–45 seconds while the container boots up. Subsequent requests respond instantly.
 
 ---
 
@@ -78,7 +89,7 @@ DB_SSL=false
 JWT_SECRET_KEY=e83a9f4c71b6205e48d39f21aa47bc95de2c6104f7b24981cae9352e8d076a14
 JWT_ALGORITHM=HS256
 JWT_EXPIRE_MINUTES=480
-ALLOWED_ORIGINS=http://localhost:8003,http://127.0.0.1:8003,https://family-scheduler-web.vercel.app
+ALLOWED_ORIGINS=http://localhost:8003,http://127.0.0.1:8003,https://frontend-two-hazel-16.vercel.app
 ```
 
 ### 2. Initialize Database
@@ -130,17 +141,32 @@ PYTHONPATH=backend pytest tests/ -v
 4. Run `python scripts/init_cloud_db.py` to create all tables over TLS.
 
 ### 2. Backend (Render Free Tier)
-Deploy using the included blueprint [render.yaml](render.yaml):
-1. In the [Render Dashboard](https://dashboard.render.com), click **New + $\rightarrow$ Blueprint**.
-2. Select your repository. Render will automatically read `render.yaml`.
-3. Set your TiDB connection variables (`DB_HOST`, `DB_PORT=4000`, `DB_USER`, `DB_PASSWORD`, `DB_SSL=true`).
-4. Click **Apply**. Render will deploy the API and provide a live URL (`https://family-scheduler-api.onrender.com`).
+Deploy using either the automated CLI script or the Render dashboard:
+
+- **Option A (Automated CLI via REST API)**:
+  ```bash
+  # Securely reads API key from ~/.secrets/render_api.txt
+  python scripts/deploy_render.py
+  ```
+- **Option B (Render Dashboard Blueprint)**:
+  1. In the [Render Dashboard](https://dashboard.render.com), click **New + $\rightarrow$ Blueprint**.
+  2. Select your repository. Render will automatically read [render.yaml](render.yaml).
+  3. Enter your TiDB credentials when prompted (`DB_HOST`, `DB_PORT=4000`, `DB_USER`, `DB_PASSWORD`, `DB_SSL=true`).
+  4. Click **Apply**. Render will deploy the API to `https://family-scheduler-api.onrender.com`.
 
 ### 3. Frontend (Vercel Hobby Tier)
-1. In the [Vercel Dashboard](https://vercel.com), click **Add New... $\rightarrow$ Project**.
-2. Import the repository and set **Root Directory** to `frontend`.
-3. Vercel will read [frontend/vercel.json](frontend/vercel.json) for edge headers and routing.
-4. Click **Deploy**. Your frontend is now live globally with instant SSL!
+Deploy using either the Vercel CLI or Web Dashboard:
+
+- **Option A (Vercel CLI)**:
+  ```bash
+  cd frontend
+  npx vercel --prod
+  ```
+- **Option B (Vercel Web Dashboard)**:
+  1. In the [Vercel Dashboard](https://vercel.com), click **Add New... $\rightarrow$ Project**.
+  2. Import the repository and set **Root Directory** to `frontend`.
+  3. Vercel will automatically detect [frontend/vercel.json](frontend/vercel.json) for edge headers and routing.
+  4. Click **Deploy**. Your frontend is live globally with instant SSL at `https://frontend-two-hazel-16.vercel.app`!
 
 ---
 
