@@ -8,6 +8,7 @@ creates all required tables, and seeds initial demo users.
 import hashlib
 import os
 import sys
+
 import mysql.connector
 from dotenv import load_dotenv
 

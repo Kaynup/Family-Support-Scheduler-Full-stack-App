@@ -9,7 +9,6 @@ configures environment variables, triggers deployment, and monitors liveness.
 import json
 import os
 import sys
-import time
 import urllib.error
 import urllib.request
 
