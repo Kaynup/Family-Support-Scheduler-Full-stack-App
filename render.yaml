@@ -1,0 +1,43 @@
+# ==============================================================================
+# Render Blueprint Specification — Family Support Scheduler API (Free Tier)
+# ==============================================================================
+
+services:
+  - type: web
+    name: family-scheduler-api
+    runtime: python
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.10"
+      - key: PYTHONPATH
+        value: "backend"
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "4000"
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        value: "family_supp_sche"
+      - key: DB_TABLE
+        value: "bills"
+      - key: DB_CONN_POOLING
+        value: "5"
+      - key: DB_SSL
+        value: "true"
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: "HS256"
+      - key: JWT_EXPIRE_MINUTES
+        value: "480"
+      - key: ALLOWED_ORIGINS
+        sync: false

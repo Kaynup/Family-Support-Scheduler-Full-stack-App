@@ -5,12 +5,13 @@ Registers all routers and configures CORS middleware.
 All configurations are read from .core.config.settings
 """
 
-from .core.logging_config import configure_logging, logger
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
-from .routes import bill_routes, auth_routes, remittance_routes, user_routes
+from fastapi.middleware.cors import CORSMiddleware
+
 from .core.config import settings
+from .core.logging_config import configure_logging, logger
+from .routes import auth_routes, bill_routes, remittance_routes, user_routes
 
 configure_logging()
 
@@ -20,9 +21,11 @@ logger.info("Backend application starting")
 
 app.exception_handler(RequestValidationError)(auth_routes.auth_validation_exception_handler)
 
+cors_origins = [orig.strip() for orig in settings.allowed_origins.split(",") if orig.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$",
+    allow_origins=cors_origins if cors_origins else [],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|.*\.vercel\.app)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

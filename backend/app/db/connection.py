@@ -6,19 +6,32 @@ Commit, rollback, cursor close, and connection close are all guaranteed
 by this one place — callers never manage these manually.
 """
 
-import mysql.connector
-from mysql.connector import pooling
 from contextlib import contextmanager
+
+from mysql.connector import pooling
+
 from ..core.config import settings
 
-_conn_pool = pooling.MySQLConnectionPool(
-    pool_name="userpool",
-    pool_size=settings.db_conn_pooling,
-    host=settings.db_host,
-    user=settings.db_user,
-    password=settings.db_password,
-    database=settings.db_name,
-)
+
+def _create_pool():
+    kwargs = {
+        "pool_name": "userpool",
+        "pool_size": settings.db_conn_pooling,
+        "host": settings.db_host,
+        "port": settings.db_port,
+        "user": settings.db_user,
+        "password": settings.db_password,
+        "database": settings.db_name,
+    }
+    if settings.db_ssl:
+        kwargs["ssl_disabled"] = False
+    try:
+        return pooling.MySQLConnectionPool(**kwargs)
+    except Exception:
+        return None
+
+
+_conn_pool = _create_pool()
 
 
 @contextmanager
@@ -30,6 +43,11 @@ def get_db_connection():
     On any exception:  rolls back the transaction and re-raises.
     Always:            closes the cursor and returns the connection to the pool.
     """
+    global _conn_pool
+    if _conn_pool is None:
+        _conn_pool = _create_pool()
+    if _conn_pool is None:
+        raise ConnectionError("Database connection pool could not be initialized.")
     conn = _conn_pool.get_connection()
     cursor = conn.cursor()
     try:

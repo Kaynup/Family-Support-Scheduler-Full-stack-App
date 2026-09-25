@@ -5,6 +5,7 @@ GET /users?role=beneficiary  — returns users with the requested role.
 """
 
 from fastapi import APIRouter, Query
+
 from ..db import queries as dbq
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -20,4 +21,8 @@ def list_users_route(role: str = Query(None)):
         rows = []
 
     # map to simple dicts
-    return {"OK": True, "total_count": len(rows), "data": [{"id": r[0], "username": r[1], "role": r[2]} for r in rows]}
+    return {
+        "OK": True,
+        "total_count": len(rows),
+        "data": [{"id": r[0], "username": r[1], "role": r[2]} for r in rows],
+    }

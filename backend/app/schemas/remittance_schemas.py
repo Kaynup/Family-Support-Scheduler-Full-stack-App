@@ -6,6 +6,7 @@ RemittanceResponse       — shape of a single remittance transaction in respons
 """
 
 from pydantic import BaseModel, Field
+
 from ..constants import CURRENCY_USDT, PAYMENT_METHOD_STABLECOIN
 
 

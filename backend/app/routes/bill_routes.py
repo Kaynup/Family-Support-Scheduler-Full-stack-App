@@ -9,23 +9,26 @@ Each handler does exactly three things:
 No business logic lives here.
 """
 
-from fastapi import APIRouter, HTTPException, Query, Depends
-from ..services.bill_service import (
-    create_bill,
-    list_bills,
-    mark_bill_status,
-    delete_bill,
-    search_bills_by_name,
-)
-from ..schemas.bill_schemas import BillCreateRequest, BillUpdateRequest
+from fastapi import APIRouter, Depends, HTTPException, Query
+
 from ..core.exceptions import BillNotFoundError
 from ..dependencies import get_current_user_dependency, require_beneficiary_role
+from ..schemas.bill_schemas import BillCreateRequest, BillUpdateRequest
+from ..services.bill_service import (
+    create_bill,
+    delete_bill,
+    list_bills,
+    mark_bill_status,
+    search_bills_by_name,
+)
 
 router = APIRouter(prefix="/bills", tags=["bills"])
 
 
 @router.post("/new", status_code=201)
-def create_bill_route(payload: BillCreateRequest, current_user: dict = Depends(require_beneficiary_role)):
+def create_bill_route(
+    payload: BillCreateRequest, current_user: dict = Depends(require_beneficiary_role)
+):
     """Creates a new bill. Beneficiary role required."""
     try:
         return create_bill(
@@ -69,11 +72,19 @@ def list_bills_route(
     """Returns all bills or a filtered subset based on query parameters."""
     if current_user["role"] == "beneficiary":
         beneficiary_id = int(current_user["sub"])
-    return list_bills(upcoming_only=upcoming_only, expired_only=expired_only, days=days, beneficiary_id=beneficiary_id)
+    return list_bills(
+        upcoming_only=upcoming_only,
+        expired_only=expired_only,
+        days=days,
+        beneficiary_id=beneficiary_id,
+    )
 
 
 @router.get("/upcoming")
-def list_upcoming_bills_route(days: int = Query(3, ge=1), current_user: dict = Depends(get_current_user_dependency)):
+def list_upcoming_bills_route(
+    days: int = Query(3, ge=1),
+    current_user: dict = Depends(get_current_user_dependency),
+):
     """Returns unpaid bills due within the given number of days."""
     beneficiary_id = int(current_user["sub"]) if current_user["role"] == "beneficiary" else None
     return list_bills(upcoming_only=True, days=days, beneficiary_id=beneficiary_id)

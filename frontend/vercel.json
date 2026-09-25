@@ -1,0 +1,44 @@
+{
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/login/login.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login/login.html"
+    },
+    {
+      "source": "/receiver",
+      "destination": "/receiver_panel/index.html"
+    },
+    {
+      "source": "/sender",
+      "destination": "/sender_panel/index.html"
+    }
+  ]
+}

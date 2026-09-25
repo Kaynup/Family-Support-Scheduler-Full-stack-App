@@ -6,9 +6,10 @@ sets Is_deleted = 'Y' so historical records are preserved.
 """
 
 import mysql.connector
-from ..connection import get_db_connection
-from ...core.config import settings
+
 from ...constants import SOFT_DELETE_YES
+from ...core.config import settings
+from ..connection import get_db_connection
 
 _TABLE = settings.db_table
 
@@ -21,7 +22,7 @@ def soft_delete_bill_by_id(bill_id):
     """
     query = f"UPDATE {_TABLE} SET is_deleted = %s WHERE bill_id = %s"
 
-    with get_db_connection() as (conn, cursor):
+    with get_db_connection() as (_conn, cursor):
         cursor.execute(query, (SOFT_DELETE_YES, bill_id))
         if cursor.rowcount == 0:
             raise mysql.connector.Error(f"No bill found for id {bill_id}")

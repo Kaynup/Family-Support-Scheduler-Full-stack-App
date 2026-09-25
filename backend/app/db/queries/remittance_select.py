@@ -15,7 +15,7 @@ def select_remittance_by_bill_id(bill_id):
     ORDER BY transaction_on DESC
     """
 
-    with get_db_connection() as (conn, cursor):
+    with get_db_connection() as (_conn, cursor):
         cursor.execute(query, (bill_id,))
         return cursor.fetchall()
 
@@ -34,7 +34,7 @@ def select_remittance_by_sender_id(sender_user_id):
     ORDER BY rt.transaction_on DESC
     """
 
-    with get_db_connection() as (conn, cursor):
+    with get_db_connection() as (_conn, cursor):
         cursor.execute(query, (sender_user_id,))
         return cursor.fetchall()
 
@@ -53,6 +53,6 @@ def select_remittance_by_beneficiary_id(beneficiary_user_id):
     ORDER BY rt.transaction_on DESC
     """
 
-    with get_db_connection() as (conn, cursor):
+    with get_db_connection() as (_conn, cursor):
         cursor.execute(query, (beneficiary_user_id,))
         return cursor.fetchall()

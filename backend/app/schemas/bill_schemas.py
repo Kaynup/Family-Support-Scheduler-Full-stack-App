@@ -7,13 +7,13 @@ BillResponse       — shape of a single bill in API responses.
 BillListResponse   — shape of the list-bills API response envelope.
 """
 
-from pydantic import BaseModel, Field, field_validator, model_validator
 from datetime import date
-from typing import Optional, List
-from enum import Enum
+from enum import StrEnum
+
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
-class BillStatus(str, Enum):
+class BillStatus(StrEnum):
     PAID = "PAID"
     UNPAID = "UNPAID"
 
@@ -21,9 +21,9 @@ class BillStatus(str, Enum):
 class BillCreateRequest(BaseModel):
     name: str = Field(..., min_length=1)
     due_date: date
-    creation_date: Optional[date] = None
+    creation_date: date | None = None
     total_amount: float = Field(..., gt=0)
-    category: Optional[str] = None
+    category: str | None = None
     recurring_interval: str = Field(default="NONE")
     status: BillStatus = BillStatus.UNPAID
 
@@ -56,11 +56,11 @@ class BillResponse(BaseModel):
     due_date: str
     total_amount: float
     status: str
-    category: Optional[str]
+    category: str | None
     recurring_interval: str
 
 
 class BillListResponse(BaseModel):
     OK: bool
     total_count: int
-    data: List[BillResponse]
+    data: list[BillResponse]

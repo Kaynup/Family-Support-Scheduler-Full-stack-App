@@ -1,8 +1,26 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
 .pytest*
+*.log
+
+# Environment variables & secrets
+.env
+.env.*
 **/.env
+**/.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+secrets/
+
+# Build and IDE
+.vercel
+.vscode/
+.idea/
 *.pdf
 dev-docs/
 .analysis_venv/

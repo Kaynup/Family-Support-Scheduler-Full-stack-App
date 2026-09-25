@@ -6,21 +6,24 @@ GET  /remittance/history                — sender views their outgoing transact
 GET  /remittance/history/beneficiary    — beneficiary views incoming payments for their bills.
 """
 
-from fastapi import APIRouter, HTTPException, Depends
-from ..services.remittance_service import (
-    pay_bill_via_remittance,
-    get_remittance_history_for_sender,
-    get_remittance_history_for_beneficiary,
-)
-from ..schemas.remittance_schemas import RemittanceCreateRequest
+from fastapi import APIRouter, Depends, HTTPException
+
 from ..core.exceptions import BillNotFoundError, RemittanceValidationError
-from ..dependencies import require_sender_role, require_beneficiary_role
+from ..dependencies import require_beneficiary_role, require_sender_role
+from ..schemas.remittance_schemas import RemittanceCreateRequest
+from ..services.remittance_service import (
+    get_remittance_history_for_beneficiary,
+    get_remittance_history_for_sender,
+    pay_bill_via_remittance,
+)
 
 router = APIRouter(prefix="/remittance", tags=["remittance"])
 
 
 @router.post("/pay", status_code=201)
-def pay_bill_route(payload: RemittanceCreateRequest, current_user: dict = Depends(require_sender_role)):
+def pay_bill_route(
+    payload: RemittanceCreateRequest, current_user: dict = Depends(require_sender_role)
+):
     """
     Processes a remittance payment for one bill.
     Sender role required. Returns the created transaction record.
@@ -56,7 +59,9 @@ def remittance_history_route(current_user: dict = Depends(require_sender_role)):
 
 
 @router.get("/history/beneficiary")
-def remittance_history_beneficiary_route(current_user: dict = Depends(require_beneficiary_role)):
+def remittance_history_beneficiary_route(
+    current_user: dict = Depends(require_beneficiary_role),
+):
     """
     Returns all incoming remittance transactions for the authenticated beneficiary.
     Beneficiary role required.

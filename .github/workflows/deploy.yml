@@ -1,0 +1,200 @@
+name: CD - Deploy with Health Check & Automated Rollback
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Run Pre-Deployment Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          pip install ruff==0.16.6
+          pip install -r requirements.txt
+
+      - name: Lint Check
+        run: ruff check .
+
+      - name: Format Check
+        run: ruff format --check .
+
+      - name: Execute Tests
+        env:
+          PYTHONPATH: backend
+          JWT_SECRET_KEY: "ci-testing-dummy-secret-key-32-chars-long"
+          DB_HOST: "localhost"
+          DB_PORT: "3306"
+          DB_USER: "root"
+          DB_PASSWORD: ""
+          DB_NAME: "test_db"
+          DB_TABLE: "bills"
+          DB_SSL: "false"
+        run: pytest tests/ -v
+
+  deploy-backend-render:
+    name: Deploy Backend to Render & Health Check
+    runs-on: ubuntu-latest
+    needs: [validate]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Trigger Render Deploy Hook
+        id: trigger-deploy
+        run: |
+          if [ -z "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
+            echo "::warning::RENDER_DEPLOY_HOOK_URL secret not set. Skipping Render trigger."
+            exit 0
+          fi
+
+          echo "Triggering Render deployment..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "Render response code: $HTTP_CODE"
+          echo "Response: $BODY"
+
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "::error::Render deployment hook failed with status $HTTP_CODE"
+            exit 1
+          fi
+
+      - name: Health Check & Liveness Verification
+        id: health-check
+        run: |
+          TARGET_HOST="${{ secrets.RENDER_BACKEND_HOST }}"
+          if [ -z "$TARGET_HOST" ]; then
+            TARGET_HOST="family-scheduler-api.onrender.com"
+          fi
+
+          HEALTH_URL="https://${TARGET_HOST}/health"
+          echo "Verifying service health at: $HEALTH_URL"
+          echo "Allowing up to 180 seconds for build and cold start..."
+
+          MAX_ATTEMPTS=18
+          DELAY=10
+          SUCCESS=0
+
+          for i in $(seq 1 $MAX_ATTEMPTS); do
+            echo "Attempt $i/$MAX_ATTEMPTS: Checking $HEALTH_URL..."
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "$HEALTH_URL" || true)
+
+            if [ "$STATUS" = "200" ]; then
+              echo "✓ Backend is live and healthy! Status 200 received."
+              SUCCESS=1
+              break
+            fi
+
+            echo "Status was $STATUS. Waiting ${DELAY}s before retry..."
+            sleep $DELAY
+          done
+
+          if [ $SUCCESS -ne 1 ]; then
+            echo "::error::Backend health check failed after $((MAX_ATTEMPTS * DELAY)) seconds!"
+            exit 1
+          fi
+
+      - name: Automated Rollback on Backend Failure
+        if: failure() && steps.trigger-deploy.outcome == 'success'
+        run: |
+          echo "========================================================"
+          echo "🚨 BACKEND DEPLOYMENT FAILED HEALTH CHECK — INITIATING ROLLBACK"
+          echo "========================================================"
+          
+          if [ -n "${{ secrets.RENDER_API_KEY }}" ] && [ -n "${{ secrets.RENDER_SERVICE_ID }}" ]; then
+            echo "Fetching previous successful deploy for rollback..."
+            PREV_DEPLOY=$(curl -s -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+              "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys?limit=2" | \
+              jq -r '.[1].id // empty')
+            
+            if [ -n "$PREV_DEPLOY" ]; then
+              echo "Rolling back to previous deploy ID: $PREV_DEPLOY"
+              curl -s -X POST -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+                "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys/${PREV_DEPLOY}/rollback"
+              echo "Rollback trigger dispatched to Render."
+            else
+              echo "No previous deploy ID found in Render history."
+            fi
+          else
+            echo "RENDER_API_KEY or RENDER_SERVICE_ID not configured for automated API rollback."
+            echo "Manual action required: In Render Dashboard, revert to the last stable deployment."
+          fi
+
+  deploy-frontend-vercel:
+    name: Deploy Frontend to Vercel & Smoke Test
+    runs-on: ubuntu-latest
+    needs: [deploy-backend-render]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        if: env.VERCEL_TOKEN != ''
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -n "$VERCEL_TOKEN" ]; then
+            vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+          fi
+
+      - name: Deploy Frontend to Vercel (Production)
+        id: vercel-deploy
+        if: env.VERCEL_TOKEN != ''
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          echo "Deploying frontend/ to Vercel Production..."
+          DEPLOY_URL=$(vercel deploy frontend --prod --token=$VERCEL_TOKEN --yes)
+          echo "Deployed URL: $DEPLOY_URL"
+          echo "deploy_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+
+      - name: Frontend Smoke Test
+        if: steps.vercel-deploy.outputs.deploy_url != ''
+        run: |
+          TARGET_URL="${{ steps.vercel-deploy.outputs.deploy_url }}"
+          echo "Smoke testing Vercel deployment at: $TARGET_URL"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$TARGET_URL/login/login.html" || true)
+
+          if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
+            echo "✓ Frontend smoke test passed (HTTP $STATUS)"
+          else
+            echo "::error::Frontend smoke test failed with status $STATUS"
+            exit 1
+          fi
+
+      - name: Automated Rollback on Frontend Failure
+        if: failure() && steps.vercel-deploy.outcome == 'success'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          echo "========================================================"
+          echo "🚨 FRONTEND SMOKE TEST FAILED — INITIATING VERCEL ROLLBACK"
+          echo "========================================================"
+          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
+            vercel rollback --yes --token=$VERCEL_TOKEN || true
+            echo "Vercel rollback command executed."
+          fi

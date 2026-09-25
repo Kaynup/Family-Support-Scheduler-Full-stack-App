@@ -15,6 +15,6 @@ def insert_user(username, password, role):
     VALUES (%s, %s, %s)
     """
 
-    with get_db_connection() as (conn, cursor):
+    with get_db_connection() as (_conn, cursor):
         cursor.execute(query, (username, password, role))
         return cursor.lastrowid

@@ -8,10 +8,16 @@ POST /auth/login     — validates credentials and returns a JWT token.
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from ..services.auth_service import register_user, login_user
-from ..schemas.auth_schemas import RegisterRequest, LoginRequest, TokenResponse, UserResponse
+
 from ..core.exceptions import AuthenticationError
 from ..core.logging_config import logger
+from ..schemas.auth_schemas import (
+    LoginRequest,
+    RegisterRequest,
+    TokenResponse,
+    UserResponse,
+)
+from ..services.auth_service import login_user, register_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -26,14 +32,8 @@ async def auth_validation_exception_handler(request: Request, exc: RequestValida
         field = error.get("loc", [])[-1]
         msg = error.get("msg")
         errors[field] = msg
-    
-    return JSONResponse(
-        status_code=422,
-        content={
-            "detail": "Validation failed",
-            "errors": errors
-        }
-    )
+
+    return JSONResponse(status_code=422, content={"detail": "Validation failed", "errors": errors})
 
 
 @router.post("/register", response_model=UserResponse, status_code=201)
@@ -44,7 +44,11 @@ def register_route(payload: RegisterRequest):
     """
     logger.info("Register route called username=%s role=%s", payload.username, payload.role)
     if not payload.role_is_valid():
-        logger.warning("Register route rejected invalid role username=%s role=%s", payload.username, payload.role)
+        logger.warning(
+            "Register route rejected invalid role username=%s role=%s",
+            payload.username,
+            payload.role,
+        )
         raise HTTPException(status_code=400, detail=f"Invalid role '{payload.role}'.")
     try:
         return register_user(
@@ -68,10 +72,7 @@ def login_route(payload: LoginRequest):
     """
     logger.info("Login route called username=%s", payload.username)
     try:
-        return login_user(
-            username=payload.username,
-            password=payload.password
-            )
+        return login_user(username=payload.username, password=payload.password)
     except AuthenticationError as exc:
         logger.warning("Login route unauthorized username=%s error=%s", payload.username, exc)
         raise HTTPException(status_code=401, detail=str(exc))

@@ -7,15 +7,18 @@ Placing all dependency logic here keeps route files free of auth wiring.
 """
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from .services.auth_service import get_current_user
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+from .constants import ROLE_BENEFICIARY, ROLE_SENDER
 from .core.exceptions import AuthenticationError
-from .constants import ROLE_SENDER, ROLE_BENEFICIARY
+from .services.auth_service import get_current_user
 
 _bearer_scheme = HTTPBearer()
 
 
-def get_current_user_dependency(credentials: HTTPAuthorizationCredentials = Depends(_bearer_scheme)):
+def get_current_user_dependency(
+    credentials: HTTPAuthorizationCredentials = Depends(_bearer_scheme),
+):
     """
     Extracts and validates the JWT from the Authorization: Bearer header.
     Raises 401 if the token is missing, malformed, or expired.

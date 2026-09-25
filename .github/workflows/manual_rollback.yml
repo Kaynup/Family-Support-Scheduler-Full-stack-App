@@ -1,0 +1,72 @@
+name: Manual Rollback Dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Select component to roll back"
+        required: true
+        default: "both"
+        type: choice
+        options:
+          - "both"
+          - "backend-render"
+          - "frontend-vercel"
+      reason:
+        description: "Reason for rollback"
+        required: false
+        default: "Manual rollback triggered via GitHub Actions"
+
+jobs:
+  rollback-render:
+    name: Rollback Backend (Render)
+    runs-on: ubuntu-latest
+    if: github.event.inputs.target == 'both' || github.event.inputs.target == 'backend-render'
+    steps:
+      - name: Execute Render Rollback
+        run: |
+          echo "Reason: ${{ github.event.inputs.reason }}"
+          if [ -n "${{ secrets.RENDER_API_KEY }}" ] && [ -n "${{ secrets.RENDER_SERVICE_ID }}" ]; then
+            echo "Querying deploy history on Render..."
+            DEPLOYS=$(curl -s -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+              "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys?limit=5")
+            
+            # Find the previous successful deploy
+            TARGET_DEPLOY=$(echo "$DEPLOYS" | jq -r '.[1].id // empty')
+            if [ -n "$TARGET_DEPLOY" ]; then
+              echo "Dispatching rollback to deploy ID: $TARGET_DEPLOY"
+              curl -s -X POST -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+                "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys/${TARGET_DEPLOY}/rollback"
+              echo "✓ Render rollback successfully initiated!"
+            else
+              echo "::error::Could not find previous deployment in Render history."
+              exit 1
+            fi
+          else
+            echo "::warning::RENDER_API_KEY or RENDER_SERVICE_ID not configured."
+            echo "Please use the Render web console to roll back to the last stable commit."
+          fi
+
+  rollback-vercel:
+    name: Rollback Frontend (Vercel)
+    runs-on: ubuntu-latest
+    if: github.event.inputs.target == 'both' || github.event.inputs.target == 'frontend-vercel'
+    steps:
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Execute Vercel Rollback
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          echo "Reason: ${{ github.event.inputs.reason }}"
+          if [ -n "$VERCEL_TOKEN" ]; then
+            echo "Executing Vercel project rollback..."
+            vercel rollback --yes --token=$VERCEL_TOKEN
+            echo "✓ Vercel rollback successfully completed!"
+          else
+            echo "::error::VERCEL_TOKEN is not set in repository secrets."
+            exit 1
+          fi

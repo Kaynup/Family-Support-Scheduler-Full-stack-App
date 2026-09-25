@@ -8,6 +8,7 @@ UserResponse     — public user data returned after registration.
 """
 
 from pydantic import BaseModel, Field
+
 from ..constants import ROLE_BENEFICIARY, ROLE_SENDER
 
 

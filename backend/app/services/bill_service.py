@@ -7,28 +7,39 @@ duplication that existed across the old bill_listing.py and bill_search.py.
 """
 
 from datetime import date
+
 import mysql.connector
-from ..db import queries as dbq
+
 from ..constants import STATUS_UNPAID
 from ..core.exceptions import BillNotFoundError
+from ..db import queries as dbq
 
 
 def _format_bill_row(row):
     """Converts a raw database tuple into a consistent bill dictionary."""
     return {
-        "id":                 row[0],
-        "name":               row[1],
-        "status":             row[2],
-        "user_id":            row[3],
-        "creation_date":      str(row[4]),
-        "due_date":           str(row[5]),
-        "total_amount":       float(row[6]),
-        "category":           row[7],
+        "id": row[0],
+        "name": row[1],
+        "status": row[2],
+        "user_id": row[3],
+        "creation_date": str(row[4]),
+        "due_date": str(row[5]),
+        "total_amount": float(row[6]),
+        "category": row[7],
         "recurring_interval": row[8] if len(row) > 7 else "NONE",
     }
 
 
-def create_bill(name, due_date, total_amount, user_id=None, creation_date=None, category=None, recurring_interval="NONE", status=STATUS_UNPAID):
+def create_bill(
+    name,
+    due_date,
+    total_amount,
+    user_id=None,
+    creation_date=None,
+    category=None,
+    recurring_interval="NONE",
+    status=STATUS_UNPAID,
+):
     """
     Inserts a new bill record into the database.
     Returns a response envelope containing the created bill's id and fields.
@@ -47,7 +58,7 @@ def create_bill(name, due_date, total_amount, user_id=None, creation_date=None, 
             status=status,
             category=category,
             recurring_interval=recurring_interval,
-            user_id=user_id
+            user_id=user_id,
         )
     except mysql.connector.Error as exc:
         raise ValueError(str(exc))
@@ -56,14 +67,14 @@ def create_bill(name, due_date, total_amount, user_id=None, creation_date=None, 
         "OK": True,
         "message": f"bill created successfully on {creation_date}",
         "data": {
-            "id":                 new_id,
-            "name":               name,
-            "user_id":            user_id,
-            "due_date":           str(due_date_obj),
-            "total_amount":       total_amount,
-            "creation_date":      str(creation_date),
-            "status":             status,
-            "category":           category,
+            "id": new_id,
+            "name": name,
+            "user_id": user_id,
+            "due_date": str(due_date_obj),
+            "total_amount": total_amount,
+            "creation_date": str(creation_date),
+            "status": status,
+            "category": category,
             "recurring_interval": recurring_interval,
         },
     }
@@ -93,9 +104,9 @@ def list_bills(upcoming_only=False, expired_only=False, days=3, beneficiary_id=N
         rows = dbq.select_all_bills()
 
     return {
-        "OK":          True,
+        "OK": True,
         "total_count": len(rows),
-        "data":        [_format_bill_row(r) for r in rows],
+        "data": [_format_bill_row(r) for r in rows],
     }
 
 
@@ -126,9 +137,9 @@ def mark_bill_status(bill_id, new_status):
         raise ValueError(str(exc))
 
     return {
-        "OK":      True,
+        "OK": True,
         "message": "bill status updated successfully",
-        "data":    {"id": bill_id},
+        "data": {"id": bill_id},
     }
 
 
@@ -144,9 +155,9 @@ def delete_bill(bill_id):
         raise BillNotFoundError(str(exc))
 
     return {
-        "OK":      True,
+        "OK": True,
         "message": "bill deleted successfully",
-        "data":    {"id": bill_id},
+        "data": {"id": bill_id},
     }
 
 
@@ -157,7 +168,7 @@ def search_bills_by_name(name):
     """
     rows = dbq.select_bills_by_name(name)
     return {
-        "OK":          True,
+        "OK": True,
         "total_count": len(rows),
-        "data":        [_format_bill_row(r) for r in rows],
+        "data": [_format_bill_row(r) for r in rows],
     }

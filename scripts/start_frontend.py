@@ -3,8 +3,9 @@
 Start a simple static HTTP server on the first available port in 8001..8010.
 This avoids failing when 8001 is already in use.
 """
+
 import sys
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 START = 8001
 END = 8010

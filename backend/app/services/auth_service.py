@@ -11,17 +11,18 @@ This module never calls route-level constructs directly. It returns plain
 dicts or raises typed exceptions. Route handlers map those to HTTP responses.
 """
 
-from datetime import datetime, timedelta, timezone
-from passlib.context import CryptContext
-from jose import jwt, JWTError
-import mysql.connector
 import hashlib
+from datetime import UTC, datetime, timedelta
 
-from ..db import queries as dbq
+import mysql.connector
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+
+from ..constants import ROLE_BENEFICIARY, ROLE_SENDER
 from ..core.config import settings
-from ..core.logging_config import logger
 from ..core.exceptions import AuthenticationError, UnauthorizedRoleError
-from ..constants import ROLE_SENDER, ROLE_BENEFICIARY
+from ..core.logging_config import logger
+from ..db import queries as dbq
 
 _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -30,21 +31,23 @@ def hash_password(password):
     """Returns the raw SHA-256 hex digest of the password."""
     return hashlib.sha256(password.encode()).hexdigest()
 
+
 def verify_password(plain_password, hashed_password):
     """Returns True if the plain_password hashes to the stored hashed_password."""
     return hash_password(plain_password) == hashed_password
+
 
 def create_access_token(user_id, username, role):
     """
     Encodes a JWT containing user_id, username, and role.
     The token expires after jwt_expire_minutes minutes.
     """
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.jwt_expire_minutes)
+    expire = datetime.now(UTC) + timedelta(minutes=settings.jwt_expire_minutes)
     payload = {
-        "sub":      str(user_id),
+        "sub": str(user_id),
         "username": username,
-        "role":     role,
-        "exp":      expire,
+        "role": role,
+        "exp": expire,
     }
     return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
@@ -93,7 +96,7 @@ def login_user(username, password):
         logger.warning("Login failed: unknown username=%s", username)
         raise AuthenticationError("Invalid username or password.")
 
-    user_id, db_username, password_hash, role, created_at = row
+    user_id, db_username, password_hash, role, _created_at = row
 
     if not verify_password(password, password_hash):
         logger.warning("Login failed: invalid password username=%s", username)
@@ -101,7 +104,12 @@ def login_user(username, password):
 
     token = create_access_token(user_id=user_id, username=db_username, role=role)
     logger.info("Login successful user_id=%s username=%s role=%s", user_id, db_username, role)
-    return {"access_token": token, "token_type": "bearer", "role": role, "username": db_username}
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "role": role,
+        "username": db_username,
+    }
 
 
 def get_current_user(token):
@@ -119,6 +127,4 @@ def require_role(user_payload, required_role):
     Raises UnauthorizedRoleError if the role does not match.
     """
     if user_payload.get("role") != required_role:
-        raise UnauthorizedRoleError(
-            f"This action requires the '{required_role}' role."
-        )
+        raise UnauthorizedRoleError(f"This action requires the '{required_role}' role.")
