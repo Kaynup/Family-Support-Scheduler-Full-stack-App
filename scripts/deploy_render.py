@@ -91,7 +91,7 @@ def get_latest_deploy(service_id, api_key):
     return None
 
 
-def wait_for_deploy(service_id, api_key, max_wait_sec=120):
+def wait_for_deploy(service_id, api_key, target_deploy_id=None, max_wait_sec=180):
     print("\nMonitoring deployment progress on Render...")
     start_time = time.time()
     while time.time() - start_time < max_wait_sec:
@@ -99,15 +99,17 @@ def wait_for_deploy(service_id, api_key, max_wait_sec=120):
         if latest:
             status = latest.get("status")
             deploy_id = latest.get("id")
-            if status == "live":
+            if target_deploy_id and deploy_id != target_deploy_id:
+                print(f"  ... Deploy {target_deploy_id} starting (latest: {deploy_id})")
+            elif status == "live":
                 print(f"  ✓ Deployment {deploy_id} is LIVE!")
                 return True
             elif status in ("build_failed", "update_failed", "canceled"):
                 print(f"  ⚠️ Deployment {deploy_id} ended with status: {status}")
                 return False
             else:
-                print(f"  ... Deployment {deploy_id} status: {status} (waiting)")
-        time.sleep(6)
+                print(f"  ... Deploy {deploy_id} status: {status} (building...)")
+        time.sleep(8)
     return False
 
 
@@ -207,24 +209,12 @@ def main():
         print(f"  Service ID:  {service_id}")
         print(f"  Service URL: {service_url}")
 
-        env_updated = sync_env_vars(service_id, api_key)
+        sync_env_vars(service_id, api_key)
 
-        latest = get_latest_deploy(service_id, api_key)
-        if latest:
-            deploy_id = latest.get("id")
-            deploy_status = latest.get("status")
-            print(f"  Latest Deploy: {deploy_id} (Status: {deploy_status})")
-            if env_updated:
-                print(
-                    "  ℹ Render auto-triggered a redeployment with the new environment variables."
-                )
-                wait_for_deploy(service_id, api_key)
-            elif deploy_status != "live":
-                wait_for_deploy(service_id, api_key)
-        else:
-            deploy_resp = trigger_deploy(service_id, api_key)
-            print(f"  Deployment initiated: {deploy_resp.get('id')}")
-            wait_for_deploy(service_id, api_key)
+        deploy_resp = trigger_deploy(service_id, api_key)
+        deploy_id = deploy_resp.get("id")
+        print(f"  Deployment initiated: {deploy_id}")
+        wait_for_deploy(service_id, api_key, target_deploy_id=deploy_id)
     else:
         new_srv = create_service(owner_id, api_key)
         service_id, service_url = extract_service_info(new_srv)
