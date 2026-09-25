@@ -6,11 +6,14 @@ Commit, rollback, cursor close, and connection close are all guaranteed
 by this one place — callers never manage these manually.
 """
 
+import logging
 from contextlib import contextmanager
 
 from mysql.connector import pooling
 
 from ..core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 def _create_pool():
@@ -27,7 +30,15 @@ def _create_pool():
         kwargs["ssl_disabled"] = False
     try:
         return pooling.MySQLConnectionPool(**kwargs)
-    except Exception:
+    except Exception as err:
+        logger.error(
+            "Failed to initialize MySQLConnectionPool for %s:%s (user=%s, db=%s): %s",
+            settings.db_host,
+            settings.db_port,
+            settings.db_user,
+            settings.db_name,
+            err,
+        )
         return None
 
 
@@ -47,7 +58,10 @@ def get_db_connection():
     if _conn_pool is None:
         _conn_pool = _create_pool()
     if _conn_pool is None:
-        raise ConnectionError("Database connection pool could not be initialized.")
+        raise ConnectionError(
+            f"Database connection pool could not be initialized for {settings.db_host}:{settings.db_port}."
+        )
+
     conn = _conn_pool.get_connection()
     cursor = conn.cursor()
     try:

@@ -9,6 +9,7 @@ configures environment variables, triggers deployment, and monitors liveness.
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -90,31 +91,77 @@ def get_latest_deploy(service_id, api_key):
     return None
 
 
+def wait_for_deploy(service_id, api_key, max_wait_sec=120):
+    print("\nMonitoring deployment progress on Render...")
+    start_time = time.time()
+    while time.time() - start_time < max_wait_sec:
+        latest = get_latest_deploy(service_id, api_key)
+        if latest:
+            status = latest.get("status")
+            deploy_id = latest.get("id")
+            if status == "live":
+                print(f"  ✓ Deployment {deploy_id} is LIVE!")
+                return True
+            elif status in ("build_failed", "update_failed", "canceled"):
+                print(f"  ⚠️ Deployment {deploy_id} ended with status: {status}")
+                return False
+            else:
+                print(f"  ... Deployment {deploy_id} status: {status} (waiting)")
+        time.sleep(6)
+    return False
+
+
+ENV_VARS = [
+    {"key": "PYTHON_VERSION", "value": "3.11.10"},
+    {"key": "PYTHONPATH", "value": "backend"},
+    {"key": "DB_HOST", "value": "gateway01.ap-southeast-1.prod.aws.tidbcloud.com"},
+    {"key": "DB_PORT", "value": "4000"},
+    {"key": "DB_USER", "value": "iVAAKAKjk5Q1VM6.root"},
+    {"key": "DB_PASSWORD", "value": "usGtgNF4rMxM1kk0"},
+    {"key": "DB_NAME", "value": "family_supp_sche"},
+    {"key": "DB_TABLE", "value": "bills"},
+    {"key": "DB_CONN_POOLING", "value": "5"},
+    {"key": "DB_SSL", "value": "true"},
+    {
+        "key": "JWT_SECRET_KEY",
+        "value": "e83a9f4c71b6205e48d39f21aa47bc95de2c6104f7b24981cae9352e8d076a14",
+    },
+    {"key": "JWT_ALGORITHM", "value": "HS256"},
+    {"key": "JWT_EXPIRE_MINUTES", "value": "480"},
+    {
+        "key": "ALLOWED_ORIGINS",
+        "value": "https://frontend-two-hazel-16.vercel.app,http://localhost:8003,http://127.0.0.1:8003",
+    },
+]
+
+
+def sync_env_vars(service_id, api_key):
+    """Ensures all production database and security environment variables are set in Render."""
+    print(f"Checking environment variables on Render for service {service_id}...")
+    try:
+        current_vars = make_request("GET", f"services/{service_id}/env-vars", api_key=api_key)
+        existing_keys = {
+            item.get("envVar", {}).get("key") for item in current_vars if "envVar" in item
+        }
+        print(f"  Current keys on Render ({len(existing_keys)}): {list(existing_keys)}")
+
+        if "DB_HOST" not in existing_keys or "DB_PASSWORD" not in existing_keys:
+            print("  ⚠️ Database variables missing on Render! Syncing via PUT /env-vars...")
+            make_request(
+                "PUT", f"services/{service_id}/env-vars", payload=ENV_VARS, api_key=api_key
+            )
+            print("  ✓ Environment variables successfully updated on Render!")
+            return True
+        else:
+            print("  ✓ DB environment variables already configured on Render.")
+            return False
+    except Exception as err:
+        print(f"  Notice during env var check/sync: {err}")
+        return False
+
+
 def create_service(owner_id, api_key):
     print(f"Creating new Render Web Service '{SERVICE_NAME}'...")
-    env_vars = [
-        {"key": "PYTHON_VERSION", "value": "3.11.10"},
-        {"key": "PYTHONPATH", "value": "backend"},
-        {"key": "DB_HOST", "value": "gateway01.ap-southeast-1.prod.aws.tidbcloud.com"},
-        {"key": "DB_PORT", "value": "4000"},
-        {"key": "DB_USER", "value": "iVAAKAKjk5Q1VM6.root"},
-        {"key": "DB_PASSWORD", "value": "usGtgNF4rMxM1kk0"},
-        {"key": "DB_NAME", "value": "family_supp_sche"},
-        {"key": "DB_TABLE", "value": "bills"},
-        {"key": "DB_CONN_POOLING", "value": "5"},
-        {"key": "DB_SSL", "value": "true"},
-        {
-            "key": "JWT_SECRET_KEY",
-            "value": "e83a9f4c71b6205e48d39f21aa47bc95de2c6104f7b24981cae9352e8d076a14",
-        },
-        {"key": "JWT_ALGORITHM", "value": "HS256"},
-        {"key": "JWT_EXPIRE_MINUTES", "value": "480"},
-        {
-            "key": "ALLOWED_ORIGINS",
-            "value": "https://frontend-two-hazel-16.vercel.app,http://localhost:8003,http://127.0.0.1:8003",
-        },
-    ]
-
     payload = {
         "type": "web_service",
         "name": SERVICE_NAME,
@@ -130,7 +177,7 @@ def create_service(owner_id, api_key):
                 "buildCommand": "pip install -r requirements.txt",
                 "startCommand": "uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT",
             },
-            "envVars": env_vars,
+            "envVars": ENV_VARS,
         },
     }
 
@@ -160,18 +207,30 @@ def main():
         print(f"  Service ID:  {service_id}")
         print(f"  Service URL: {service_url}")
 
+        env_updated = sync_env_vars(service_id, api_key)
+
         latest = get_latest_deploy(service_id, api_key)
         if latest:
             deploy_id = latest.get("id")
             deploy_status = latest.get("status")
             print(f"  Latest Deploy: {deploy_id} (Status: {deploy_status})")
+            if env_updated:
+                print(
+                    "  ℹ Render auto-triggered a redeployment with the new environment variables."
+                )
+                wait_for_deploy(service_id, api_key)
+            elif deploy_status != "live":
+                wait_for_deploy(service_id, api_key)
         else:
             deploy_resp = trigger_deploy(service_id, api_key)
             print(f"  Deployment initiated: {deploy_resp.get('id')}")
+            wait_for_deploy(service_id, api_key)
     else:
         new_srv = create_service(owner_id, api_key)
         service_id, service_url = extract_service_info(new_srv)
         print(f"✓ Service created successfully! (ID: {service_id}, URL: {service_url})")
+        sync_env_vars(service_id, api_key)
+        wait_for_deploy(service_id, api_key)
 
     # Fallback URL if Render hasn't populated serviceDetails.url yet
     if not service_url:
@@ -193,7 +252,19 @@ def main():
             print(f"✓ Health check SUCCESS (HTTP {resp.status}): {body}")
     except Exception as e:
         print(f"ℹ Health check notice: {e}")
-        print("  (Render Free Tier services take 1-3 minutes on first build before becoming live)")
+
+    # Database health check probe
+    print(f"\nProbing database health check endpoint: {service_url}/health/db ...")
+    try:
+        req = urllib.request.Request(
+            f"{service_url.rstrip('/')}/health/db",
+            headers={"User-Agent": "FamilyScheduler-Deployer"},
+        )
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            body = resp.read().decode("utf-8")
+            print(f"✓ Database check result (HTTP {resp.status}): {body}")
+    except Exception as e:
+        print(f"ℹ Database check notice: {e}")
 
 
 if __name__ == "__main__":
